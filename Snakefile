@@ -1,7 +1,12 @@
+import pandas as pd
+
+path_to_csv="data.csv"
+df = pd.read_csv(path_to_csv)
+
 # reindex all the fasta file to a common sequence to make comparison easier
 rule reindex_contigs:
     conda:
-        "bin/envs/biopython.yml"
+        "bin/workflow/envs/biopython.yml"
     input:
         data = "data/02_genomes/{sample}.fasta",
         script = "bin/scripts/reindex_assembly.py"
@@ -15,7 +20,7 @@ rule reindex_contigs:
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
 rule rename_contigs:
     conda:
-        "bin/envs/biopython.yml"
+        "bin/workflow/envs/biopython.yml"
     input:
         data = "data/03_reindex_genome/{sample}.fasta",
         script = "bin/scripts/rename_contigs.py"
@@ -24,14 +29,16 @@ rule rename_contigs:
     shell:
         "{input.script} --file --fasta {input.data}  --name REL606 --output {output}"
 
+
 # Calculate the number of contigs in each fasta file and their length. Output is stored in contig_stats.tsv
 # Calculate the difference in length of the genomes, relative to the ancestor genome_size_stats.tsv
 
 rule compute_genome_stats:
     conda:
-        "bin/envs/pandas.yml"
+        "bin/workflow/envs/pandas.yml"
     input:
         data = "data/04_rename_genome",
+        clones = "data/04_rename_genome/{sample}.fasta",
         script = "bin/scripts/fasta_stats.py"
     params:
         ancestor = "Anc-_0gen_REL606.fasta" # this is not the path to the ancestor's assembly but it is expected that the ancestor is in input.data folder
@@ -40,3 +47,26 @@ rule compute_genome_stats:
         genome_sizes = "data/04_rename_genome/genome_size_stats.tsv"
     shell:
         "{input.script} --folder {input.data} --output {output.contig_stats} --stats {output.genome_sizes} --ancestor {params.ancestor}"
+ 
+ #ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
+rule find_IS_elements:
+    conda:
+        "bin/workflow/envs/isescan.yml"
+    input:
+        "data/04_rename_genome/{sample}.fasta"
+    output:
+        "data/05_isescan_tables/{sample}.csv"
+    shell:
+        """
+        echo {wildcards.sample}
+        cp {input} ./{wildcards.sample}.fasta
+        isescan.py --seqfile {wildcards.sample}.fasta --output data/05_isescan_tables/{wildcards.sample} --nthread 4
+        mv data/05_isescan_tables/{wildcards.sample}/{wildcards.sample}.fasta.csv data/05_isescan_tables/{wildcards.sample}.csv
+        rm {wildcards.sample}.fasta
+        """
+# TODO: The target rule generates o/p files based on the data.csv file
+# rule all:
+#     input:
+#         expand("data/04_rename_genome/{output_tsv}", output_tsv=["contig_stats.tsv", "genome_size_stats.tsv"]),
+#         expand("data/05_isescan_tables/{sample}.csv", sample=df['clone'].tolist())
+
