@@ -1,3 +1,3 @@
-clone,path,ancestor
+assembly,assembly_path,ancestor
 Anc-_0gen_REL606,data/02_genome/Anc-_0gen_REL606.fasta,Anc-_0gen_REL606
 Ara+1_10000gen_4530A,data/02_genome/Ara+1_10000gen_4530A.fasta,Anc-_0gen_REL606
