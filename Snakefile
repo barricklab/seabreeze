@@ -278,27 +278,105 @@ rule analyse_replichore_arms:
         {input.script} --assemblies {params.folder} --ori  {params.ori} --dif {params.dif} --ancestor {params.ancestor} --output {params.output_name_arms}
         """
 
-# generate GenomeDiff and HTML tables annotating which genes were deleted/inverted
+# Run breseq to predict deletions and amplifications to see if they were missed
 
-rule breseq_annotate_SV:
+# rule run_breseq:
+#     conda:
+#         "bin/workflow/envs/breseq.yml"
+#     input:
+#         reads = "data/09_merged_trimmed_nanopore/{sample}.fastq" # reads of the evolved clone
+#         reference_assembly = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample])
+#     output:
+#         gd = "data/10_breseq_output/{sample}/{sample}.gd"
+#     shell:
+#         """
+
+#         """
+
+# generate tsv files which annotate the boundaries of the SVs
+rule annoatate_SV_boundaries_IS:
     conda:
-        "bin/workflow/envs/breseq.yml"
+        "bin/workflow/envs/pandas.yml"
     input:
         syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
-        script = "bin/scripts/syri2gd.py"
+        assembly_IS_csv = "data/05_isescan_tables/{sample}.csv",
+        ancestor_IS_csv = lambda wildcards: "data/05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the csv file of the ancestor
+        script = "bin/scripts/IS_SV_border.py"
     output:
-        gd = "data/09_annotations/09_01_genome_diff/{sample}.gd",
-        html = "data/09_annotations/09_02_html_files/{sample}.html"
-    params:
-        output_dir_gd = "data/09_annotations/09_01_genome_diff/"
+        "data/11_annotated_boundaries/{sample}_boundaries.tsv"
     shell:
         """
-        mkdir -p {params.output_dir_gd}
-        cd {params.output_dir_gd}
-        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion
-        cd ../../..
+        mkdir -p data/11_annotated_boundaries
+        cd data/11_annotated_boundaries
+        ../../{input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.tsv
+        cd ../..
+        echo "Task done. Wd set to:"
         pwd
         """
+
+
+
+# rule all_predict_mutations_breseq:
+#     input:
+#         ["breseq-" + sample_info.get_reference_prefix() + "/html/" + s + "/output.done" for s in sample_info.get_sample_list()]
+#     default_target: True
+
+# rule predict_mutations_breseq:
+#     input:
+#         reads = lambda wildcards: find_available_read_files(wildcards),
+#         references = lambda wildcards: sample_info.get_reference_list(wildcards.sample)
+#     output:
+#         breseq_dir = directory("breseq-" + sample_info.get_reference_prefix() + "/data/{sample}"),
+#         html_dir = directory("breseq-" + sample_info.get_reference_prefix() + "/html/{sample}"),
+#         done_file = "breseq-" + sample_info.get_reference_prefix() + "/html/{sample}/output.done",
+#         gd_file = "breseq-" + sample_info.get_reference_prefix() + "/gd/{sample}.gd",
+#         bam = "breseq-" + sample_info.get_reference_prefix() + "/data/{sample}/data/reference.bam",
+#         fasta = "breseq-" + sample_info.get_reference_prefix() + "/data/{sample}/data/reference.fasta",
+#         summary_json = "breseq-" + sample_info.get_reference_prefix() + "/data/{sample}/data/summary.json",
+#     log: 
+#         "logs/breseq-" + sample_info.get_reference_prefix() + "-{sample}.log"
+#     conda:
+#         "../envs/breseq.yml"
+#     params:
+#         gd_dir = directory("breseq-" + sample_info.get_reference_prefix() + "/gd"),
+#         automatic_breseq_args = lambda wildcards: get_breseq_args(wildcards.sample),
+#         reference_arguments = lambda wildcards: sample_info.get_reference_arguments(wildcards.sample, '-r ')
+#     threads: 8
+#     shell:
+#         """
+#         # Create outer directories for moved files
+#         mkdir -p {params.gd_dir}
+
+#         breseq -j {threads} {params.automatic_breseq_args} {BRESEQ_OPTIONS} {params.reference_arguments} -o {output.breseq_dir}  {input.reads} > {log} 2>&1
+        
+#         # Copy/move output files
+#         cp {output.breseq_dir}/output/output.gd {output.gd_file}
+#         rm -rf {output.html_dir}
+#         mv {output.breseq_dir}/output {output.html_dir}
+#         """
+    
+
+# generate GenomeDiff and HTML tables annotating which genes were deleted/inverted
+
+# rule breseq_annotate_SV:
+#     conda:
+#         "bin/workflow/envs/breseq.yml"
+#     input:
+#         syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+#         script = "bin/scripts/syri2gd.py"
+#     output:
+#         gd = "data/09_annotations/09_01_genome_diff/{sample}.gd",
+#         html = "data/09_annotations/09_02_html_files/{sample}.html"
+#     params:
+#         output_dir_gd = "data/09_annotations/09_01_genome_diff/"
+#     shell:
+#         """
+#         mkdir -p {params.output_dir_gd}
+#         cd {params.output_dir_gd}
+#         ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion
+#         cd ../../..
+#         pwd
+#         """
 
 
 # compute size of replichore arms, and the change relative to the ancestor
