@@ -279,22 +279,38 @@ rule analyse_replichore_arms:
         """
 
 # Run breseq to predict deletions and amplifications to see if they were missed
-
-# rule run_breseq:
-#     conda:
-#         "bin/workflow/envs/breseq.yml"
-#     input:
-#         reads = "data/09_merged_trimmed_nanopore/{sample}.fastq" # reads of the evolved clone
-#         reference_assembly = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample])
-#     output:
-#         gd = "data/10_breseq_output/{sample}/{sample}.gd"
-#     shell:
-#         """
-
-#         """
+# i am deleting some of the output of breseq but feel free to remove that line in case you want it
+rule run_breseq:
+    conda:
+        "bin/workflow/envs/breseq.yml"
+    input:
+        reads = "data/09_merged_trimmed_nanopore_reads/{sample}.nanopore.fastq.gz", # reads of the evolved clone
+        reference_assembly = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample])
+    output:
+        gd = "data/10_breseq_output/{sample}.gd",
+        html = "data/10_breseq_output/{sample}.html"
+    log:
+        "data/logs/run_breseq/{sample}.log"
+    params:
+        breseq_dir = "{sample}",
+        threads = "4",
+        limit_reads = "60" # this speeds up breseq by limiting the read depth to which it looks at data
+    shell:
+        """
+        mkdir -p data/10_breseq_output
+        cd data/10_breseq_output
+        breseq -j {params.threads} -l {params.limit_reads} -x -r ../../{input.reference_assembly} ../../{input.reads} -o {params.breseq_dir}> {wildcards.sample}.log 2>&1
+        mv {wildcards.sample}.log ../../{log}
+        cd {params.breseq_dir}
+        rm -rf 01_sequence_conversion 03_candidate_junctions 05_alignment_correction 07_error_calibration 02_reference_alignment 04_candidate_junction_alignment 06_bam 08_mutation_identification 
+        mv data/output.gd ../{wildcards.sample}.gd
+        mv output/index.html ../{wildcards.sample}.html
+        cd ../../..
+        echo "task done. wd set to"
+        """
 
 # generate tsv files which annotate the boundaries of the SVs
-rule annoatate_SV_boundaries_IS:
+rule annotate_SV_boundaries_IS:
     conda:
         "bin/workflow/envs/pandas.yml"
     input:
@@ -310,9 +326,36 @@ rule annoatate_SV_boundaries_IS:
         cd data/11_annotated_boundaries
         ../../{input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.tsv
         cd ../..
-        echo "Task done. Wd set to:"
+        """
+
+# annotate the mechanism of deletions and inversions
+rule annotate_SV_mechanism:
+    conda:
+        "bin/workflow/envs/pandas.yml"
+    input:
+        boundaries_csv = "data/11_annotated_boundaries/{sample}_boundaries.tsv",
+        script = "bin/scripts/classify_deletions.py"
+    output:
+        inversion = "data/11_annotated_boundaries/{sample}_inversion.csv",
+        deletion = "data/11_annotated_boundaries/{sample}_deletion.csv",
+        # inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
+        # deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
+    params:
+        input_dir = "data/11_annotated_boundaries/"
+    shell:
+        """
+        {input.script} --folder {params.input_dir} --output inversion_mechanism.csv --inversion
+        pwd
+        cd ..
+        {input.script} --folder {params.input_dir} --output deletion_mechanism.csv --deletion
+        cd ..
         pwd
         """
+        
+# this rule just checks to see if the previous rule generated the main output tables
+
+
+
 
 
 
