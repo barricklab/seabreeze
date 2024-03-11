@@ -7,6 +7,22 @@ df = pd.read_csv(path_to_csv)
 assembly_to_path_dict = dict(zip(df['assembly'], df['assembly_path']))
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 
+# one rule to rule them all ...
+# remember you cant have wildcards in the target rule!
+rule all_targets:
+    input:
+        contig_stats = "data/04_rename_genome/contig_stats.tsv",
+        genome_sizes = "data/04_rename_genome/genome_size_stats.tsv",
+        IS_summary = "data/05_isescan_tables/IS_summary.csv",
+        IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
+        inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+        clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
+        ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
+        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
+        deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
+        deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
+        inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist())
 
 # reindex all the fasta file to a common sequence to make comparison easier
 rule reindex_contigs:
@@ -277,7 +293,7 @@ rule annotate_ori_dif_locations:
         """
 
 # generate a tsv file with the oric and dif and a tsv file with lenths of the replichore arms of each clone
-rule analyse_replichore_arms:
+rule analyse_replichore_arms:        
     conda:
         "bin/workflow/envs/pandas.yml"
     input:
@@ -391,7 +407,7 @@ rule classify_inversion_replichore:
         """
         {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --ancestor {params.ancestor} --output {params.output_table}
         pwd
-        """    
+        """
 
 # TODO: this rule just checks to see if the previous rule generated the main output tables
 
