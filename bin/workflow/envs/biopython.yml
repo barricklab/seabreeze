@@ -5,3 +5,5 @@ channels:
   - defaults
 dependencies:
   - biopython
+  - pandas=2.0.3
+  - numpy=1.25.0

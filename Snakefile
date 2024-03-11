@@ -61,12 +61,14 @@ rule find_IS_elements:
     output:
         #folder = "data/05_isescan_tables",
         csv_files = "data/05_isescan_tables/{sample}.csv"
-        #csv_files = expand("data/05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()) # we only want the csv file, so that's the target of this rule is that. 
+        #csv_files = expand("data/05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()) # we only want the csv file, so that's the target of this rule is that.
+    log:
+        "data/logs/find_IS_elements/{sample}.log"
     shell:
         """
         echo {wildcards.sample}
         cp {input} ./{wildcards.sample}.fasta
-        isescan.py --seqfile {wildcards.sample}.fasta --output data/05_isescan_tables/{wildcards.sample} --nthread 4
+        isescan.py --seqfile {wildcards.sample}.fasta --output data/05_isescan_tables/{wildcards.sample} --nthread 4 > {log} 2>&1
         mv data/05_isescan_tables/{wildcards.sample}/{wildcards.sample}.fasta.csv data/05_isescan_tables/{wildcards.sample}.csv
         rm {wildcards.sample}.fasta
         """
@@ -274,7 +276,6 @@ rule annotate_ori_dif_locations:
         pwd
         """
 
-
 # generate a tsv file with the oric and dif and a tsv file with lenths of the replichore arms of each clone
 rule analyse_replichore_arms:
     conda:
@@ -353,7 +354,7 @@ rule annotate_SV_boundaries_IS:
 # annotate the mechanism of deletions and inversions
 rule annotate_SV_mechanism:
     conda:
-        "bin/workflow/envs/pandas.yml"
+        "bin/workflow/envs/biopython.yml"
     input:
         boundaries_csv = "data/11_annotated_boundaries/{sample}_boundaries.tsv",
         script = "bin/scripts/classify_deletions.py"
@@ -367,93 +368,32 @@ rule annotate_SV_mechanism:
     shell:
         """
         {input.script} --folder {params.input_dir} --output inversion_mechanism.csv --inversion
-        pwd
-        cd ..
         {input.script} --folder {params.input_dir} --output deletion_mechanism.csv --deletion
         cd ..
-        pwd
         """
 
+# classify inversions as inter_replichore or intra-replichore
 
+rule classify_inversion_replichore:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        ori_dif_coords = "data/04_rename_genome/ori_dif_coords.tsv",
+        inversion = "data/11_annotated_boundaries/{sample}_inversion.csv",
+        script = "bin/scripts/inversion_replichore_classify.py"
+    output:
+        "data/11_annotated_boundaries/{sample}_inversion_classification.csv"
+    params:
+        input_dir = "data/11_annotated_boundaries/",
+        ancestor = "Anc-_0gen_REL606",
+        output_table = "inversion_replichores.csv"
+    shell:
+        """
+        {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --ancestor {params.ancestor} --output {params.output_table}
+        pwd
+        """    
 
 # TODO: this rule just checks to see if the previous rule generated the main output tables
 
 
 
-
-
-
-# rule all_predict_mutations_breseq:
-#     input:
-#         ["breseq-" + sample_info.get_reference_prefix() + "/html/" + s + "/output.done" for s in sample_info.get_sample_list()]
-#     default_target: True
-
-# rule predict_mutations_breseq:
-#     input:
-#         reads = lambda wildcards: find_available_read_files(wildcards),
-#         references = lambda wildcards: sample_info.get_reference_list(wildcards.sample)
-#     output:
-#         breseq_dir = directory("breseq-" + sample_info.get_reference_prefix() + "/data/{sample}"),
-#         html_dir = directory("breseq-" + sample_info.get_reference_prefix() + "/html/{sample}"),
-#         done_file = "breseq-" + sample_info.get_reference_prefix() + "/html/{sample}/output.done",
-#         gd_file = "breseq-" + sample_info.get_reference_prefix() + "/gd/{sample}.gd",
-#         bam = "breseq-" + sample_info.get_reference_prefix() + "/data/{sample}/data/reference.bam",
-#         fasta = "breseq-" + sample_info.get_reference_prefix() + "/data/{sample}/data/reference.fasta",
-#         summary_json = "breseq-" + sample_info.get_reference_prefix() + "/data/{sample}/data/summary.json",
-#     log: 
-#         "logs/breseq-" + sample_info.get_reference_prefix() + "-{sample}.log"
-#     conda:
-#         "../envs/breseq.yml"
-#     params:
-#         gd_dir = directory("breseq-" + sample_info.get_reference_prefix() + "/gd"),
-#         automatic_breseq_args = lambda wildcards: get_breseq_args(wildcards.sample),
-#         reference_arguments = lambda wildcards: sample_info.get_reference_arguments(wildcards.sample, '-r ')
-#     threads: 8
-#     shell:
-#         """
-#         # Create outer directories for moved files
-#         mkdir -p {params.gd_dir}
-
-#         breseq -j {threads} {params.automatic_breseq_args} {BRESEQ_OPTIONS} {params.reference_arguments} -o {output.breseq_dir}  {input.reads} > {log} 2>&1
-        
-#         # Copy/move output files
-#         cp {output.breseq_dir}/output/output.gd {output.gd_file}
-#         rm -rf {output.html_dir}
-#         mv {output.breseq_dir}/output {output.html_dir}
-#         """
-    
-
-# generate GenomeDiff and HTML tables annotating which genes were deleted/inverted
-
-# rule breseq_annotate_SV:
-#     conda:
-#         "bin/workflow/envs/breseq.yml"
-#     input:
-#         syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
-#         script = "bin/scripts/syri2gd.py"
-#     output:
-#         gd = "data/09_annotations/09_01_genome_diff/{sample}.gd",
-#         html = "data/09_annotations/09_02_html_files/{sample}.html"
-#     params:
-#         output_dir_gd = "data/09_annotations/09_01_genome_diff/"
-#     shell:
-#         """
-#         mkdir -p {params.output_dir_gd}
-#         cd {params.output_dir_gd}
-#         ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion
-#         cd ../../..
-#         pwd
-#         """
-
-
-# compute size of replichore arms, and the change relative to the ancestor
-
-# clean up syri output
-#         mv {wildcards.sample}.log ../../../{log}
-# > {wildcards.sample}.log 2>&1
-
-# for file in */; do cd $file ; file=$(echo $file | sed "s;/;;") ; echo $file; syri2gd.py --syri ${file}syri.out_v2 --output ${file}.gd --deletion --inversion; cd .. ; done
-# for file in */; do cd $file ; file=$(echo $file | sed "s;/;;") ; echo $file; mv ${file}.gd .. ; cd .. ; done # moving the .gd files out of respective clone folders
-# mv *.gd ../08_genome_diff_files/08_01_gd_files
-# cd ../08_genome_diff_files/08_01_gd_files
-# for file in *.gd; do file=$(echo $file | sed "s;.gd;;") ;echo $file; gdtools ANNOTATE -o ${file}.html -r ../../01_Reference_Sequences/REL606.gff3 -f HTML ${file}.gd; done

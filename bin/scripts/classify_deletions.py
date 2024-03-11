@@ -55,7 +55,7 @@ def get_csv_names(folder):
 
 
 
-def classify_deletions(file,deletion,inversion,folder):
+def classify_deletions(file,deletion,inversion):
 
     ''' returns a dict with the name of clone, and count of each type of IS'''
 
@@ -151,13 +151,13 @@ def classify_deletions(file,deletion,inversion,folder):
     return summary_dict
 
 
-def main(folder_boundaries,output,inversion,deletion):
-    csv_names=get_csv_names(folder_boundaries)
+def main(folder,output,inversion,deletion):
+    csv_names=get_csv_names(folder)
     #df_summary=pd.DataFrame(np.nan, index=range(len(csv_names)), columns=['clone','between_IS', 'IS_mediated','other'])
     summary_list=[]
     for file in csv_names:
         print (file)
-        summary_dict=classify_deletions(file, inversion,deletion)
+        summary_dict=classify_deletions(file,inversion,deletion)
         summary_list.append(summary_dict)
     df=pd.DataFrame(summary_list)
     df.to_csv(output, index=False,float_format='%.0f')
@@ -166,5 +166,5 @@ def main(folder_boundaries,output,inversion,deletion):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    main(args.folder_boundaries,args.output,args.deletion,args.inversion)
+    main(args.folder,args.output,args.inversion,args.deletion)
 

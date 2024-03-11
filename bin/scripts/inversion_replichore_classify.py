@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# this script accepts a folder with the clone_boundaries.tsv files 
-# a returns  single csv file that has all the clones, and the count of how many deletions
-# per type of mechanism 
 
 ''' imports '''
 
@@ -192,6 +189,7 @@ def generate_inversion_table(df,clone): # a summary table of all inversions, the
 def main(folder,output,oridif,ancestor):
     df_oridif=pd.read_csv(oridif,sep='\t')
     csv_names=get_csv_names(folder)
+    print(csv_names)
     summary_list=[]
     df_table = pd.DataFrame()
     for file in csv_names:
@@ -201,7 +199,7 @@ def main(folder,output,oridif,ancestor):
         df_temp = generate_inversion_table(df,clone)
         df_table = pd.concat([df_table,df_temp], ignore_index=True)
         new_filename = f"{clone}_inversion_classification.csv" #write out the inversions and the replichore classification to a new file so snakemake doesnt complain about two rules generating the same output
-        df.to_csv(file, index=False,float_format='%.0f')
+        df.to_csv(new_filename, index=False,float_format='%.0f')
         summary_list.append(summary_dict)
     df=pd.DataFrame(summary_list)
     df.to_csv(output, index=False,float_format='%.0f')
