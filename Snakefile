@@ -57,15 +57,16 @@ rule compute_genome_stats:
     conda:
         "bin/workflow/envs/pandas.yml"
     input:
-        data = "data/04_rename_genome",
+        data =  expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()),
         script = "bin/scripts/fasta_stats.py"
     params:
+        folder = "data/04_rename_genome"
         ancestor = "Anc-_0gen_REL606.fasta" # this is not the path to the ancestor's assembly but it is expected that the ancestor is in input.data folder
     output:
         contig_stats = "data/04_rename_genome/contig_stats.tsv",
         genome_sizes = "data/04_rename_genome/genome_size_stats.tsv"
     shell:
-        "{input.script} --folder {input.data} --output {output.contig_stats} --stats {output.genome_sizes} --ancestor {params.ancestor}"
+        "{input.script} --folder {params.folder} --output {output.contig_stats} --stats {output.genome_sizes} --ancestor {params.ancestor}"
  
  #ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
 rule find_IS_elements:
