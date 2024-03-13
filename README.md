@@ -1,7 +1,7 @@
 # Seabreeze
 Author: Ira Zibbu
 
-Last update to README: 2024-03-11
+Last update to README: 2024-03-13
 
 Seabreeze is an automated pipeline for structural variant analysis from bacterial resequencing experiments. It is currently under development as I migrate and clean the workflow first described in the [LTEE-SV](https://github.com/ira-zibbu/LTEE-SV) project repo. 
 
@@ -32,17 +32,19 @@ Add this line to your .bashrc .zshrc or whatever shell you are currently using:
 export SNAKEMAKE_CONDA_PREFIX=$HOME/snakemake_conda_envs
 ```
 
+4. Add test data
+This is a small test data set to make sure everything runs okay
+```
+cp test data
+```
 
-4. You're all set!
+
+5. You're all set!
 Navigate to the seabreeze directory and run snakemake with a few magic words:
 ```
 conda activate seabreeze
 snakemake --use-conda --cores 4 # feel free to change this but anything less than 2 cores will probably take an hour 
 ```
-
-
-### To do:
-Add testing data
  
 ### Misc information
 Where does seabreeze get its name from? **S**tructural **v**ariant for **b**acterial **rese**quencing abbreviates as SVbrese, which sounded like seabreeze. 
