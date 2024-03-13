@@ -60,7 +60,7 @@ rule compute_genome_stats:
         data =  expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()),
         script = "bin/scripts/fasta_stats.py"
     params:
-        folder = "data/04_rename_genome"
+        folder = "data/04_rename_genome",
         ancestor = "Anc-_0gen_REL606.fasta" # this is not the path to the ancestor's assembly but it is expected that the ancestor is in input.data folder
     output:
         contig_stats = "data/04_rename_genome/contig_stats.tsv",
