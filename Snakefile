@@ -383,7 +383,7 @@ rule annotate_SV_mechanism:
     shell:
         """
         {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion
-        {input.script} --folder {params.input_dir} --output {parans.output_deletion} --deletion
+        {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion
         cd ..
         """
 
