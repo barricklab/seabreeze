@@ -370,11 +370,11 @@ rule annotate_SV_mechanism:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
-        boundaries_csv = "data/11_annotated_boundaries/{sample}_boundaries.tsv",
+        boundaries_csv = expand("data/11_annotated_boundaries/{sample}_boundaries.tsv", sample=df['assembly'].tolist()),
         script = "bin/scripts/classify_deletions.py"
     output:
-        inversion = "data/11_annotated_boundaries/{sample}_inversion.csv",
-        deletion = "data/11_annotated_boundaries/{sample}_deletion.csv",
+        inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist())
         # inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         # deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
     params:
