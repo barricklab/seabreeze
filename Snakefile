@@ -125,23 +125,19 @@ rule align_genomes_nucmer:
     params:
         seq_id_cutoff = "95",
         subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # just the name of the ancestor (does not include the .fasta extension)
-        output_dir = "data/06_nucmer_alignment/{sample}", # each assembly gets its own directory with the same name which stores the output of nucmer
+        output_dir = "data/06_nucmer_alignment/{sample}" # each assembly gets its own directory with the same name which stores the output of nucmer
     log:
         "data/logs/align_genomes_nucmer/{sample}.log"
-    # temporarily move both fasta files here because it's easier. delete when done.
+    # temporarily move both fasta files here because it's easier. delete when done. NO DO NOT DO THIS! CAUSES A BUG WHEN COMPARING A SEQUENCE TO ITSELF
     shell:
         """
-        cp {input.subject_path} {params.output_dir}/{params.subject_name} 
-        cp {input.query_path} {params.output_dir}/{wildcards.sample}.fasta
-        cd data/06_nucmer_alignment/{wildcards.sample}
+        mkdir -p {params.output_dir} 
+        cd {params.output_dir}
         touch ../../../{log}
-        echo "the subject is {params.subject_name}"
-        echo "the query is {wildcards.sample}.fasta"
-        nucmer --maxmatch -c 100 -b 500 -l 50 -p {wildcards.sample} {params.subject_name} {wildcards.sample}.fasta > ../../../{log} 2>&1
+        nucmer --maxmatch -c 100 -b 500 -l 50 -p {wildcards.sample} ../../../{input.subject_path} ../../../{input.query_path} > ../../../{log} 2>&1
         delta-filter -i {params.seq_id_cutoff} -l 100 {wildcards.sample}.delta > {wildcards.sample}.filtered.delta
         show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
         touch {wildcards.sample}.done
-        rm {wildcards.sample}.fasta {params.subject_name}
         cd ../../../
         echo "Alignment complete. Working dir set to:"
         pwd
@@ -419,3 +415,19 @@ rule annotate_SV_mechanism_all:
     output:
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
+
+# god is watching you for this hideous code. repent for your sins.
+        # """
+        # cp {input.subject_path} {params.output_dir}/{params.subject_name} 
+        # cp {input.query_path} {params.output_dir}/{wildcards.sample}.fasta
+        # cd data/06_nucmer_alignment/{wildcards.sample}
+        # touch ../../../{log}
+        # nucmer --maxmatch -c 100 -b 500 -l 50 -p {wildcards.sample} {params.subject_name} {wildcards.sample}.fasta > ../../../{log} 2>&1
+        # delta-filter -i {params.seq_id_cutoff} -l 100 {wildcards.sample}.delta > {wildcards.sample}.filtered.delta
+        # show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
+        # touch {wildcards.sample}.done
+        # rm {wildcards.sample}.fasta {params.subject_name}
+        # cd ../../../
+        # echo "Alignment complete. Working dir set to:"
+        # pwd
+        # """
