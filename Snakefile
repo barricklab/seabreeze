@@ -378,10 +378,12 @@ rule annotate_SV_mechanism:
         # deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
     params:
         input_dir = "data/11_annotated_boundaries/"
+        output_deletion = "deletion_mechanism.csv"
+        output_inversion = "inversion_mechanism.csv"
     shell:
         """
-        {input.script} --folder {params.input_dir} --output inversion_mechanism.csv --inversion
-        {input.script} --folder {params.input_dir} --output deletion_mechanism.csv --deletion
+        {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion
+        {input.script} --folder {params.input_dir} --output {parans.output_deletion} --deletion
         cd ..
         """
 
