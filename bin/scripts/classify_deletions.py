@@ -162,6 +162,10 @@ def main(folder,output,inversion,deletion):
     df=pd.DataFrame(summary_list)
     df.to_csv(output, index=False,float_format='%.0f')
     print(f"output name is {output}")
+    if os.path.isfile(output):
+        print(f"The file '{output}' exists in the current working directory.")
+    else:
+        print(f"The file '{output}' does not exist in the current working directory.")
     print(df)
 
 
