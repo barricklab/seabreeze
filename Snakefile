@@ -377,8 +377,8 @@ rule annotate_SV_mechanism:
         # inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         # deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
     params:
-        input_dir = "data/11_annotated_boundaries/"
-        output_deletion = "deletion_mechanism.csv"
+        input_dir = "data/11_annotated_boundaries/",
+        output_deletion = "deletion_mechanism.csv",
         output_inversion = "inversion_mechanism.csv"
     shell:
         """
