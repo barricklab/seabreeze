@@ -20,8 +20,8 @@ rule all_targets:
         ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
         replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
         deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
-        inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
-        deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
+        # inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
+        # deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
         inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist())
 
 # reindex all the fasta file to a common sequence to make comparison easier
@@ -411,13 +411,13 @@ rule classify_inversion_replichore:
 
 # this rule just checks to see if the previous rule generated the main output tables. No shell executed
 
-rule annotate_SV_mechanism_all:
-    input:
-        expand("data/11_annotated_boundaries/{sample}_inversion.csv", sample=df['assembly'].tolist()),
-        expand("data/11_annotated_boundaries/{sample}_deletion.csv", sample=df['assembly'].tolist())
-    output:
-        inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
-        deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
+# rule annotate_SV_mechanism_all:
+#     input:
+#         expand("data/11_annotated_boundaries/{sample}_inversion.csv", sample=df['assembly'].tolist()),
+#         expand("data/11_annotated_boundaries/{sample}_deletion.csv", sample=df['assembly'].tolist())
+#     output:
+#         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
+#         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
 
 # god is watching you for this hideous code. repent for your sins.
         # """
