@@ -398,7 +398,7 @@ rule classify_inversion_replichore:
         inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
         script = "bin/scripts/inversion_replichore_classify.py"
     output:
-        "data/11_annotated_boundaries/{sample}_inversion_classification.csv"
+        expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist())
     params:
         input_dir = "data/11_annotated_boundaries/",
         ancestor = "Anc-_0gen_REL606",
