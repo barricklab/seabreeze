@@ -395,7 +395,7 @@ rule classify_inversion_replichore:
         "bin/workflow/envs/biopython.yml"
     input:
         ori_dif_coords = "data/04_rename_genome/ori_dif_coords.tsv",
-        inversion = "data/11_annotated_boundaries/{sample}_inversion.csv",
+        inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
         script = "bin/scripts/inversion_replichore_classify.py"
     output:
         "data/11_annotated_boundaries/{sample}_inversion_classification.csv"
