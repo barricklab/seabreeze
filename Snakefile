@@ -365,6 +365,7 @@ rule annotate_SV_boundaries_IS:
         """
 
 # annotate the mechanism of deletions and inversions
+# it think you can expand and not wildcards here since the script does not have to be repeated each you run this..
 rule annotate_SV_mechanism:
     conda:
         "bin/workflow/envs/biopython.yml"

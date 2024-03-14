@@ -161,6 +161,7 @@ def main(folder,output,inversion,deletion):
         summary_list.append(summary_dict)
     df=pd.DataFrame(summary_list)
     df.to_csv(output, index=False,float_format='%.0f')
+    print(f"output name is {output}")
     print(df)
 
 
