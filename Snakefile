@@ -36,7 +36,7 @@ rule reindex_contigs:
     shell:
         "{input.script} -b AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTC -i {input.data} -o {output} -t fasta"
 
-# rename all the contigs of the fasta files to a string (here "REL606")
+# rename all the contigs of the fasta files to a common string (here "REL606")
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
 rule rename_contigs:
     conda:
@@ -52,6 +52,7 @@ rule rename_contigs:
 
 # Calculate the number of contigs in each fasta file and their length. Output is stored in contig_stats.tsv
 # Calculate the difference in length of the genomes, relative to the ancestor genome_size_stats.tsv
+# TODO: Eventually, this script should take data.csv and generate the szie different for each respective ancestor.
 
 rule compute_genome_stats:
     conda:
@@ -68,7 +69,9 @@ rule compute_genome_stats:
     shell:
         "{input.script} --folder {params.folder} --output {output.contig_stats} --stats {output.genome_sizes} --ancestor {params.ancestor}"
  
- #ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
+# ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
+# TO DO: Eventually, make the threads a parameter for this rule
+
 rule find_IS_elements:
     conda:
         "bin/workflow/envs/isescan.yml"
@@ -90,8 +93,9 @@ rule find_IS_elements:
         rm {wildcards.sample}.fasta
         """
 
-# from the ISEScan tables, generate a summary of the total copy number, and the change in copy number relative to oone ancestor
-# TODO: Update this so each assembly's copy number change is calculate for it's specified ancestor
+# from the ISEScan tables, generate a summary of the total copy number, and the change in copy number relative to ancestor
+# TODO: Eventually update this so each assembly's copy number change is calculate for it's specified ancestor
+
 rule generate_ISEScan_summary:
     conda:
         "bin/workflow/envs/pandas.yml"
@@ -111,6 +115,7 @@ rule generate_ISEScan_summary:
         """
 
 # align each assembly to its ancestor, then filter the alignments and convert from .delta to coords
+
 rule align_genomes_nucmer:
     conda:
         "bin/workflow/envs/mummer4.yml"
@@ -144,6 +149,7 @@ rule align_genomes_nucmer:
         """
 
 # now call structural variants from the alignments
+
 rule call_variants_syri:
     conda:
         "bin/workflow/envs/syri.yml"
@@ -165,7 +171,7 @@ rule call_variants_syri:
         cd {params.output_dir}
         touch ../../../{log}
         echo " the subject is {input.subject_path}"
-        echo "thhe query is {input.query_path}"
+        echo "the query is {input.query_path}"
         syri --nosnp -c ../../../{input.coords} -d ../../../{input.filtered} -r ../../../{input.subject_path} -q ../../../{input.query_path} --prefix {wildcards.sample} > ../../../{log} 2>&1
         touch {wildcards.sample}.done
         rm {wildcards.sample}syri.log {wildcards.sample}syri.summary 
@@ -268,7 +274,7 @@ rule reindex_contigs_oric:
     shell:
         "{input.script} -b GGATCCTGGGTATTAAAA -i {input.data} -o {output} -t fasta"
 
-# generate a tsv file with the ori and dif coords 
+# generate a tsv file with the ori and dif coords of the genomes in their original index 
 rule annotate_ori_dif_locations:
     conda:
         "bin/workflow/envs/pandas.yml"
@@ -289,7 +295,9 @@ rule annotate_ori_dif_locations:
         pwd
         """
 
-# generate a tsv file with the oric and dif and a tsv file with lenths of the replichore arms of each clone
+# generate a tsv file with the oric and dif of the genomens reindexed to the ori and a tsv file with lenths of the replichore arms of each clone
+# TODO: Eventually remove the ancestor as a requirement for this rule and script, since it is not used
+
 rule analyse_replichore_arms:        
     conda:
         "bin/workflow/envs/pandas.yml"
@@ -316,34 +324,34 @@ rule analyse_replichore_arms:
 
 # Run breseq to predict deletions and amplifications to see if they were missed
 # i am deleting some of the output of breseq but feel free to remove that line in case you want it
-rule run_breseq:
-    conda:
-        "bin/workflow/envs/breseq.yml"
-    input:
-        reads = "data/09_merged_trimmed_nanopore_reads/{sample}.nanopore.fastq.gz", # reads of the evolved clone
-        reference_assembly = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample])
-    output:
-        gd = "data/10_breseq_output/{sample}.gd",
-        html = "data/10_breseq_output/{sample}.html"
-    log:
-        "data/logs/run_breseq/{sample}.log"
-    params:
-        breseq_dir = "{sample}",
-        threads = "4",
-        limit_reads = "60" # this speeds up breseq by limiting the read depth to which it looks at data
-    shell:
-        """
-        mkdir -p data/10_breseq_output
-        cd data/10_breseq_output
-        breseq -j {params.threads} -l {params.limit_reads} -x -r ../../{input.reference_assembly} ../../{input.reads} -o {params.breseq_dir}> {wildcards.sample}.log 2>&1
-        mv {wildcards.sample}.log ../../{log}
-        cd {params.breseq_dir}
-        rm -rf 01_sequence_conversion 03_candidate_junctions 05_alignment_correction 07_error_calibration 02_reference_alignment 04_candidate_junction_alignment 06_bam 08_mutation_identification 
-        mv data/output.gd ../{wildcards.sample}.gd
-        mv output/index.html ../{wildcards.sample}.html
-        cd ../../..
-        echo "task done. wd set to"
-        """
+# rule run_breseq:
+#     conda:
+#         "bin/workflow/envs/breseq.yml"
+#     input:
+#         reads = "data/09_merged_trimmed_nanopore_reads/{sample}.nanopore.fastq.gz", # reads of the evolved clone
+#         reference_assembly = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample])
+#     output:
+#         gd = "data/10_breseq_output/{sample}.gd",
+#         html = "data/10_breseq_output/{sample}.html"
+#     log:
+#         "data/logs/run_breseq/{sample}.log"
+#     params:
+#         breseq_dir = "{sample}",
+#         threads = "4",
+#         limit_reads = "60" # this speeds up breseq by limiting the read depth to which it looks at data
+#     shell:
+#         """
+#         mkdir -p data/10_breseq_output
+#         cd data/10_breseq_output
+#         breseq -j {params.threads} -l {params.limit_reads} -x -r ../../{input.reference_assembly} ../../{input.reads} -o {params.breseq_dir}> {wildcards.sample}.log 2>&1
+#         mv {wildcards.sample}.log ../../{log}
+#         cd {params.breseq_dir}
+#         rm -rf 01_sequence_conversion 03_candidate_junctions 05_alignment_correction 07_error_calibration 02_reference_alignment 04_candidate_junction_alignment 06_bam 08_mutation_identification 
+#         mv data/output.gd ../{wildcards.sample}.gd
+#         mv output/index.html ../{wildcards.sample}.html
+#         cd ../../..
+#         echo "task done. wd set to"
+#         """
 
 # generate tsv files which annotate the boundaries of the SVs
 rule annotate_SV_boundaries_IS:
@@ -365,7 +373,8 @@ rule annotate_SV_boundaries_IS:
         """
 
 # annotate the mechanism of deletions and inversions
-# it think you can expand and not wildcards here since the script does not have to be repeated each you run this..
+# i think you can expand and not wildcards here since the script does not have to be repeated each you run this..
+
 rule annotate_SV_mechanism:
     conda:
         "bin/workflow/envs/biopython.yml"
@@ -389,24 +398,24 @@ rule annotate_SV_mechanism:
         """
 
 # classify inversions as inter_replichore or intra-replichore
-
+# TO DO: URGENT FIX! UPDATE 
 rule classify_inversion_replichore:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
         ori_dif_coords = "data/04_rename_genome/ori_dif_coords.tsv",
         inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        #inversion = "data/11_annotated_boundaries/{sample}_inversion.csv",
         script = "bin/scripts/inversion_replichore_classify.py"
     output:
+        #"data/11_annotated_boundaries/{sample}_inversion_classification.csv"
         expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist())
     params:
         input_dir = "data/11_annotated_boundaries/",
-        ancestor = "Anc-_0gen_REL606",
-        output_table = "inversion_replichores.csv"
+        output_table = "inversion_replichores.csv",
     shell:
         """
-        {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --ancestor {params.ancestor} --output {params.output_table}
-        pwd
+        {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data data.csv
         """
 
 # this rule just checks to see if the previous rule generated the main output tables. No shell executed
