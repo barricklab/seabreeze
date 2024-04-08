@@ -35,13 +35,13 @@ def fetch_syri(filename):
     
     #additional columns which stores the name of IS elements and their distance from the boundary of the SV
 
-    df['L_ref']=[0]*(len(df))
+    df['L_ref']=['NA']*(len(df))
     df['L_ref_distance']=[0]*(len(df))
-    df['R_ref']=[0]*(len(df))
+    df['R_ref']=['NA']*(len(df))
     df['R_ref_distance']=[0]*(len(df))
-    df['L_query']=[0]*(len(df))
+    df['L_query']=['NA']*(len(df))
     df['L_query_distance']=[0]*(len(df))
-    df['R_query']=[0]*(len(df))
+    df['R_query']=['NA']*(len(df))
     df['R_query_distance']=[0]*(len(df))
 
     return df

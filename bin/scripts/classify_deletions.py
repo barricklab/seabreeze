@@ -55,7 +55,7 @@ def get_csv_names(folder):
 
 
 
-def classify_deletions(file,deletion,inversion):
+def classify_deletions(file,inversion,deletion):
 
     ''' returns a dict with the name of clone, and count of each type of IS'''
 
@@ -63,6 +63,7 @@ def classify_deletions(file,deletion,inversion):
     clone_name=file.replace('_boundaries.tsv','')
 
     if deletion:
+        print(f"Counting deletions")
         summary_dict={'clone':'', 'total':0,'between_IS':0, 'IS_mediated':0, 'other':0}
         summary_dict['clone']=file.replace('_boundaries.tsv','')
         df_del = df[df.loc[:,'tag_3'].str.contains('DEL')]
@@ -72,31 +73,31 @@ def classify_deletions(file,deletion,inversion):
         summary_dict['total']=len(df_del)
         for row_idx in range(len(df_del)):
 
-            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and df_del.loc[row_idx,'L_ref'] != '0': 
+            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and df_del.loc[row_idx,'L_ref'] != 'NA': 
                 summary_dict['between_IS']+=1
                 df_del.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_del.loc[row_idx,"Evidence"]='full'
                 continue
 
-            if df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] and df_del.loc[row_idx,'L_ref'] != '0': 
+            if df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] and df_del.loc[row_idx,'L_ref'] != 'NA': 
                 summary_dict['between_IS']+=1
                 df_del.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_del.loc[row_idx,"Evidence"]='incomplete'
                 continue
 
-            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'L_query'] or df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and df_del.loc[row_idx,'L_query'] != '0':
+            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'L_query'] or df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and df_del.loc[row_idx,'L_query'] != 'NA':
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='full'
                 continue
                 
-            if df_del.loc[row_idx,'L_ref'] != '0' or df_del.loc[row_idx,'R_ref'] != '0':
+            if df_del.loc[row_idx,'L_ref'] != 'NA' or df_del.loc[row_idx,'R_ref'] != 'NA':
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='incomplete'
                 continue
             
-            if df_del.loc[row_idx,'L_query'] != '0':
+            if df_del.loc[row_idx,'L_query'] != 'NA':
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='evolved'
@@ -108,11 +109,12 @@ def classify_deletions(file,deletion,inversion):
                 df_del.loc[row_idx,"Evidence"]='NA'
 
                # path_to_clone = 
-
+        print(summary_dict)
         out_filename= clone_name + "_deletion.csv"
         df_del.to_csv(out_filename, index=False,float_format='%.0f')
 
     if inversion:
+        print (f"Counting inversions")
         summary_dict={'clone':'', 'total':0,'between_IS':0, 'IS_mediated':0, 'other':0}
         summary_dict['clone']=file.replace('_boundaries.tsv','')
         df_inv = df[df.loc[:,'tag_3']=='INV']
@@ -122,19 +124,19 @@ def classify_deletions(file,deletion,inversion):
         summary_dict['total']=len(df_inv)
         for row_idx in range(len(df_inv)):
 
-            if (df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) and df_inv.loc[row_idx,'L_ref'] != '0': 
+            if (df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) and df_inv.loc[row_idx,'L_ref'] != 'NA': 
                 summary_dict['between_IS']+=1
                 df_inv.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_inv.loc[row_idx,"Evidence"]='full'
                 continue
 
-            if ((df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) or  (df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'])) and df_inv.loc[row_idx,'L_query'] != '0':
+            if ((df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) or  (df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'])) and df_inv.loc[row_idx,'L_query'] != 'NA':
                 summary_dict['IS_mediated']+=1
                 df_inv.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_inv.loc[row_idx,"Evidence"]='full'
                 continue
             
-            if df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'] and df_inv.loc[row_idx,'L_query'] != '0':
+            if df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'] and df_inv.loc[row_idx,'L_query'] != 'NA':
                 summary_dict['IS_mediated']+=1
                 df_inv.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_inv.loc[row_idx,"Evidence"]='evolved'
@@ -146,6 +148,7 @@ def classify_deletions(file,deletion,inversion):
                 df_inv.loc[row_idx,"Evidence"]='NA'
         
         out_filename= clone_name + "_inversion.csv"
+        print(summary_dict)
         df_inv.to_csv(out_filename, index=False,float_format='%.0f')
 
     return summary_dict
