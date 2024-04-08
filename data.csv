@@ -4,4 +4,14 @@ Ara+1_10000gen_4530A,data/02_genome/Ara+1_10000gen_4530A.fasta,Anc-_0gen_REL606
 Ara+2_75000gen_A.1,data/02_genome/Ara+2_75000gen_A.1.fasta,Anc-_0gen_REL606
 Ara+2_75000gen_A.2,data/02_genome/Ara+2_75000gen_A.2.fasta,Ara+2_75000gen_A.1
 Ara+2_75000gen_A.3,data/02_genome/Ara+2_75000gen_A.3.fasta,Ara+2_75000gen_A.2
+Ara+2_75000gen_A.4,data/02_genome/Ara+2_75000gen_A.4.fasta,Ara+2_75000gen_A.3
+Ara+2_75000gen_A,data/02_genome/Ara+2_75000gen_A.fasta,Anc-_0gen_REL606
+Ara-5_75000gen_A_ori.1,data/02_genome/Ara-5_75000gen_A_ori.1.fasta,REL606_ori
+Ara-5_75000gen_A_ori.2,data/02_genome/Ara-5_75000gen_A_ori.2.fasta,Ara-5_75000gen_A_ori.1
+Ara-5_75000gen_A_ori.3,data/02_genome/Ara-5_75000gen_A_ori.3.fasta,Ara-5_75000gen_A_ori.2
+Ara-5_75000gen_A_ori.4,data/02_genome/Ara-5_75000gen_A_ori.4.fasta,Ara-5_75000gen_A_ori.3
+Ara-5_75000gen_A_ori.5,data/02_genome/Ara-5_75000gen_A_ori.5.fasta,Ara-5_75000gen_A_ori.4
+Ara-5_75000gen_A_ori.6,data/02_genome/Ara-5_75000gen_A_ori.6.fasta,Ara-5_75000gen_A_ori.5
+Ara-5_75000gen_A_ori,data/02_genome/Ara-5_75000gen_A_ori.fasta,REL606_ori
+REL606_ori,data/02_genome/REL606_ori.fasta,REL606_ori
 

@@ -424,6 +424,8 @@ def SV_IS_reassign(df_syri):
 			continue
 		if df_syri.loc[row_idx_1, "annotation_ref"] == 1.0 and df_syri.loc[row_idx_1, "annotation_query"] == 1.0: 
 			stop_coord_upstream=int(df_syri.loc[(row_idx_1-1), 'ref_stop']) #stop coords of the SV directly upstream
+			if df_syri.loc[(row_idx_1+1),'ref_start'] == '-' or df_syri.loc[(row_idx_1+1),'ref_stop'] == '-': #skip any SV that does not have its reference coords listed
+				continue
 			start_coord_downstream=int(df_syri.loc[(row_idx_1+1),'ref_start']) #start coords of the SV directly downstream
 			if start_coord_downstream < stop_coord_upstream: #the upstream and downstream SV overlap
 				rows_to_drop.append(row_idx_1)

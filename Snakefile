@@ -22,19 +22,24 @@ rule all_targets:
         deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
-        inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist())
+        inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
+        gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
+        html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
+
 
 # reindex all the fasta file to a common sequence to make comparison easier
-rule reindex_contigs:
-    conda:
-        "bin/workflow/envs/biopython.yml"
-    input:
-        data = "data/02_genomes/{sample}.fasta",
-        script = "bin/scripts/reindex_assembly.py"
-    output:
-        "data/03_reindex_genome/{sample}.fasta"
-    shell:
-        "{input.script} -b AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTC -i {input.data} -o {output} -t fasta"
+# DONT DO THIS! SOME OF YOUR GENOMES ARE IN ANOTHER INDEX AND THAT IS OK
+
+# rule reindex_contigs:
+#     conda:
+#         "bin/workflow/envs/biopython.yml"
+#     input:
+#         data = "data/02_genomes/{sample}.fasta",
+#         script = "bin/scripts/reindex_assembly.py"
+#     output:
+#         "data/03_reindex_genome/{sample}.fasta"
+#     shell:
+#         "{input.script} -b AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTC -i {input.data} -o {output} -t fasta"
 
 # rename all the contigs of the fasta files to a common string (here "REL606")
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
@@ -398,7 +403,7 @@ rule annotate_SV_mechanism:
         """
 
 # classify inversions as inter_replichore or intra-replichore
-# TO DO: URGENT FIX! UPDATE 
+
 rule classify_inversion_replichore:
     conda:
         "bin/workflow/envs/biopython.yml"
@@ -417,6 +422,47 @@ rule classify_inversion_replichore:
         """
         {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data data.csv
         """
+
+# # make the folders for the next rule
+# rule generate_genome_diffs_folders:
+#     conda:
+#         "bin/workflow/envs/biopython.yml"
+#     input:
+#         syri = expand("data/07_syri_output/{sample}/{sample}syri.out_v2", sample=df['assembly'].tolist())
+#     output:
+#         gd_folder = "data/12_genome_diff_tables/gd",
+#         html_folder = "data/12_genome_diff_tables/html"
+#     shell:
+#         """
+#         mkdir -p {output.gd_folder}
+#         mkdir -p {output.html_folder}
+#         """
+
+# Use the syri.out_v2 files to make the HTML tables from breseq
+rule generate_genome_diffs_tables:
+    conda:
+        "bin/workflow/envs/breseq.yml"
+    input:
+        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+        script = "bin/scripts/syri2gd.py",
+        reference = "data/01_references/REL606.gff3"
+    output:
+        gd = "data/12_genome_diff_tables/gd/{sample}.gd",
+        html = "data/12_genome_diff_tables/html/{sample}.html"
+    params:
+        gd_folder = "data/12_genome_diff_tables/gd",
+        html_folder = "data/12_genome_diff_tables/html",
+    shell:
+        """
+        mkdir -p {params.gd_folder}
+        mkdir -p {params.html_folder}
+        cd {params.gd_folder}
+        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification
+        cd ../../../{params.html_folder}
+        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd}
+        cd ../../../
+        """
+
 
 # this rule just checks to see if the previous rule generated the main output tables. No shell executed
 
