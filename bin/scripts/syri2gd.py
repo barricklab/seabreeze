@@ -47,15 +47,24 @@ def syri2gd(syri,output,inversion,deletion,amplification):
     if deletion: # add genome diff lines for deletions
 
         for row_idx in range(len(df_syri_del)):
+            
+            start_coords=df_syri_del.iloc[row_idx,1]
+            end_coords=df_syri_del.iloc[row_idx,2]
+            del_length=int(end_coords)-int(start_coords)
+
+            if del_length <= 0: # skip any entry which has 0 length
+                continue
+
             df_gd_del.iloc[row_idx,0]="DEL"
             df_gd_del.iloc[row_idx,1]=str(row_idx+1)
             df_gd_del.iloc[row_idx,2]="."
             df_gd_del.iloc[row_idx,3]=chr_id
-            start_coords=df_syri_del.iloc[row_idx,1]
-            end_coords=df_syri_del.iloc[row_idx,2]
-            del_length=int(end_coords)-int(start_coords)
+           
             df_gd_del.iloc[row_idx,4]=str(start_coords)
             df_gd_del.iloc[row_idx,5]=str(del_length)
+        
+        df_gd_del.dropna(inplace=True)
+        df_gd_del.reset_index(drop=True, inplace=True)
 
         with open(output, 'a') as file:
             df_gd_del.to_csv(file, sep='\t', index=False, header=False)
@@ -64,15 +73,24 @@ def syri2gd(syri,output,inversion,deletion,amplification):
 
         index_list=range(row_idx+2,(len(df_syri_inv)+row_idx+2),1) # to continue the indices from the gd file
         for row_idx in range(len(df_syri_inv)):
+            
+            start_coords=df_syri_inv.iloc[row_idx,1]
+            end_coords=df_syri_inv.iloc[row_idx,2]
+            inv_length=int(end_coords)-int(start_coords)
+
+            if inv_length <= 0:
+                continue
+            
             df_gd_inv.iloc[row_idx,0]="INV"
             df_gd_inv.iloc[row_idx,1]=str(index_list[row_idx])
             df_gd_inv.iloc[row_idx,2]="."
             df_gd_inv.iloc[row_idx,3]=chr_id
-            start_coords=df_syri_inv.iloc[row_idx,1]
-            end_coords=df_syri_inv.iloc[row_idx,2]
-            inv_length=int(end_coords)-int(start_coords)
+            
             df_gd_inv.iloc[row_idx,4]=str(start_coords)
             df_gd_inv.iloc[row_idx,5]=str(inv_length)
+
+        df_gd_inv.dropna(inplace=True)
+        df_gd_inv.reset_index(drop=True, inplace=True)
 
         with open(output, 'a') as file:
             df_gd_inv.to_csv(file, sep='\t', index=False, header=False)
@@ -89,17 +107,25 @@ def syri2gd(syri,output,inversion,deletion,amplification):
             print(index_list)
             #index_list=range(row_idx+2,(len(df_syri_amp)+row_idx+2),1) # to continue the indices from the gd file
             for row_idx in range(len(df_syri_amp)):
+                
+                start_coords=min(df_syri_amp.iloc[row_idx,1],df_syri_amp.iloc[row_idx,2]) # ensuring that the start coords are always smaller
+                end_coords=max(df_syri_amp.iloc[row_idx,1],df_syri_amp.iloc[row_idx,2])
+                amp_length=int(end_coords)-int(start_coords)
+
+                if amp_length <= 0:
+                    continue
+
                 df_gd_amp.iloc[row_idx,0]="AMP"
                 df_gd_amp.iloc[row_idx,1]=str(index_list[row_idx])
                 df_gd_amp.iloc[row_idx,2]="."
                 df_gd_amp.iloc[row_idx,3]=chr_id
-                start_coords=min(df_syri_amp.iloc[row_idx,1],df_syri_amp.iloc[row_idx,2]) # ensuring that the start coords are always smaller
-                end_coords=max(df_syri_amp.iloc[row_idx,1],df_syri_amp.iloc[row_idx,2])
-                amp_length=int(end_coords)-int(start_coords)
+
                 df_gd_amp.iloc[row_idx,4]=str(start_coords)
                 df_gd_amp.iloc[row_idx,5]=str(amp_length)
                 df_gd_amp.iloc[row_idx,6]=str(2) # SyRI only reports duplications so this copy number will be 2 always
 
+            df_gd_amp.dropna(inplace=True)
+            df_gd_amp.reset_index(drop=True, inplace=True)
 
             with open(output, 'a') as file:
                 df_gd_amp.to_csv(file, sep='\t', index=False, header=False)
