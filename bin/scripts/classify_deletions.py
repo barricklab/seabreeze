@@ -60,6 +60,7 @@ def classify_deletions(file,inversion,deletion):
     ''' returns a dict with the name of clone, and count of each type of IS'''
 
     df=pd.read_csv(file, sep='\t')
+    print(df)
     clone_name=file.replace('_boundaries.tsv','')
 
     if deletion:
@@ -73,31 +74,31 @@ def classify_deletions(file,inversion,deletion):
         summary_dict['total']=len(df_del)
         for row_idx in range(len(df_del)):
 
-            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and df_del.loc[row_idx,'L_ref'] != 'NA': 
+            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and pd.notna(df_del.loc[row_idx, 'L_ref']): 
                 summary_dict['between_IS']+=1
                 df_del.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_del.loc[row_idx,"Evidence"]='full'
                 continue
 
-            if df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] and df_del.loc[row_idx,'L_ref'] != 'NA': 
+            if df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] and pd.notna(df_del.loc[row_idx,'L_ref']): 
                 summary_dict['between_IS']+=1
                 df_del.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_del.loc[row_idx,"Evidence"]='incomplete'
                 continue
 
-            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'L_query'] or df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and df_del.loc[row_idx,'L_query'] != 'NA':
+            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'L_query'] or df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and pd.notna(df_del.loc[row_idx,'L_query']):
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='full'
                 continue
                 
-            if df_del.loc[row_idx,'L_ref'] != 'NA' or df_del.loc[row_idx,'R_ref'] != 'NA':
+            if pd.notna(df_del.loc[row_idx,'L_ref']) or pd.notna(df_del.loc[row_idx,'R_ref']):
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='incomplete'
                 continue
             
-            if df_del.loc[row_idx,'L_query'] != 'NA':
+            if pd.notna(df_del.loc[row_idx,'L_query']):
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='evolved'
@@ -124,19 +125,19 @@ def classify_deletions(file,inversion,deletion):
         summary_dict['total']=len(df_inv)
         for row_idx in range(len(df_inv)):
 
-            if (df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) and df_inv.loc[row_idx,'L_ref'] != 'NA': 
+            if (df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) and pd.notna(df_inv.loc[row_idx,'L_ref']): 
                 summary_dict['between_IS']+=1
                 df_inv.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_inv.loc[row_idx,"Evidence"]='full'
                 continue
 
-            if ((df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) or  (df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'])) and df_inv.loc[row_idx,'L_query'] != 'NA':
+            if ((df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) or  (df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'])) and pd.notna(df_inv.loc[row_idx,'L_query']):
                 summary_dict['IS_mediated']+=1
                 df_inv.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_inv.loc[row_idx,"Evidence"]='full'
                 continue
             
-            if df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'] and df_inv.loc[row_idx,'L_query'] != 'NA':
+            if df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'] and pd.notna(df_inv.loc[row_idx,'L_query']):
                 summary_dict['IS_mediated']+=1
                 df_inv.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_inv.loc[row_idx,"Evidence"]='evolved'
