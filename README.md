@@ -1,11 +1,14 @@
 # Seabreeze
 Author: Ira Zibbu
 
-Last update to README: 2024-03-13
+Last update to README: 2024-08-28
 
-Seabreeze is an automated pipeline for structural variant analysis from bacterial resequencing experiments. It is currently under development as I migrate and clean the workflow first described in the [LTEE-SV](https://github.com/ira-zibbu/LTEE-SV) project repo. 
+Seabreeze is an automated pipeline for structural variant analysis from bacterial resequencing experiments, and this repository holds the a version of seabreeze adapted to analyse structural variants
 
 Seabreeze uses snakemake to neatly manage input/output file and conda environment dependencies.
+
+### Updates
+As of August 2024, the general purpose structural variant analysis tool [seabreeze](https://github.com/barricklab/seabreeze) is now hosted separately on the BarrickLab GitHub. Please use that version for your own data, and not this. 
 
 # Quick start
 To replicate analysis, follow these steps:
@@ -23,6 +26,7 @@ git clone https://github.com/ira-zibbu/seabreeze.git
 
 
 3. Create a folder for the conda environments
+
 To allow Snakemake to keep reusing conda environments (i.e to prevent Snakemake from reinstalling environments again and again), do the following:
 ```
 mkdir $HOME/snakemake_conda_envs
@@ -33,9 +37,11 @@ export SNAKEMAKE_CONDA_PREFIX=$HOME/snakemake_conda_envs
 ```
 
 4. Add test data
+
 This is a small test data set to make sure everything runs okay
 ```
-cp test data
+cp -r test data
+cp data/data.csv ../data.csv
 ```
 
 
@@ -45,6 +51,6 @@ Navigate to the seabreeze directory and run snakemake with a few magic words:
 conda activate seabreeze
 snakemake --use-conda --cores 4 # feel free to change this but anything less than 2 cores will probably take an hour 
 ```
- 
+
 ### Misc information
 Where does seabreeze get its name from? **S**tructural **v**ariant for **b**acterial **rese**quencing abbreviates as SVbrese, which sounded like seabreeze. 
