@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+# Author: Jeffrey Barrick
 # This script reindexes (shifts) the sequence in the input file to a requested subsequence
 
 # ---- Imports ----
@@ -22,8 +23,8 @@ def reverse_complement(string):
                   'w': 'w', 's': 's', 'm': 'k', 'k': 'm', 'y': 'r', 'r': 'y', # lower case rare pt1
                   'B': 'V', 'D': 'H', 'H': 'D', 'V': 'B', # upper case rare pt2,
                   'b': 'v', 'd': 'h', 'h': 'd', 'v': 'b', # lower case rare pt2
-                  '-': '-',} 
-    
+                  '-': '-',}
+
     if "u" in string or "U" in string:
         complement["u"] = "a"
         complement["U"] = "A"
@@ -31,7 +32,7 @@ def reverse_complement(string):
         complement["a"] = "u"
         del complement["T"]
         del complement["t"]
-    
+
     return ''.join([complement.get(base, base) for base in reversed(string)])
 
 def string_splitter(string, length):
@@ -90,7 +91,7 @@ def reindex_fasta(file_in, file_out, reindex_bases):
         print("Could not find reindex bases in sequence {} contig {}".format(file_in, i+1))
         continue
 
-    
+
     # Delete the output file if it already exists
     if os.path.exists(os.path.join(file_out)):
         os.remove(os.path.join(file_out))
@@ -117,18 +118,18 @@ def main():
     if args.filetype.lower() not in valid_filetypes:
         print("Invalid filetype. Valid filetypes are: {}".format(", ".join(valid_filetypes)))
         exit(1)
-    
-    
+
+
     reindex_fasta(args.input, args.output, args.reindex_bases)
     exit(0)
-    
+
     # This is old code for batching a folder below
-    
+
     # Create output folder if it doesn't exist
     output_folder = os.path.join(args.input_folder, "reindexed")
     if not os.path.exists(output_folder):
         os.mkdir(output_folder)
-    
+
     # Get list of files in input folder
     files = os.listdir(args.input_folder)
 
