@@ -8,7 +8,7 @@ Seabreeze is an automated pipeline for structural variant analysis from bacteria
 Seabreeze uses snakemake to neatly manage input/output file and conda environment dependencies.
 
 ### Updates
-As of August 2024, the general purpose structural variant analysis tool [seabreeze](https://github.com/barricklab/seabreeze) is now hosted separately on the BarrickLab GitHub. Please use that version for your own data, and not this. 
+As of August 2024, this is the general purpose structural variant analysis tool [seabreeze](https://github.com/barricklab/seabreeze). The modified version of _seabreeze_ is now hosted separately on the my personal GitHub. Please use this repository's version for your own data, and not the modified version. 
 
 # Quick start
 To replicate analysis, follow these steps:
