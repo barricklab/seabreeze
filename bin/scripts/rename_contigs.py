@@ -44,7 +44,6 @@ def rename_contigs(filename, name,output):
             record.description = ""
             modified_records.append(record)
 
-    # Write the modified records
     with open(output, "w") as fasta_file:
         SeqIO.write(modified_records, fasta_file, "fasta")
         print("Renamed contigs to ", name, " in ", output)
