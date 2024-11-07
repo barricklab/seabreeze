@@ -58,23 +58,26 @@ rule reindex_contigs:
     shell:
        "{input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"
 
-# rename all the contigs of the fasta files to a common string (here "REL606")
+# rename all the FASTA headers to "genome"
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
+
 rule rename_contigs:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
         data = "data/03_reindex_genome/{sample}.fasta",
         script = "bin/scripts/rename_contigs.py"
+    params:
+        new_FASTA_header = "genome"
     output:
         "data/04_rename_genome/{sample}.fasta"
     shell:
-        "{input.script} --file --fasta {input.data}  --name REL606 --output {output}"
+        "{input.script} --file --fasta {input.data}  --name {params.new_FASTA_header} --output {output}"
 
 
 # Calculate the number of contigs in each fasta file and their length. Output is stored in contig_stats.tsv
 # Calculate the difference in length of the genomes, relative to the ancestor genome_size_stats.tsv
-# TODO: Eventually, this script should take data.csv and generate the szie different for each respective ancestor.
+# TODO: Eventually, this script should take data.csv and generate the size different for each respective ancestor.
 
 rule compute_genome_stats:
     conda:
