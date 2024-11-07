@@ -26,20 +26,35 @@ rule all_targets:
         gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
         html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
 
+# find unique bases at the start of the subject sequence to reindex the query sequence tp
+rule find_reindex_bases:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        query_path = "data/02_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "data/02_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
+        script = "bin/scripts/find_reindex_bases.py"
+    output:
+        "data/03_reindex_genomes/reindex_bases_{sample}.txt"
+    log:
+        "data/logs/find_reindex_bases/{sample}.log"
+    shell:
+        '''
+        {input.script} --subject {input.subject_path} --query {input.query_path} --output {output} > {log} 2>&1
+        '''
 
-# reindex all the fasta file to a common sequence to make comparison easier
-# DONT DO THIS! SOME OF YOUR GENOMES ARE IN ANOTHER INDEX AND THAT IS OK
-
-# rule reindex_contigs:
-#     conda:
-#         "bin/workflow/envs/biopython.yml"
-#     input:
-#         data = "data/02_genomes/{sample}.fasta",
-#         script = "bin/scripts/reindex_assembly.py"
-#     output:
-#         "data/03_reindex_genome/{sample}.fasta"
-#     shell:
-#         "{input.script} -b AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTC -i {input.data} -o {output} -t fasta"
+#reindex all the fasta file to a common sequence to make comparison easier
+rule reindex_contigs:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        fasta = "data/02_genomes/{sample}.fasta",
+        bases = "data/03_reindex_genomes/reindex_bases_{sample}.txt",
+        script = "bin/scripts/reindex_assembly.py"
+    output:
+       "data/03_reindex_genome/{sample}.fasta"
+    shell:
+       "{input.script} -b (printf {input.bases})  -i {input.fasta} -o {output} -t fasta"
 
 # rename all the contigs of the fasta files to a common string (here "REL606")
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
@@ -73,7 +88,7 @@ rule compute_genome_stats:
         genome_sizes = "data/04_rename_genome/genome_size_stats.tsv"
     shell:
         "{input.script} --folder {params.folder} --output {output.contig_stats} --stats {output.genome_sizes} --ancestor {params.ancestor}"
- 
+
 # ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
 # TO DO: Eventually, make the threads a parameter for this rule
 
@@ -125,7 +140,7 @@ rule align_genomes_nucmer:
     conda:
         "bin/workflow/envs/mummer4.yml"
     input:
-        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly 
+        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly
         subject_path = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
     output:
         done = "data/06_nucmer_alignment/{sample}/{sample}.done",
@@ -141,7 +156,7 @@ rule align_genomes_nucmer:
     # temporarily move both fasta files here because it's easier. delete when done. NO DO NOT DO THIS! CAUSES A BUG WHEN COMPARING A SEQUENCE TO ITSELF
     shell:
         """
-        mkdir -p {params.output_dir} 
+        mkdir -p {params.output_dir}
         cd {params.output_dir}
         touch ../../../{log}
         nucmer --maxmatch -c 100 -b 500 -l 50 -p {wildcards.sample} ../../../{input.subject_path} ../../../{input.query_path} > ../../../{log} 2>&1
@@ -179,7 +194,7 @@ rule call_variants_syri:
         echo "the query is {input.query_path}"
         syri --nosnp -c ../../../{input.coords} -d ../../../{input.filtered} -r ../../../{input.subject_path} -q ../../../{input.query_path} --prefix {wildcards.sample} > ../../../{log} 2>&1
         touch {wildcards.sample}.done
-        rm {wildcards.sample}syri.log {wildcards.sample}syri.summary 
+        rm {wildcards.sample}syri.log {wildcards.sample}syri.summary
         cd ../../../
         echo "syri complete. Working dir set to:"
         pwd
@@ -265,7 +280,7 @@ rule generate_synteny_plot_clean:
         mv {wildcards.sample}.2.log ../../../{log}
         cd ../../..
         pwd
-        """   
+        """
 
 # reindex all the fasta file to the origin to analyse the replichore arms and find ori and dif position
 rule reindex_contigs_oric:
@@ -279,7 +294,7 @@ rule reindex_contigs_oric:
     shell:
         "{input.script} -b GGATCCTGGGTATTAAAA -i {input.data} -o {output} -t fasta"
 
-# generate a tsv file with the ori and dif coords of the genomes in their original index 
+# generate a tsv file with the ori and dif coords of the genomes in their original index
 rule annotate_ori_dif_locations:
     conda:
         "bin/workflow/envs/pandas.yml"
@@ -303,7 +318,7 @@ rule annotate_ori_dif_locations:
 # generate a tsv file with the oric and dif of the genomens reindexed to the ori and a tsv file with lenths of the replichore arms of each clone
 # TODO: Eventually remove the ancestor as a requirement for this rule and script, since it is not used
 
-rule analyse_replichore_arms:        
+rule analyse_replichore_arms:
     conda:
         "bin/workflow/envs/pandas.yml"
     input:
@@ -351,7 +366,7 @@ rule analyse_replichore_arms:
 #         breseq -j {params.threads} -l {params.limit_reads} -x -r ../../{input.reference_assembly} ../../{input.reads} -o {params.breseq_dir}> {wildcards.sample}.log 2>&1
 #         mv {wildcards.sample}.log ../../{log}
 #         cd {params.breseq_dir}
-#         rm -rf 01_sequence_conversion 03_candidate_junctions 05_alignment_correction 07_error_calibration 02_reference_alignment 04_candidate_junction_alignment 06_bam 08_mutation_identification 
+#         rm -rf 01_sequence_conversion 03_candidate_junctions 05_alignment_correction 07_error_calibration 02_reference_alignment 04_candidate_junction_alignment 06_bam 08_mutation_identification
 #         mv data/output.gd ../{wildcards.sample}.gd
 #         mv output/index.html ../{wildcards.sample}.html
 #         cd ../../..
@@ -476,7 +491,7 @@ rule generate_genome_diffs_tables:
 
 # god is watching you for this hideous code. repent for your sins.
         # """
-        # cp {input.subject_path} {params.output_dir}/{params.subject_name} 
+        # cp {input.subject_path} {params.output_dir}/{params.subject_name}
         # cp {input.query_path} {params.output_dir}/{wildcards.sample}.fasta
         # cd data/06_nucmer_alignment/{wildcards.sample}
         # touch ../../../{log}
