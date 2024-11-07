@@ -52,9 +52,11 @@ rule reindex_contigs:
         bases = "data/03_reindex_genomes/reindex_bases_{sample}.txt",
         script = "bin/scripts/reindex_assembly.py"
     output:
-       "data/03_reindex_genome/{sample}.fasta"
+       "data/03_reindex_genomes/{sample}.fasta"
+    log:
+        "data/logs/reindex_contigs/{sample}.log"
     shell:
-       "{input.script} -b (printf {input.bases})  -i {input.fasta} -o {output} -t fasta"
+       "{input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"
 
 # rename all the contigs of the fasta files to a common string (here "REL606")
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
