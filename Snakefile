@@ -32,7 +32,7 @@ rule find_reindex_bases:
         "bin/workflow/envs/biopython.yml"
     input:
         query_path = "data/02_genomes/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "data/02_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
+        subject_path = lambda wildcards: "data/02_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly its being compared to
         script = "bin/scripts/find_reindex_bases.py"
     output:
         "data/03_reindex_genomes/reindex_bases_{sample}.txt"
@@ -65,14 +65,14 @@ rule rename_contigs:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
-        data = "data/03_reindex_genome/{sample}.fasta",
+        data = "data/03_reindex_genomes/{sample}.fasta",
         script = "bin/scripts/rename_contigs.py"
     params:
         new_FASTA_header = "genome"
     output:
         "data/04_rename_genome/{sample}.fasta"
     shell:
-        "{input.script} --file --fasta {input.data}  --name {params.new_FASTA_header} --output {output}"
+        "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output}"
 
 
 # Calculate the number of contigs in each fasta file and their length. Output is stored in contig_stats.tsv
