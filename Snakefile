@@ -3,8 +3,7 @@ import pandas as pd
 path_to_csv="data.csv"
 df = pd.read_csv(path_to_csv)
 
-# these dictionaries map assembly to its path and assembly to its ancestor
-assembly_to_path_dict = dict(zip(df['assembly'], df['assembly_path']))
+# this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 
 # one rule to rule them all ...
@@ -71,8 +70,10 @@ rule rename_contigs:
         new_FASTA_header = "genome"
     output:
         "data/04_rename_genome/{sample}.fasta"
+    log:
+        "data/logs/rename_contigs/{sample}.log"
     shell:
-        "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output}"
+        "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
 
 
 # Calculate the number of contigs in each fasta file and their length. Output is stored in contig_stats.tsv
@@ -81,7 +82,7 @@ rule rename_contigs:
 
 rule compute_genome_stats:
     conda:
-        "bin/workflow/envs/pandas.yml"
+        "bin/workflow/envs/biopython.yml"
     input:
         data =  expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()),
         script = "bin/scripts/fasta_stats.py"

@@ -13,6 +13,7 @@ import glob
 from Bio import SeqIO
 import argparse
 
+
 ''' fetch arguments '''
 
 parser = argparse.ArgumentParser(description='rename_contigs.py, a script to rename all the contigs of FASTA files to specified string')
@@ -35,6 +36,7 @@ parser.add_argument('--name', help='String to rename contigs to')
 #     return fasta_names
 
 def load_test_fasta_files(file):
+
     ''' Accepts the path to the FASTA file, checks if they are in the correct format and loads them as Seq objects '''
 
     if not(os.path.exists(file)):

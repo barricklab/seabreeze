@@ -2,164 +2,76 @@
 # Author: Ira Zibbu
 # this script outputs the number of contigs, the length of each contig, the length of the ancestor and the size difference
 
+__author__ = "Ira Zibbu"
+__version__ = "0.1.0"
+
 ''' imports '''
 
 import os
-from collections import deque
 import pandas as pd
 import numpy as np
+from Bio.Seq import Seq
+from Bio import SeqIO
 import argparse
+from find_reindex_bases import load_test_fasta_files
 
 ''' fetch arguments '''
 
 parser = argparse.ArgumentParser(description='fasta_stats.py, a script to calculate the number of contigs and length of contigs of fasta files, and size difference relative to ancestor')
 parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose mode')
-parser.add_argument('--file', '-f', action='store_true', help='Enable single file mode. Default is folder mode')
-parser.add_argument('--fasta', help='FASTA file. Use with the --file option')
 parser.add_argument('--folder', help='Folder of FASTA files. Do not use with --file option')
-parser.add_argument('--ancestor', help='FASTA file of the ancestor, relative to which genome size change is calculated')
-parser.add_argument('--output', help='Output filename for table with contig sizes')
-parser.add_argument('--stats', help='Output filename for table with genome size difference. Use with the ancestor option')
+parser.add_argument('--output', help='Output filename for table with genome size difference')
+parser.add_argument('--data',help='data.csv file with subject and queries for pairwise comparisons ')
 
+def read_data(data):
 
-def get_fasta_names(folder_path):
-
-    ''' fetch names of fasta files in the folder '''
-
-    fasta_names = []
-    for entry in os.scandir(folder_path):
-        if entry.is_file() and entry.name.endswith(".fasta") and len(entry.name) > len(".fasta"):
-            fasta_names.append(entry.name)
-    return fasta_names
-
-def fasta_length(name):
-
-    ''' return the names and lengths of contigs from name '''
-
-    fasta = [] # a list of deques, where each deque corresponds to one contig, and the elements of each deque contains the lines of the contig
-    contig_lengths = [] # a list of the lengths of the contigs
-    contig_count=0 # number of contigs 
-    contig_names=[] # a list of the names of the contigs
-
-    with open(name, "r") as file:
-        for line in file:
-            line = line.strip()
-            if line[0] == ">":
-                contig_count+=1
-                contig_names.append(line)
-                fasta.append(deque()) # make a deque for this contig
-                contig_lengths.append(0)
-            else:
-                data = line
-                fasta[(contig_count-1)].append(data) # append the current line of the fasta file into the deque of this contig
-        
-        for count, element in enumerate(fasta):
-            seq=''
-            seq=''.join(element) # combine the elements of the deque into a single sequence i.e seq is a string of the sequence of the contig
-            contig_lengths[count]=len(seq)
-
-    return contig_names, contig_lengths
-
-def contig_count(fasta_names):
-
-    ''' determines the maximum number of contigs among all fasta files provivded '''
-
-    max_contig_count=0
-    for name in fasta_names:
-        with open(name, "r") as file:
-            contig_count=0
-            for line in file:
-                line = line.strip()
-                if line[0] == ">":
-                    contig_count+=1
-            max_contig_count=max(max_contig_count,contig_count)  
-    return max_contig_count    
-        
-def analyse_genomes(df, ancestor_filename, stats):
-
-    ''' accepts a dataframe, name of ancestor to calculate genome size differences '''
-
-    ancestor=df[df['File'].str.contains(ancestor_filename)]
-    ancestor_dict = ancestor.iloc[0].to_dict()
-    ancestor_length=ancestor_dict['contig_1']
-    col_names=['clone', 'length', 'difference', 'change']
-    df_genomes=pd.DataFrame(np.nan, index=range(len(df)), columns=col_names)
-    df_genomes['clone']=df['File']
-    df_genomes['clone'] = df_genomes['clone'].str.replace('.fasta', '')
-    df_genomes['length']=df['contig_1']
-    for idx in range(len(df_genomes)):
-        difference=int(df_genomes.loc[idx,'length'])-int(ancestor_length)
-        df_genomes.loc[idx,'difference']=difference
-        change=(difference/int(ancestor_length))*100
-        df_genomes.loc[idx,'change']=change
-    print(df_genomes.head)
-
-    stats_dir = os.path.dirname(stats)
+    ''' Accept the path to the data.csv file an return as a pandas dataframe '''
 
     try:
-        # Save the DataFrame to CSV
-        df_genomes.to_csv(stats, sep='\t', index=False)
-    except OSError as e:
-        raise OSError(f"Cannot save file into a non-existent directory: '{stats_dir}'. Error: {str(e)}")
+        path_to_csv=data
+        data = pd.read_csv(path_to_csv)
+    except Exception as e:
+        print(f"Error parsing file: {data}. Exception: {e}")
+        raise
 
-    #df_genomes.to_csv(stats, sep='\t', index=False)
+    return data
 
+def get_genome_sizes(assembly,ancestor):
 
-def main(file, fasta, folder, ancestor, output, stats):
+    ''' Accept two seq record objects, and return the sizes, size difference and percent change in a genome_statsionary '''
 
-    name='' 
-    print("starting task")
+    genome_stats = {'size_assembly':0,'size_ancestor':0,'difference':0,'percent_change':0}
+    genome_stats['size_assembly'] = len(assembly.seq)
+    genome_stats['size_ancestor'] = len(ancestor.seq)
+    genome_stats['difference'] = genome_stats['size_ancestor']-genome_stats['size_assembly']
+    genome_stats['percent_change'] = genome_stats['difference']/genome_stats['size_ancestor']
 
-    if not file: # folder mode
+    return genome_stats
 
-        fasta_names = get_fasta_names(folder)
-        wd = os.getcwd()
-        os.chdir(folder)
-        max_contig_count=contig_count(fasta_names)
-        col_names=['File'] 
+def main(verbose,folder,output,data):
 
-        for idx in range(max_contig_count): # generate column names as contig_1, comntig_2.. contig_n where n is the mac contig count
-            idx+=1
-            name="contig_"+str(idx)
-            col_names.append(name)
-            idx-=1
+    data = read_data(data)
+    columns_for_table = ['assembly','ancestor','size_assembly','size_ancestor','difference','percent_change']
+    genome_size_table = pd.DataFrame(columns=columns_for_table)
 
-        df_contigs=pd.DataFrame(np.nan, index=range(len(fasta_names)), columns=col_names)
-        
-        row_idx=0
-        for name in fasta_names:
-            contig_names, contig_lengths=fasta_length(name)
-            df_contigs.loc[row_idx,'File']=name
-            col_idx=1
-            for num in contig_lengths: # add the lengths of the contigs in the row for name
-                contig_col=col_names[col_idx]
-                df_contigs.loc[row_idx,contig_col]=str(num)
-                col_idx+=1
-            row_idx+=1
-        
-        os.chdir(wd) # go back to the directory 
-        
-        df_contigs.to_csv(output, sep='\t', index=False)
+    # loop over data
+    for index, row in data.iterrows():
+        assembly, ancestor = load_test_fasta_files(f"{row['assembly']}.fasta",f"{row['ancestor']}.fasta")
+        genome_stats = get_genome_sizes(assembly,ancestor)
+        genome_size_table.loc[index,'assembly']=row['assembly']
+        genome_size_table.loc[index,'ancestor']=row['ancestor']
 
-        output_dir = os.path.dirname(output)
+        for key,value in genome_stats.items():
+            genome_size_table.loc[index,key]=value
 
-        try:
-            # Save the DataFrame to CSV
-            df_contigs.to_csv(output, sep='\t', index=False)
-        except OSError as e:
-            raise OSError(f"Cannot save file into a non-existent directory: '{output_dir}'. Error: {str(e)}")
+    try:
+        genome_size_table.to_csv(output,index=False)
+    except Exception as e:
+        print(f"Error writing file {output}. Exception: {e}")
+        raise
 
-        analyse_genomes(df_contigs, ancestor, stats)
-
-    if file: # file mode
-    
-        contig_names, contig_lengths=fasta_length(fasta)
-        for count, element in enumerate(contig_names): # loop to print out contig names and contig lengths
-            print(element, " : ", contig_lengths[count])
-    
-        print("Task finished")
-
+    print(f"Genome size statistics computed. Results stored in {output}")
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    main(args.file, args.fasta, args.folder, args.ancestor, args.output, args.stats)
+    main(args.verbose, args.folder, args.output,args.data)
