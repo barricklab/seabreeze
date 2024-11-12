@@ -46,14 +46,6 @@ def load_test_fasta_files(subject_path, query_path):
 
     return subject, query
 
-    # try:
-    #     subject = SeqIO.read(subject_path, "fasta")
-    #     query = SeqIO.read(query_path, "fasta")
-    # except:
-    #     print("Error parsing input files. Check that files are in FASTA format and have only one non-empty record")
-
-    # return subject, query
-
 def check_k_mer_unique(fasta,k_mer):
 
     ''' Accepts a SeqRecord and a k-mer, and checks if that k-mer is unique in the sequence '''

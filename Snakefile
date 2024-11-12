@@ -1,10 +1,16 @@
 import pandas as pd
 
-path_to_csv="data.csv"
-df = pd.read_csv(path_to_csv)
+path_to_data_csv="data/data.csv"
+df = pd.read_csv(path_to_data_csv)
+
+path_to_example_02_csv="example_02/data.csv"
+df_example_02=pd.read_csv(path_to_example_02_csv)
+
+# TODO: run QC on the format of the data.csv
 
 # this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
+assembly_to_ancestor_dict_example_02 = dict(zip(df_example_02['assembly'], df_example_02['ancestor']))
 
 # one rule to rule them all ...
 # remember you cant have wildcards in the target rule!
@@ -444,20 +450,6 @@ rule classify_inversion_replichore:
         {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data data.csv
         """
 
-# # make the folders for the next rule
-# rule generate_genome_diffs_folders:
-#     conda:
-#         "bin/workflow/envs/biopython.yml"
-#     input:
-#         syri = expand("data/07_syri_output/{sample}/{sample}syri.out_v2", sample=df['assembly'].tolist())
-#     output:
-#         gd_folder = "data/12_genome_diff_tables/gd",
-#         html_folder = "data/12_genome_diff_tables/html"
-#     shell:
-#         """
-#         mkdir -p {output.gd_folder}
-#         mkdir -p {output.html_folder}
-#         """
 
 # Use the syri.out_v2 files to make the HTML tables from breseq
 rule generate_genome_diffs_tables:
@@ -485,28 +477,26 @@ rule generate_genome_diffs_tables:
         """
 
 
-# this rule just checks to see if the previous rule generated the main output tables. No shell executed
 
-# rule annotate_SV_mechanism_all:
-#     input:
-#         expand("data/11_annotated_boundaries/{sample}_inversion.csv", sample=df['assembly'].tolist()),
-#         expand("data/11_annotated_boundaries/{sample}_deletion.csv", sample=df['assembly'].tolist())
-#     output:
-#         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
-#         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
 
-# god is watching you for this hideous code. repent for your sins.
-        # """
-        # cp {input.subject_path} {params.output_dir}/{params.subject_name}
-        # cp {input.query_path} {params.output_dir}/{wildcards.sample}.fasta
-        # cd data/06_nucmer_alignment/{wildcards.sample}
-        # touch ../../../{log}
-        # nucmer --maxmatch -c 100 -b 500 -l 50 -p {wildcards.sample} {params.subject_name} {wildcards.sample}.fasta > ../../../{log} 2>&1
-        # delta-filter -i {params.seq_id_cutoff} -l 100 {wildcards.sample}.delta > {wildcards.sample}.filtered.delta
-        # show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
-        # touch {wildcards.sample}.done
-        # rm {wildcards.sample}.fasta {params.subject_name}
-        # cd ../../../
-        # echo "Alignment complete. Working dir set to:"
-        # pwd
-        # """
+'''
+Unit tests
+'''
+
+# TODO: write a target file to run all unit tests
+
+rule find_reindex_bases_example02:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        query_path = "example_02/02_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "example_02/02_genomes/{}.fasta".format(assembly_to_ancestor_dict_example_02[wildcards.sample]), # path to the assembly its being compared to
+        script = "bin/scripts/find_reindex_bases.py"
+    output:
+        "example_02/03_reindex_genomes/reindex_bases_{sample}.txt"
+    log:
+        "example_02/logs/find_reindex_bases/{sample}.log"
+    shell:
+        '''
+        {input.script} --subject {input.subject_path} --query {input.query_path} --output {output} > {log} 2>&1
+        '''
