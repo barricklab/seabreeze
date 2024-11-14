@@ -488,10 +488,11 @@ Unit tests
 
 rule all_test:
     input:
-        find_reindex_bases = expand("test/output/example/find_reindex_bases/{sample}.txt", sample=df_example['assembly'].tolist())
+        find_reindex_bases = expand("test/output/example/find_reindex_bases/{sample}.txt", sample=df_example['assembly'].tolist()),
+        rindex_assembly = expand("test/output/example/reindex_assembly/{sample}.txt", sample=df_example['assembly'].tolist())
 
 # this rule runs the script for the example genomes
-rule find_reindex_bases_example02:
+rule find_reindex_bases_example:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
@@ -524,17 +525,33 @@ rule test_find_reindex_bases:
         {input.script} --file {input.data} --output {output} > {log} 2>&1
         '''
 
-#reindex all the fasta file to a common sequence for test examples_02
+#reindex all the fasta file to a common sequence for test examples
 rule reindex_contigs_example:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
-        fasta = "data/02_genomes/{sample}.fasta",
-        bases = "data/03_reindex_genomes/reindex_bases_{sample}.txt",
+        fasta = "example/02_genomes/{sample}.fasta",
+        bases = "example/03_reindex_genomes/reindex_bases_{sample}.txt",
         script = "bin/scripts/reindex_assembly.py"
     output:
-       "data/03_reindex_genomes/{sample}.fasta"
+       "example/03_reindex_genomes/{sample}.fasta"
     log:
-        "data/logs/reindex_contigs/{sample}.log"
+        "example/logs/reindex_contigs/{sample}.log"
     shell:
        "{input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"
+
+# run unit test on the reindexed example genomes
+rule test_reindex_contigs_example:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        data = "example/03_reindex_genomes/{sample}.fasta",
+        script = "test/scripts/reindex_assembly_test.py"
+    output:
+        "test/output/example/reindex_assembly/{sample}.txt"
+    log:
+        "test/log/example/reindex_assembly/{sample}.log"
+    shell:
+        '''
+        {input.script} --file {input.data} --output {output} > {log} 2>&1
+        '''

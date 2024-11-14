@@ -20,14 +20,17 @@ parser.add_argument('--output', help='output file to write results of the test t
 def test(file):
 
     assembly = SeqIO.read(file, "fasta")
+    first_12_bases=assembly.seq[:12]
 
     # These conditions are true from prior runs and is the expected result
     if "yersinia" in file:
-        first_12_bases=assembly.seq[:12]
         assert first_12_bases=="TCGCGCGATCTT",f"{file} does not begin at the correct bases. Reindexing failed"
+        return True
 
-    flag=True
-    return flag # this is returned if all tests ran without an assertionerror
+
+    if "gen" in file:
+        assert first_12_bases=="AGCTTTTCATTC",f"{file} does not begin at the correct bases. Reindexing failed"
+        return True
 
 def main(file,output):
 
