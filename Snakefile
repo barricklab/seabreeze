@@ -3,14 +3,14 @@ import pandas as pd
 path_to_data_csv="data/data.csv"
 df = pd.read_csv(path_to_data_csv)
 
-path_to_example_02_csv="example_02/data.csv"
-df_example_02=pd.read_csv(path_to_example_02_csv)
+path_to_example_csv="example/data.csv"
+df_example=pd.read_csv(path_to_example_csv)
 
 # TODO: run QC on the format of the data.csv
 
 # this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
-assembly_to_ancestor_dict_example_02 = dict(zip(df_example_02['assembly'], df_example_02['ancestor']))
+assembly_to_ancestor_dict_example = dict(zip(df_example['assembly'], df_example['ancestor']))
 
 # one rule to rule them all ...
 # remember you cant have wildcards in the target rule!
@@ -482,25 +482,26 @@ rule generate_genome_diffs_tables:
 '''
 Unit tests
 '''
+# TODO: Also set up test for LTEE data!
 
 # Unit test target rule, will run all unit tests
 
 rule all_test:
     input:
-        find_reindex_bases = expand("test/output/example_02/find_reindex_bases/{sample}.txt", sample=df_example_02['assembly'].tolist())
+        find_reindex_bases = expand("test/output/example/find_reindex_bases/{sample}.txt", sample=df_example['assembly'].tolist())
 
-# this rule runs the script for the example_02 genomes
+# this rule runs the script for the example genomes
 rule find_reindex_bases_example02:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
-        query_path = "example_02/02_genomes/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "example_02/02_genomes/{}.fasta".format(assembly_to_ancestor_dict_example_02[wildcards.sample]), # path to the assembly its being compared to
+        query_path = "example/02_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "example/02_genomes/{}.fasta".format(assembly_to_ancestor_dict_example[wildcards.sample]), # path to the assembly its being compared to
         script = "bin/scripts/find_reindex_bases.py"
     output:
-        "example_02/03_reindex_genomes/reindex_bases_{sample}.txt"
+        "example/03_reindex_genomes/reindex_bases_{sample}.txt"
     log:
-        "example_02/logs/find_reindex_bases/{sample}.log"
+        "example/logs/find_reindex_bases/{sample}.log"
     shell:
         '''
         {input.script} --subject {input.subject_path} --query {input.query_path} --output {output} > {log} 2>&1
@@ -512,13 +513,28 @@ rule test_find_reindex_bases:
     conda:
         "bin/workflow/envs/pandas.yml"
     input:
-        data = "example_02/03_reindex_genomes/reindex_bases_{sample}.txt",
+        data = "example/03_reindex_genomes/reindex_bases_{sample}.txt",
         script = "test/scripts/find_reindex_bases_test.py"
     output:
-        "test/output/example_02/find_reindex_bases/{sample}.txt"
+        "test/output/example/find_reindex_bases/{sample}.txt"
     log:
-        "test/log/example_02/find_reindex_bases/{sample}.log"
+        "test/log/example/find_reindex_bases/{sample}.log"
     shell:
         '''
         {input.script} --file {input.data} --output {output} > {log} 2>&1
         '''
+
+#reindex all the fasta file to a common sequence for test examples_02
+rule reindex_contigs_example:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        fasta = "data/02_genomes/{sample}.fasta",
+        bases = "data/03_reindex_genomes/reindex_bases_{sample}.txt",
+        script = "bin/scripts/reindex_assembly.py"
+    output:
+       "data/03_reindex_genomes/{sample}.fasta"
+    log:
+        "data/logs/reindex_contigs/{sample}.log"
+    shell:
+       "{input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"

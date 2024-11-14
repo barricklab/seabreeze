@@ -4,7 +4,7 @@ Test for find_reindex_bases.py
 """
 
 __author__ = "Ira Zibbu"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 ''' imports '''
 import argparse
@@ -22,9 +22,11 @@ def test(file):
         # These conditions are true from prior runs and is the expected result
         if "yersinia" in file:
             assert bases=="TCGCGCGATCTT",f"Reindex bases were not found in {file}"
+            return True
 
-    flag=True
-    return flag # this is returned if all tests ran without an assertionerror
+        if "gen" in file:
+            assert bases=="AGCTTTTCATTC",f"Reindex bases were not found in {file}"
+            return True
 
 def main(file,output):
 
@@ -32,7 +34,6 @@ def main(file,output):
     if flag:
         with open(output, "w") as file:
             file.write("test successful")
-
 
 if __name__ == '__main__':
     args = parser.parse_args()
