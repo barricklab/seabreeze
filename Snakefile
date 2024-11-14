@@ -482,14 +482,14 @@ rule generate_genome_diffs_tables:
 '''
 Unit tests
 '''
-# TODO: Also set up test for LTEE data!
-
 # Unit test target rule, will run all unit tests
 
 rule all_test:
     input:
         find_reindex_bases = expand("test/output/example/find_reindex_bases/{sample}.txt", sample=df_example['assembly'].tolist()),
-        rindex_assembly = expand("test/output/example/reindex_assembly/{sample}.txt", sample=df_example['assembly'].tolist())
+        reindex_assembly = expand("test/output/example/reindex_assembly/{sample}.txt", sample=df_example['assembly'].tolist()),
+        rename_contigs = expand("test/output/example/rename_contigs/{sample}.txt", sample=df_example['assembly'].tolist())
+
 
 # this rule runs the script for the example genomes
 rule find_reindex_bases_example:
@@ -551,6 +551,39 @@ rule test_reindex_contigs_example:
         "test/output/example/reindex_assembly/{sample}.txt"
     log:
         "test/log/example/reindex_assembly/{sample}.log"
+    shell:
+        '''
+        {input.script} --file {input.data} --output {output} > {log} 2>&1
+        '''
+
+# run rename_contigs.py for the example genomes
+rule rename_contigs_example:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        data = "example/03_reindex_genomes/{sample}.fasta",
+        script = "bin/scripts/rename_contigs.py"
+    params:
+        new_FASTA_header = "genome"
+    output:
+        "example/04_rename_genome/{sample}.fasta"
+    log:
+        "example/logs/rename_contigs/{sample}.log"
+    shell:
+        "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
+
+
+# run unit test on the reindexed example genomes
+rule test_rename_contigs_example:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        data = "example/04_rename_genome/{sample}.fasta",
+        script = "test/scripts/rename_contigs_test.py"
+    output:
+        "test/output/example/rename_contigs/{sample}.txt"
+    log:
+        "test/log/example/rename_contigs/{sample}.log"
     shell:
         '''
         {input.script} --file {input.data} --output {output} > {log} 2>&1
