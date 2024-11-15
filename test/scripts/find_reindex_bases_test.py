@@ -9,6 +9,8 @@ __version__ = "0.0.3"
 ''' imports '''
 import argparse
 
+''' Command line args '''
+
 parser = argparse.ArgumentParser(description='run test on output of find_reindex_bases rule')
 parser.add_argument('--file', help='txt file with bases output by find_reindex_bases.py')
 parser.add_argument('--output', help='output file to write to')

@@ -2,7 +2,6 @@
 """
 Test for reindex_assembly.py
 """
-# TODO: Also set this up for LTEE data, with a rotated genome
 
 
 __author__ = "Ira Zibbu"
