@@ -3,20 +3,15 @@ import pandas as pd
 path_to_data_csv="data/data.csv"
 df = pd.read_csv(path_to_data_csv)
 
-path_to_example_csv="example/data.csv"
-df_example=pd.read_csv(path_to_example_csv)
-
 # TODO: run QC on the format of the data.csv
 
 # this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
-assembly_to_ancestor_dict_example = dict(zip(df_example['assembly'], df_example['ancestor']))
 
 # one rule to rule them all ...
 # remember you cant have wildcards in the target rule!
 rule all_targets:
     input:
-        contig_stats = "data/04_rename_genome/contig_stats.tsv",
         genome_sizes = "data/04_rename_genome/genome_size_stats.tsv",
         IS_summary = "data/05_isescan_tables/IS_summary.csv",
         IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
@@ -87,15 +82,16 @@ rule compute_genome_stats:
         "bin/workflow/envs/biopython.yml"
     input:
         data =  expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()),
-        script = "bin/scripts/fasta_stats.py"
+        script = "bin/scripts/fasta_stats.py",
+        csv_file = "data/data.csv"
     params:
-        folder = "data/04_rename_genome",
-        ancestor = "Anc-_0gen_REL606.fasta" # this is not the path to the ancestor's assembly but it is expected that the ancestor is in input.data folder
+        folder = "data/04_rename_genome"
     output:
-        contig_stats = "data/04_rename_genome/contig_stats.tsv",
-        genome_sizes = "data/04_rename_genome/genome_size_stats.tsv"
+        genome_sizes = "data/04_rename_genome/genome_size_stats.csv"
+    log:
+        "data/logs/compute_genome_stats/compute_genome_stats.log"
     shell:
-        "{input.script} --folder {params.folder} --output {output.contig_stats} --stats {output.genome_sizes} --ancestor {params.ancestor}"
+        "{input.script} --folder {params.folder} --data {input.csv_file} --output {output.genome_sizes} > {log} 2>&1"
 
 # ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
 # TO DO: Eventually, make the threads a parameter for this rule
