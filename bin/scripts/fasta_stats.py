@@ -13,13 +13,12 @@ import numpy as np
 from Bio.Seq import Seq
 from Bio import SeqIO
 import argparse
-from find_reindex_bases import load_test_fasta_files
 
 ''' fetch arguments '''
 
 parser = argparse.ArgumentParser(description='fasta_stats.py, a script to calculate the number of contigs and length of contigs of fasta files, and size difference relative to ancestor')
 parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose mode')
-parser.add_argument('--folder', help='Folder of FASTA files. Do not use with --file option')
+parser.add_argument('--folder', help='Folder of FASTA files.')
 parser.add_argument('--output', help='Output filename for table with genome size difference')
 parser.add_argument('--data',help='data.csv file with subject and queries for pairwise comparisons ')
 
@@ -50,13 +49,22 @@ def get_genome_sizes(assembly,ancestor):
 
 def main(verbose,folder,output,data):
 
+    from find_reindex_bases import load_test_fasta_files
+    # this import statement was moved to avoid missing imports during testing
+
     data = read_data(data)
     columns_for_table = ['assembly','ancestor','size_assembly','size_ancestor','difference','percent_change']
     genome_size_table = pd.DataFrame(columns=columns_for_table)
 
     # loop over data
     for index, row in data.iterrows():
-        assembly, ancestor = load_test_fasta_files(f"{row['assembly']}.fasta",f"{row['ancestor']}.fasta")
+        assembly_file=f"{row['assembly']}.fasta"
+        ancestor_file=f"{row['ancestor']}.fasta"
+
+        assembly_file_path=os.path.join(folder,assembly_file)
+        ancestor_file_path=os.path.join(folder,ancestor_file)
+
+        assembly, ancestor = load_test_fasta_files(assembly_file_path,ancestor_file_path)
         genome_stats = get_genome_sizes(assembly,ancestor)
         genome_size_table.loc[index,'assembly']=row['assembly']
         genome_size_table.loc[index,'ancestor']=row['ancestor']

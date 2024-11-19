@@ -28,8 +28,8 @@ rule all_targets:
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
         inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
-        gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
-        html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
+        #gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
+        #html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
 
 # find unique bases at the start of the subject sequence to reindex the query sequence tp
 rule find_reindex_bases:
@@ -81,10 +81,6 @@ rule rename_contigs:
     shell:
         "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
 
-
-# Calculate the number of contigs in each fasta file and their length. Output is stored in contig_stats.tsv
-# Calculate the difference in length of the genomes, relative to the ancestor genome_size_stats.tsv
-# TODO: Eventually, this script should take data.csv and generate the size different for each respective ancestor.
 
 rule compute_genome_stats:
     conda:
@@ -452,26 +448,26 @@ rule classify_inversion_replichore:
 
 
 # Use the syri.out_v2 files to make the HTML tables from breseq
-rule generate_genome_diffs_tables:
-    conda:
-        "bin/workflow/envs/breseq.yml"
-    input:
-        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
-        script = "bin/scripts/syri2gd.py",
-        reference = "data/01_references/REL606.gff3"
-    output:
-        gd = "data/12_genome_diff_tables/gd/{sample}.gd",
-        html = "data/12_genome_diff_tables/html/{sample}.html"
-    params:
-        gd_folder = "data/12_genome_diff_tables/gd",
-        html_folder = "data/12_genome_diff_tables/html",
-    shell:
-        """
-        mkdir -p {params.gd_folder}
-        mkdir -p {params.html_folder}
-        cd {params.gd_folder}
-        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification
-        cd ../../../{params.html_folder}
-        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd}
-        cd ../../../
-        """
+# rule generate_genome_diffs_tables:
+#    conda:
+#        "bin/workflow/envs/breseq.yml"
+#    input:
+#        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+#        script = "bin/scripts/syri2gd.py",
+#        reference = "data/01_references/REL606.gff3"
+#    output:
+#        gd = "data/12_genome_diff_tables/gd/{sample}.gd",
+#        html = "data/12_genome_diff_tables/html/{sample}.html"
+#    params:
+#        gd_folder = "data/12_genome_diff_tables/gd",
+#        html_folder = "data/12_genome_diff_tables/html",
+#    shell:
+#        """
+#        mkdir -p {params.gd_folder}
+#        mkdir -p {params.html_folder}
+#        cd {params.gd_folder}
+#        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification
+#        cd ../../../{params.html_folder}
+#        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd}
+#        cd ../../../
+#        """
