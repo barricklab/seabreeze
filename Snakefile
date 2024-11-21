@@ -12,19 +12,12 @@ assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 # remember you cant have wildcards in the target rule!
 rule all_targets:
     input:
-        genome_sizes = "data/04_rename_genome/genome_size_stats.tsv",
-        IS_summary = "data/05_isescan_tables/IS_summary.csv",
-        IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
-        inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
-        clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
-        ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
-        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
-        deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
-        inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
-        deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
-        inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
+        inversion_table = "output/inversion_mechanism.csv",
+        deletion_table = "output/deletion_mechanism.csv",
+        #inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
         #gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
         #html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
+        genome_sizes = "output/genome_size_stats.csv",
 
 # find unique bases at the start of the subject sequence to reindex the query sequence tp
 rule find_reindex_bases:
@@ -76,7 +69,7 @@ rule rename_contigs:
     shell:
         "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
 
-
+# compute the size of the assemblies and the size difference with respect to their ancestors
 rule compute_genome_stats:
     conda:
         "bin/workflow/envs/biopython.yml"
@@ -87,7 +80,7 @@ rule compute_genome_stats:
     params:
         folder = "data/04_rename_genome"
     output:
-        genome_sizes = "data/04_rename_genome/genome_size_stats.csv"
+        genome_sizes = "output/genome_size_stats.csv"
     log:
         "data/logs/compute_genome_stats/compute_genome_stats.log"
     shell:
@@ -116,15 +109,30 @@ rule find_IS_elements:
         rm {wildcards.sample}.fasta
         """
 
+# TODO: Add a rule to mask genomes
 
-# align each assembly to its ancestor, then filter the alignments and convert from .delta to coords
+rule mask_genomes:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        data = "data/04_rename_genome/{sample}.fasta",
+        script = "bin/scripts/mask_IS_elements.py",
+        csv_files = "data/05_isescan_tables/{sample}.csv"
+    output:
+        "data/04_01_masked_genomes/{sample}.fasta"
+    log:
+        "data/logs/mask_genomes/{sample}.log"
+    shell:
+        "{input.script} --genome {input.data}  --is_table {input.csv_files} --output {output} > {log} 2>&1"
+
+# align each masked assembly to its ancestor, then filter the alignments and convert from .delta to coords
 
 rule align_genomes_nucmer:
     conda:
         "bin/workflow/envs/mummer4.yml"
     input:
-        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
+        query_path = "data/04_01_masked_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "data/04_01_masked_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
     output:
         done = "data/06_nucmer_alignment/{sample}/{sample}.done",
         delta = "data/06_nucmer_alignment/{sample}/{sample}.delta",
@@ -147,8 +155,6 @@ rule align_genomes_nucmer:
         show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
         touch {wildcards.sample}.done
         cd ../../../
-        echo "Alignment complete. Working dir set to:"
-        pwd
         """
 
 # now call structural variants from the alignments
@@ -158,8 +164,8 @@ rule call_variants_syri:
         "bin/workflow/envs/syri.yml"
     input:
         filtered = "data/06_nucmer_alignment/{sample}/{sample}.filtered.delta",
-        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
+        query_path = "data/04_01_masked_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "data/04_01_masked_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
         coords = "data/06_nucmer_alignment/{sample}/{sample}.filtered.coords"
     output:
         done = "data/07_syri_output/{sample}/{sample}.done",
@@ -189,8 +195,8 @@ rule generate_synteny_plot:
     conda:
         "bin/workflow/envs/plotsr.yml"
     input:
-        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
+        query_path = "data/04_01_masked_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "data/04_01_masked_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
         syri = "data/07_syri_output/{sample}/{sample}syri.out",
         script = "bin/scripts/plotsr/plotsr-bin"
     output:
@@ -214,56 +220,7 @@ rule generate_synteny_plot:
         pwd
         """
 
-# now clean up the syri files to predict a minimal set of structural variants
-rule clean_syri_output:
-    conda:
-        "bin/workflow/envs/pandas.yml"
-    input:
-        syri = "data/07_syri_output/{sample}/{sample}syri.out",
-        query_path = "data/05_isescan_tables/{sample}.csv", # path to the isescan file of the
-        subject_path = lambda wildcards: "data/05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
-    output:
-        "data/07_syri_output/{sample}/{sample}syri.out_v2"
-    params:
-        # isescan_subject_path = expand("data/05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()), # listing this as an input triggers an InputExceptionError idk why
-        # isescan_query = lambda wildcards: "{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # just the name of the ancestor (does not include the .fasta extension)
-        isescan_dir = "data/05_isescan_tables",
-        input_dir = "data/07_syri_output/{sample}",
-        script = "bin/scripts/clean_syri.py"
-    log:
-        "data/logs/clean_syri_output/{sample}.log"
-    shell:
-        """
-        cd {params.input_dir}
-        echo "{input.subject_path}"
-        ../../../{params.script} --syri {wildcards.sample}syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} > ../../../{log} 2>&1
-        cd ../../..
-        echo "working dir set back to"
-        pwd
-        """
-# with the new clean syri file, generate a new plot
-rule generate_synteny_plot_clean:
-    conda:
-        "bin/workflow/envs/plotsr.yml"
-    input:
-        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
-        script = "bin/scripts/plotsr/plotsr-bin",
-        genome_table = "data/07_syri_output/{sample}/{sample}.genomes.tsv",
-    output:
-        "data/07_syri_output/{sample}/{sample}.plot.2.pdf"
-    params:
-        input_dir = "data/07_syri_output/{sample}", #store the synteny plot in the same place as the syri files
-        subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # just the name of the ancestor (does not include the .fasta extension)
-    log:
-        "data/logs/generate_synteny_plots/{sample}.2.log"
-    shell:
-        """
-        cd {params.input_dir}
-        ../../../{input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}syri.out_v2 -H 5 -W 10 -o {wildcards.sample}.plot.2.pdf --lf {wildcards.sample}.2.log
-        mv {wildcards.sample}.2.log ../../../{log}
-        cd ../../..
-        pwd
-        """
+
 
 # reindex all the fasta file to the origin to analyse the replichore arms and find ori and dif position
 rule reindex_contigs_oric:
@@ -361,7 +318,7 @@ rule annotate_SV_boundaries_IS:
     conda:
         "bin/workflow/envs/pandas.yml"
     input:
-        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+        syri = "data/07_syri_output/{sample}/{sample}syri.out",
         assembly_IS_csv = "data/05_isescan_tables/{sample}.csv",
         ancestor_IS_csv = lambda wildcards: "data/05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the csv file of the ancestor
         script = "bin/scripts/IS_SV_border.py"
@@ -387,8 +344,8 @@ rule annotate_SV_mechanism:
     output:
         inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
         deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
-        inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
-        deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
+        inversion_table = "output/inversion_mechanism.csv",
+        deletion_table = "output/deletion_mechanism.csv"
     params:
         input_dir = "data/11_annotated_boundaries/",
         output_deletion = "deletion_mechanism.csv",
@@ -446,3 +403,9 @@ rule classify_inversion_replichore:
 #        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd}
 #        cd ../../../
 #        """
+# this needs to go in rule all
+#inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+        #clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
+        #ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
+        #replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
+        #deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
