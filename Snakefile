@@ -94,7 +94,6 @@ rule compute_genome_stats:
         "{input.script} --folder {params.folder} --data {input.csv_file} --output {output.genome_sizes} > {log} 2>&1"
 
 # ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
-# TO DO: Eventually, make the threads a parameter for this rule
 
 rule find_IS_elements:
     conda:
@@ -117,26 +116,6 @@ rule find_IS_elements:
         rm {wildcards.sample}.fasta
         """
 
-# from the ISEScan tables, generate a summary of the total copy number, and the change in copy number relative to ancestor
-# TODO: Eventually update this so each assembly's copy number change is calculate for it's specified ancestor
-
-rule generate_ISEScan_summary:
-    conda:
-        "bin/workflow/envs/pandas.yml"
-    input:
-        is_csv = expand("data/05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
-        script = "bin/scripts/isescan_summary.py"
-    output:
-        "data/05_isescan_tables/IS_summary.csv",
-        "data/05_isescan_tables/IS_summary_copy_change.csv"
-    params:
-        output_name = "IS_summary",
-        ancestor = "Anc-_0gen_REL606",
-        input_folder = "data/05_isescan_tables",
-    shell:
-        """
-        {input.script} --isescan {params.input_folder} --output {params.output_name} --ancestor {params.ancestor}
-        """
 
 # align each assembly to its ancestor, then filter the alignments and convert from .delta to coords
 
