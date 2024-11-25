@@ -18,6 +18,7 @@ rule all_targets:
         #gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
         #html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
         genome_sizes = "output/genome_size_stats.csv",
+        plot = expand ("data/07_syri_output/{sample}/{sample}.plot.pdf",sample=df['assembly'].tolist())
 
 # find unique bases at the start of the subject sequence to reindex the query sequence tp
 rule find_reindex_bases:
@@ -354,6 +355,8 @@ rule annotate_SV_mechanism:
         """
         {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion
         {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion
+        mv {params.output_deletion} ../../output/{params.output_deletion}
+        mv {params.output_inversion} ../../output/{params.output_inversion}
         cd ..
         """
 
