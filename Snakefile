@@ -12,17 +12,24 @@ assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 # remember you cant have wildcards in the target rule!
 rule all_targets:
     input:
-        genome_sizes = "data/04_rename_genome/genome_size_stats.tsv",
-        IS_summary = "data/05_isescan_tables/IS_summary.csv",
-        IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
-        inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
-        clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
-        ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
-        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
-        deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
-        inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
+        #inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sampl$
+        #gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
+        #html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
+        #genome_sizes = "output/genome_size_stats.csv",
+
+        genome_sizes = "data/04_rename_genome/genome_size_stats.csv",
+        #IS_summary = "data/05_isescan_tables/IS_summary.csv",
+        #IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
+        #inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+        clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
+        #ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
+        #replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
+        #deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        #inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
+        #deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
+        #inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
         #gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
         #html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
 
