@@ -124,14 +124,28 @@ rule find_IS_elements:
         """
 
 
-# align each assembly to its ancestor, then filter the alignments and convert from .delta to coords
+rule mask_genomes:
+    conda:
+        "bin/workflow/envs/biopython.yml"
+    input:
+        data = "data/04_rename_genome/{sample}.fasta",
+        script = "bin/scripts/mask_IS_elements.py",
+        csv_files = "data/05_isescan_tables/{sample}.csv"
+    output:
+        "data/04_01_masked_genomes/{sample}.fasta"
+    log:
+        "data/logs/mask_genomes/{sample}.log"
+    shell:
+        "{input.script} --genome {input.data}  --is_table {input.csv_files} --output {output} > {log} 2>&1"
+
+# align each masked assembly to its ancestor, then filter the alignments and convert from .delta to coords
 
 rule align_genomes_nucmer:
     conda:
         "bin/workflow/envs/mummer4.yml"
     input:
-        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
+        query_path = "data/04_01_masked_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "data/04_01_masked_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
     output:
         done = "data/06_nucmer_alignment/{sample}/{sample}.done",
         delta = "data/06_nucmer_alignment/{sample}/{sample}.delta",
@@ -154,8 +168,6 @@ rule align_genomes_nucmer:
         show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
         touch {wildcards.sample}.done
         cd ../../../
-        echo "Alignment complete. Working dir set to:"
-        pwd
         """
 
 # now call structural variants from the alignments
@@ -165,8 +177,8 @@ rule call_variants_syri:
         "bin/workflow/envs/syri.yml"
     input:
         filtered = "data/06_nucmer_alignment/{sample}/{sample}.filtered.delta",
-        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
+        query_path = "data/04_01_masked_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "data/04_01_masked_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
         coords = "data/06_nucmer_alignment/{sample}/{sample}.filtered.coords"
     output:
         done = "data/07_syri_output/{sample}/{sample}.done",
@@ -196,8 +208,8 @@ rule generate_synteny_plot:
     conda:
         "bin/workflow/envs/plotsr.yml"
     input:
-        query_path = "data/04_rename_genome/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
+        query_path = "data/04_01_masked_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "data/04_01_masked_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being compared to
         syri = "data/07_syri_output/{sample}/{sample}syri.out",
         script = "bin/scripts/plotsr/plotsr-bin"
     output:
