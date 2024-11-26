@@ -12,19 +12,19 @@ assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 # remember you cant have wildcards in the target rule!
 rule all_targets:
     input:
-        genome_sizes = "data/04_rename_genome/genome_size_stats.tsv",
-        IS_summary = "data/05_isescan_tables/IS_summary.csv",
-        IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
-        inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+        genome_sizes = "data/04_rename_genome/genome_size_stats.csv",
+        #IS_summary = "data/05_isescan_tables/IS_summary.csv",
+        #IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
+        #inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
         clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
-        ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
-        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
-        deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        #ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
+        #replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
+        #deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
-        inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
-        #gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
-        #html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
+        #inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
+        gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
+        html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
 
 # find unique bases at the start of the subject sequence to reindex the query sequence tp
 rule find_reindex_bases:
@@ -421,28 +421,50 @@ rule classify_inversion_replichore:
         {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data data.csv
         """
 
+# generate annotations for genomes using prokka and with the IS elements reported by ISEscan
+
+rule annotate_genomes_prokka:
+    conda:
+        "bin/workflow/envs/prokka.yml"
+    input:
+        genome="data/04_rename_genome/{sample}.fasta",
+        is_table="data/05_isescan_tables/{sample}.csv"
+    output:
+        "09_annotated_genomes/{sample}.gff"
+    params:
+        prefix="{sample}",
+        outdir="09_annotated_genomes/{sample}",
+        prokka_annotation="09_annotated_genomes/{sample}/{sample}.gff"
+    log:
+        "data/logs/annotate_genomes_prokka/{sample}.log"
+    shell:
+        """
+        prokka --prefix {params.prefix} --outdir {params.outdir} {input.genome} > {log} 2>&1
+        breseq CONVERT-REFERENCE -f GFF3 -s {input.is_table} -o {output} {params.prokka_annotation} >> {log} 2>&1
+        """
+
 
 # Use the syri.out_v2 files to make the HTML tables from breseq
-# rule generate_genome_diffs_tables:
-#    conda:
-#        "bin/workflow/envs/breseq.yml"
-#    input:
-#        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
-#        script = "bin/scripts/syri2gd.py",
-#        reference = "data/01_references/REL606.gff3"
-#    output:
-#        gd = "data/12_genome_diff_tables/gd/{sample}.gd",
-#        html = "data/12_genome_diff_tables/html/{sample}.html"
-#    params:
-#        gd_folder = "data/12_genome_diff_tables/gd",
-#        html_folder = "data/12_genome_diff_tables/html",
-#    shell:
-#        """
-#        mkdir -p {params.gd_folder}
-#        mkdir -p {params.html_folder}
-#        cd {params.gd_folder}
-#        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification
-#        cd ../../../{params.html_folder}
-#        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd}
-#        cd ../../../
-#        """
+rule generate_genome_diffs_tables:
+    conda:
+        "bin/workflow/envs/breseq.yml"
+    input:
+        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+        script = "bin/scripts/syri2gd.py",
+        reference = "09_annotated_genomes/{sample}.gff"
+    output:
+        gd = "data/12_genome_diff_tables/gd/{sample}.gd",
+        html = "data/12_genome_diff_tables/html/{sample}.html"
+    params:
+        gd_folder = "data/12_genome_diff_tables/gd",
+        html_folder = "data/12_genome_diff_tables/html",
+    shell:
+        """
+        mkdir -p {params.gd_folder}
+        mkdir -p {params.html_folder}
+        cd {params.gd_folder}
+        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification
+        cd ../../../{params.html_folder}
+        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd}
+        cd ../../../
+        """
