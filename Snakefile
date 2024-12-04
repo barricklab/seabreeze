@@ -304,7 +304,7 @@ rule reindex_contigs_oric:
         "{input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output}"
 
 
-# generate a tsv file with the oric and dif of the genomens reindexed to the ori and a tsv file with lenths of the replichore arms of each clone
+# generate a csv file with the oric and dif of the genomens reindexed to the ori and a tsv file with lenths of the replichore arms of each clone
 
 rule analyse_replichore_arms:
     conda:
@@ -313,21 +313,16 @@ rule analyse_replichore_arms:
         genomes = expand("data/08_reindex_genome_oric/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
         script = "bin/scripts/replichore_arms_analyse.py"
     output:
-        ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
-        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv"
+        ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.csv",
+        replichore_balance = "data/08_reindex_genome_oric/replichore_balance.csv"
     params:
         folder = "data/08_reindex_genome_oric/",
-        ori = "GGATCCTGGGTATTAAAA",
-        dif = "TCTTCCTTGGTTTATATT",
-        ancestor = "Anc-_0gen_REL606",
-        output_name_oridif = "ori_dif_coords.tsv",
-        output_name_arms = "replichore_arms.tsv"
-
+        data = "data/data.csv",
+        sequences="data/sequences.csv",
     shell:
         """
-        {input.script} --assemblies {params.folder} --ori  {params.ori} --dif {params.dif} --ancestor {params.ancestor} --output {params.output_name_oridif} --noarms
-        pwd
-        {input.script} --assemblies {params.folder} --ori  {params.ori} --dif {params.dif} --ancestor {params.ancestor} --output {params.output_name_arms}
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.oridif_coords} --noarms
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}
         """
 
 # Run breseq to predict deletions and amplifications to see if they were missed

@@ -139,13 +139,18 @@ def main(genomes, data, sequences, output, noarms):
 
         ''' perform replichore arm size analysis as well '''
 
-        df=pd.DataFrame(np.nan, index=range(len(fasta_files)), columns=["clone", "ori","dif","length","arm_1", "arm_2", "ratio", "percent"]) #stores final table
+        df=pd.DataFrame(np.nan, index=range(len(assemblies)), columns=["clone", "ori","dif","length","arm_1", "arm_2", "ratio", "percent"]) #stores final table
         row_idx=0
-        for name in fasta_files:
+        for name in assemblies:
+
             print(name)
-            coord_dict=coords(name,oric,dif)
+            file_name=f"{name}_reindex.fasta"
+            file_path=os.path.join(genomes,file_name)
+            oric=get_sequence(sequences_df, assembly_to_ancestor_dict[name],'ori')
+            dif=get_sequence(sequences_df, assembly_to_ancestor_dict[name],'dif')
+            coord_dict=coords(file_path,oric,dif)
+
             df.loc[row_idx,"clone"]=name
-            df['clone'] = df['clone'].str.replace('.fasta', '') #remove.fasta extension
             df.loc[row_idx,'ori']=coord_dict["oric_start"]
             df.loc[row_idx,'dif']=coord_dict["dif_start"]
             df.loc[row_idx,'length']=coord_dict["length"]
@@ -155,6 +160,7 @@ def main(genomes, data, sequences, output, noarms):
             df.loc[row_idx,"ratio"]= (max(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"]))/(min(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"])) # ratio of long arm to short arm
             df.loc[row_idx,"percent"]= ((max(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"]))/df.loc[row_idx,"length"])*100 # percent of the total length that the long arm is
             row_idx+=1
+
         print(df)
 
         df.to_csv(output, index=False)
