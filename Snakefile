@@ -17,6 +17,7 @@ rule all_targets:
         #IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
         #inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
         clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
+        ori_dif_coords = "data/04_rename_genome/ori_dif_coords.csv",
         #ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
         #replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
         #deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
@@ -265,7 +266,28 @@ rule generate_synteny_plot_clean:
         pwd
         """
 
+# generate a csv file with the ori and dif coords of the genomes in their original index
+rule annotate_ori_dif_locations:
+    conda:
+        "bin/workflow/envs/pandas.yml"
+    input:
+        genomes = expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+        script = "bin/scripts/replichore_arms_analyse.py"
+    output:
+        ori_dif_coords = "data/04_rename_genome/ori_dif_coords.csv"
+    params:
+        data="data/data.csv",
+        sequences="data/sequences.csv",
+        folder = "data/04_rename_genome/"
+    shell:
+        """
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output} --noarms
+        pwd
+        """
+
 # reindex all the fasta file to the origin to analyse the replichore arms and find ori and dif position
+# TODO: The input for this should be ori_dif_coords.tsv as each genome's ori location should be fetched from there
+
 rule reindex_contigs_oric:
     conda:
         "bin/workflow/envs/biopython.yml"
@@ -277,26 +299,6 @@ rule reindex_contigs_oric:
     shell:
         "{input.script} -b GGATCCTGGGTATTAAAA -i {input.data} -o {output} -t fasta"
 
-# generate a tsv file with the ori and dif coords of the genomes in their original index
-rule annotate_ori_dif_locations:
-    conda:
-        "bin/workflow/envs/pandas.yml"
-    input:
-        genomes = expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
-        script = "bin/scripts/replichore_arms_analyse.py"
-    output:
-        ori_dif_coords = "data/04_rename_genome/ori_dif_coords.tsv"
-    params:
-        folder = "data/04_rename_genome/",
-        ori = "GGATCCTGGGTATTAAAA",
-        dif = "TCTTCCTTGGTTTATATT",
-        ancestor = "Anc-_0gen_REL606",
-        output_name_oridif = "ori_dif_coords.tsv"
-    shell:
-        """
-        {input.script} --assemblies {params.folder} --ori  {params.ori} --dif {params.dif} --ancestor {params.ancestor} --output {params.output_name_oridif} --noarms
-        pwd
-        """
 
 # generate a tsv file with the oric and dif of the genomens reindexed to the ori and a tsv file with lenths of the replichore arms of each clone
 # TODO: Eventually remove the ancestor as a requirement for this rule and script, since it is not used

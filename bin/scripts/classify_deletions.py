@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# this script accepts a folder with the clone_boundaries.tsv files 
+# this script accepts a folder with the clone_boundaries.tsv files
 # a returns  single csv file that has all the clones, and the count of how many deletions
-# per type of mechanism 
+# per type of mechanism
 
 ''' imports '''
 
@@ -74,13 +74,13 @@ def classify_deletions(file,inversion,deletion):
         summary_dict['total']=len(df_del)
         for row_idx in range(len(df_del)):
 
-            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and pd.notna(df_del.loc[row_idx, 'L_ref']): 
+            if (df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] == df_del.loc[row_idx,'L_query']) and pd.notna(df_del.loc[row_idx, 'L_ref']):
                 summary_dict['between_IS']+=1
                 df_del.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_del.loc[row_idx,"Evidence"]='full'
                 continue
 
-            if df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] and pd.notna(df_del.loc[row_idx,'L_ref']): 
+            if df_del.loc[row_idx,'L_ref'] == df_del.loc[row_idx,'R_ref'] and pd.notna(df_del.loc[row_idx,'L_ref']):
                 summary_dict['between_IS']+=1
                 df_del.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_del.loc[row_idx,"Evidence"]='incomplete'
@@ -91,13 +91,13 @@ def classify_deletions(file,inversion,deletion):
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='full'
                 continue
-                
+
             if pd.notna(df_del.loc[row_idx,'L_ref']) or pd.notna(df_del.loc[row_idx,'R_ref']):
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_del.loc[row_idx,"Evidence"]='incomplete'
                 continue
-            
+
             if pd.notna(df_del.loc[row_idx,'L_query']):
                 summary_dict['IS_mediated']+=1
                 df_del.loc[row_idx,"Mechanism"]='IS_mediated'
@@ -109,7 +109,7 @@ def classify_deletions(file,inversion,deletion):
                 df_del.loc[row_idx,"Mechanism"]='other'
                 df_del.loc[row_idx,"Evidence"]='NA'
 
-               # path_to_clone = 
+               # path_to_clone =
         print(summary_dict)
         out_filename= clone_name + "_deletion.csv"
         df_del.to_csv(out_filename, index=False,float_format='%.0f')
@@ -125,7 +125,7 @@ def classify_deletions(file,inversion,deletion):
         summary_dict['total']=len(df_inv)
         for row_idx in range(len(df_inv)):
 
-            if (df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) and pd.notna(df_inv.loc[row_idx,'L_ref']): 
+            if (df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'R_ref'] == df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query']) and pd.notna(df_inv.loc[row_idx,'L_ref']):
                 summary_dict['between_IS']+=1
                 df_inv.loc[row_idx,"Mechanism"]='betweeen_IS'
                 df_inv.loc[row_idx,"Evidence"]='full'
@@ -136,7 +136,7 @@ def classify_deletions(file,inversion,deletion):
                 df_inv.loc[row_idx,"Mechanism"]='IS_mediated'
                 df_inv.loc[row_idx,"Evidence"]='full'
                 continue
-            
+
             if df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'] and pd.notna(df_inv.loc[row_idx,'L_query']):
                 summary_dict['IS_mediated']+=1
                 df_inv.loc[row_idx,"Mechanism"]='IS_mediated'
@@ -147,7 +147,7 @@ def classify_deletions(file,inversion,deletion):
                 summary_dict['other']+=1
                 df_inv.loc[row_idx,"Mechanism"]='other'
                 df_inv.loc[row_idx,"Evidence"]='NA'
-        
+
         out_filename= clone_name + "_inversion.csv"
         print(summary_dict)
         df_inv.to_csv(out_filename, index=False,float_format='%.0f')
@@ -166,14 +166,13 @@ def main(folder,output,inversion,deletion):
     df=pd.DataFrame(summary_list)
     df.to_csv(output, index=False,float_format='%.0f')
     print(f"output name is {output}")
-    if os.path.isfile(output):
-        print(f"The file '{output}' exists in the current working directory.")
-    else:
-        print(f"The file '{output}' does not exist in the current working directory.")
-    print(df)
+    # if os.path.isfile(output):
+    #     print(f"The file '{output}' exists in the current working directory.")
+    # else:
+    #     print(f"The file '{output}' does not exist in the current working directory.")
+    # print(df)
 
 
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args.folder,args.output,args.inversion,args.deletion)
-
