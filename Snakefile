@@ -286,22 +286,25 @@ rule annotate_ori_dif_locations:
         """
 
 # reindex all the fasta file to the origin to analyse the replichore arms and find ori and dif position
-# TODO: The input for this should be ori_dif_coords.tsv as each genome's ori location should be fetched from there
 
 rule reindex_contigs_oric:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
-        data = "data/02_genomes/{sample}.fasta",
-        script = "bin/scripts/reindex_assembly.py"
+        genomes = expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+        script = "bin/scripts/reindex_assembly_batch.py"
     output:
-        "data/08_reindex_genome_oric/{sample}.fasta"
+        expand("data/08_reindex_genome_oric/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+    params:
+        folder = "data/04_rename_genome",
+        data = "data/data.csv",
+        sequences="data/sequences.csv",
+        output = "data/08_reindex_genome_oric"
     shell:
-        "{input.script} -b GGATCCTGGGTATTAAAA -i {input.data} -o {output} -t fasta"
+        "{input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output}"
 
 
 # generate a tsv file with the oric and dif of the genomens reindexed to the ori and a tsv file with lenths of the replichore arms of each clone
-# TODO: Eventually remove the ancestor as a requirement for this rule and script, since it is not used
 
 rule analyse_replichore_arms:
     conda:

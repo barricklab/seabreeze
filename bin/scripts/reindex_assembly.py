@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-# Author: Jeffrey Barrick
+# Author: Jeffrey Barrick and Ira Zibbu
 # This script reindexes (shifts) the sequence in the input file to a requested subsequence
 
 # ---- Imports ----
@@ -108,9 +108,10 @@ def main():
     # Get arguments
     parser = argparse.ArgumentParser(description="Reindex sequence file to a conserved sequence")
     parser.add_argument("-b", "--reindex_bases", help="Bases to reindex on", action="store", required=True)
-    parser.add_argument("-i", "--input", help="Folder containing target files", action="store", required=True)
-    parser.add_argument("-o", "--output", help="Folder containing target files", action="store", required=True)
+    parser.add_argument("-i", "--input", help="Input fasta file", action="store", required=True)
+    parser.add_argument("-o", "--output", help="Output fasta file", action="store", required=True)
     parser.add_argument("-t", "--filetype", help="Filetype to reindex [fasta]", action="store", default="fasta")
+
     args = parser.parse_args()
 
     # Check if filetype is valid
