@@ -18,8 +18,12 @@ jobs:
           channels: conda-forge,bioconda
           auto-activate-base: false
           activate-environment: pytest_env
-          environment-file: pytest_env.yml
-      
+          environment-file: environment.yml
+
+      - name: Check for errors during environment setup
+        run: |
+          conda env update --file pytest_env.yml
+
       - name: check solution
         run: |
           conda env export
