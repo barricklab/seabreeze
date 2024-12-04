@@ -13,17 +13,13 @@ assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 rule all_targets:
     input:
         genome_sizes = "data/04_rename_genome/genome_size_stats.csv",
-        #IS_summary = "data/05_isescan_tables/IS_summary.csv",
-        #IS_summary_copy_change = "data/05_isescan_tables/IS_summary_copy_change.csv",
-        #inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+        inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
         clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
         ori_dif_coords = "data/04_rename_genome/ori_dif_coords.csv",
-        #ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
-        #replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
-        #deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        ori_dif_coords_reindexed = "data/08_reindex_genome_oric/ori_dif_coords.tsv",
+        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.tsv",
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
-        #inversion_classification = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv",sample=df['assembly'].tolist()),
         gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
         html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
 
@@ -325,36 +321,6 @@ rule analyse_replichore_arms:
         {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}
         """
 
-# Run breseq to predict deletions and amplifications to see if they were missed
-# i am deleting some of the output of breseq but feel free to remove that line in case you want it
-# rule run_breseq:
-#     conda:
-#         "bin/workflow/envs/breseq.yml"
-#     input:
-#         reads = "data/09_merged_trimmed_nanopore_reads/{sample}.nanopore.fastq.gz", # reads of the evolved clone
-#         reference_assembly = lambda wildcards: "data/04_rename_genome/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample])
-#     output:
-#         gd = "data/10_breseq_output/{sample}.gd",
-#         html = "data/10_breseq_output/{sample}.html"
-#     log:
-#         "data/logs/run_breseq/{sample}.log"
-#     params:
-#         breseq_dir = "{sample}",
-#         threads = "4",
-#         limit_reads = "60" # this speeds up breseq by limiting the read depth to which it looks at data
-#     shell:
-#         """
-#         mkdir -p data/10_breseq_output
-#         cd data/10_breseq_output
-#         breseq -j {params.threads} -l {params.limit_reads} -x -r ../../{input.reference_assembly} ../../{input.reads} -o {params.breseq_dir}> {wildcards.sample}.log 2>&1
-#         mv {wildcards.sample}.log ../../{log}
-#         cd {params.breseq_dir}
-#         rm -rf 01_sequence_conversion 03_candidate_junctions 05_alignment_correction 07_error_calibration 02_reference_alignment 04_candidate_junction_alignment 06_bam 08_mutation_identification
-#         mv data/output.gd ../{wildcards.sample}.gd
-#         mv output/index.html ../{wildcards.sample}.html
-#         cd ../../..
-#         echo "task done. wd set to"
-#         """
 
 # generate tsv files which annotate the boundaries of the SVs
 rule annotate_SV_boundaries_IS:
@@ -442,7 +408,6 @@ rule annotate_genomes_prokka:
         prokka --prefix {params.prefix} --outdir {params.outdir} {input.genome} > {log} 2>&1
         breseq CONVERT-REFERENCE -f GFF3 -s {input.is_table} -o {output} {params.prokka_annotation} >> {log} 2>&1
         """
-
 
 # Use the syri.out_v2 files to make the HTML tables from breseq
 rule generate_genome_diffs_tables:

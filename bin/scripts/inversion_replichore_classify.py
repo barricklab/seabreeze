@@ -42,7 +42,7 @@ def classify_inversion(file,df_oridif,assembly_to_ancestor_dict):
     df['symmetry_ratio']=['']*(len(df)) # stores the symmetry number
     df['symmetry_ratio_length']=['']*(len(df)) # stores the length of the inversion. this double checks that I have the sizes of the arms right. This should match the inversion length
     df['symmetry_percent']=['']*(len(df)) # stores big amr/ total inv length * 100
-    clone=file.replace('_inversion.csv','') # get the name of the clone 
+    clone=file.replace('_inversion.csv','') # get the name of the clone
 
     #index_of_clone = df_oridif[df_oridif['clone'] == ancestor].index[0] # row index of ancestor in the oridif dataframe, to fetch the coords of the ori and dif
     ancestor = assembly_to_ancestor_dict[clone] # use this dict to fetch the ancestor of the clone
@@ -71,9 +71,9 @@ def classify_inversion(file,df_oridif,assembly_to_ancestor_dict):
                 summary_dict['across_ori']+=1
                 summary_dict['total_inter_replichore']+=1
                 df.loc[row_idx,'classification']="across_ori"
-                
+
                 # compute symmetry statistic
-                arm1=abs(start_inversion-ori) 
+                arm1=abs(start_inversion-ori)
                 arm2=abs(stop_inversion-ori)
                 #print(f"arm 1 {arm1} and arm2 {arm2} for inversion {inversion_length} and sum is {(arm1+arm2)}")
                 df.loc[row_idx,'symmetry_stat']=(arm1-arm2)**2
@@ -87,7 +87,7 @@ def classify_inversion(file,df_oridif,assembly_to_ancestor_dict):
                 df.loc[row_idx,'classification']="across_dif"
 
                 # compute symmetry statistic
-                arm1=abs(start_inversion-dif) 
+                arm1=abs(start_inversion-dif)
                 arm2=abs(stop_inversion-dif)
                 #print(f"arm 1 {arm1} and arm2 {arm2} for inversion {inversion_length} and sum is {(arm1+arm2)}")
                 df.loc[row_idx,'symmetry_stat']=(arm1-arm2)**2
@@ -107,7 +107,7 @@ def classify_inversion(file,df_oridif,assembly_to_ancestor_dict):
 
         if inversion_length > 0.5*length:
 
-            # split this inversion into two sub-inversions which represent the complementary inversion, which is smaller. 
+            # split this inversion into two sub-inversions which represent the complementary inversion, which is smaller.
             # By definition, these sub-inversions cannot span both the ori and dif, only one or none
 
             inv1_start=0 # the first sub inversion starts at the start of the assembly and ends at the start of the "big" inversion
@@ -127,12 +127,12 @@ def classify_inversion(file,df_oridif,assembly_to_ancestor_dict):
                 arm1=abs(inv1_stop-ori)
                 arm2=abs((dif-inv1_start)+(inv2_stop-inv1_start))
                 print(f"arm 1 {arm1} and arm2 {arm2} for inversion {inversion_length} and sum is {(arm1+arm2)}")
-                
+
                 df.loc[row_idx,'symmetry_stat']=(arm1-arm2)**2
                 df.loc[row_idx,'symmetry_ratio']=(min(arm1,arm2))/(max(arm1,arm2)) # ratio of short arm to long arm
                 df.loc[row_idx,'symmetry_ratio_length']=arm1+arm2
                 df.loc[row_idx,'symmetry_percent']=((max(arm1,arm2))/inversion_length)*100
-                
+
             elif (inv2_start < ori and ori < inv2_stop): # one of the sub inversions spans the ori i.e this is across_ori
 
                 summary_dict['across_ori']+=1
@@ -148,7 +148,7 @@ def classify_inversion(file,df_oridif,assembly_to_ancestor_dict):
                 df.loc[row_idx,'symmetry_ratio']=(min(arm1,arm2))/(max(arm1,arm2)) # ratio of short arm to long arm
                 df.loc[row_idx,'symmetry_ratio_length']=arm1+arm2
                 df.loc[row_idx,'symmetry_percent']=((max(arm1,arm2))/inversion_length)*100
-            
+
             elif (inv1_start < dif and dif < inv1_stop): # one of the sub inversions spans the dif i.e this is across_dif
 
                 summary_dict['across_dif']+=1
@@ -190,12 +190,11 @@ def classify_inversion(file,df_oridif,assembly_to_ancestor_dict):
     return summary_dict, df
 
 def generate_inversion_table(df,clone): # a summary table of all inversions, their type, length across a given clone
-    
-    df_temp = pd.DataFrame(columns=['clone','classification','length','mechanism','symmetry_stat_log','symmetry_ratio','symmetry_ratio_length','symmetry_percent'])
+
+    df_temp = pd.DataFrame(columns=['clone','classification','length','mechanism','symmetry_ratio','symmetry_ratio_length','symmetry_percent'])
     df_temp["classification"] = df["classification"]
     df_temp["length"] = df["length"]
     df_temp["mechanism"] = df["Mechanism"]
-    df_temp["symmetry_stat_log"]=df["symmetry_stat_log"]
     df_temp["symmetry_ratio"]=df["symmetry_ratio"]
     df_temp["symmetry_ratio_length"]=df["symmetry_ratio_length"]
     df_temp['symmetry_percent']=df['symmetry_percent']
@@ -218,7 +217,7 @@ def main(folder,output,oridif,data):
     for file in csv_names:
         print (file)
         summary_dict, df =classify_inversion(file, df_oridif,assembly_to_ancestor_dict)
-        clone=file.replace('_inversion.csv','') # get the name of the clone 
+        clone=file.replace('_inversion.csv','') # get the name of the clone
         df_temp = generate_inversion_table(df,clone)
         df_table = pd.concat([df_table,df_temp], ignore_index=True)
         new_filename = f"{clone}_inversion_classification.csv" #write out the inversions and the replichore classification to a new file so snakemake doesnt complain about two rules generating the same output
@@ -234,4 +233,3 @@ def main(folder,output,oridif,data):
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args.folder,args.output,args.oridif,args.data)
-
