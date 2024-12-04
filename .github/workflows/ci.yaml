@@ -28,6 +28,9 @@ jobs:
         run: |
           conda env export
 
+      - name: Activate environment
+        run: conda activate pytest_env
+
       - name: Run tests
         run: |
           pytest
