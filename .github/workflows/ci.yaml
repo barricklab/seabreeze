@@ -22,7 +22,7 @@ jobs:
 
       - name: Check for errors during environment setup
         run: |
-          conda env update --file pytest_env.yml
+          conda env update --file environment.yml
 
       - name: check solution
         run: |
