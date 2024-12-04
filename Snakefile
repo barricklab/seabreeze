@@ -8,6 +8,38 @@ df = pd.read_csv(path_to_data_csv)
 # this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 
+# These are goal-specific rules for the user
+
+rule analyse_genome_sizes:
+    input:
+        genome_sizes = "data/04_rename_genome/genome_size_stats.csv"
+
+rule predict_IS_elements:
+    input:
+        is_csv_files = expand("data/05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()) # we only want the csv file, so that's the target of this rule is that.
+
+rule predict_structural_variants:
+    input:
+        clean_synteny_plots = expand("data/07_syri_output/{sample}/{sample}.plot.2.pdf", sample=df['assembly'].tolist()),
+
+rule predict_replichore_balance:
+    input:
+        ori_dif_coords = "data/04_rename_genome/ori_dif_coords.csv",
+        ori_dif_coords_reindexed = "data/08_reindex_genome_oric/ori_dif_coords.csv",
+        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.csv"
+        inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+
+rule predict_SV_mechanism:
+    input:
+        inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
+        deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv",
+
+rule annotate_SV_regions:
+    input:
+        gd = expand("data/12_genome_diff_tables/gd/{sample}.gd",sample=df['assembly'].tolist()),
+        html = expand("data/12_genome_diff_tables/html/{sample}.html",sample=df['assembly'].tolist())
+
+
 # one rule to rule them all ...
 # remember you cant have wildcards in the target rule!
 rule all_targets:
@@ -108,7 +140,7 @@ rule find_IS_elements:
         """
         echo {wildcards.sample}
         cp {input} ./{wildcards.sample}.fasta
-        isescan.py --seqfile {wildcards.sample}.fasta --output data/05_isescan_tables/{wildcards.sample} --nthread 4 > {log} 2>&1
+        isescan.py --seqfile {wildcards.sample}.fasta --output data/05_isescan_tables/{wildcards.sample} --nthread 4 >> {log} 2>&1
         mv data/05_isescan_tables/{wildcards.sample}/{wildcards.sample}.fasta.csv data/05_isescan_tables/{wildcards.sample}.csv
         rm {wildcards.sample}.fasta
         """
@@ -310,14 +342,14 @@ rule analyse_replichore_arms:
         script = "bin/scripts/replichore_arms_analyse.py"
     output:
         ori_dif_coords = "data/08_reindex_genome_oric/ori_dif_coords.csv",
-        replichore_balance = "data/08_reindex_genome_oric/replichore_balance.csv"
+        replichore_balance = "data/08_reindex_genome_oric/replichore_arms.csv"
     params:
         folder = "data/08_reindex_genome_oric/",
         data = "data/data.csv",
         sequences="data/sequences.csv",
     shell:
         """
-        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.oridif_coords} --noarms
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.ori_dif_coords} --noarms
         {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}
         """
 
