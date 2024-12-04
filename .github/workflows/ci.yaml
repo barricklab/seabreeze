@@ -15,14 +15,10 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniconda-version: "latest"
-          channels: conda-forge,bioconda
+          channels: conda-forge,bioconda,defaults
           auto-activate-base: false
           activate-environment: pytest_env
           environment-file: environment.yml
-
-      - name: Check for errors during environment setup
-        run: |
-          conda env update --file environment.yml
 
       - name: check solution
         run: |
