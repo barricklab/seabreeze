@@ -4,27 +4,27 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="None">
         
         
-        <link rel="shortcut icon" href="img/favicon.ico">
-        <title>seabreeze</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/fontawesome.min.css" rel="stylesheet">
-        <link href="css/brands.min.css" rel="stylesheet">
-        <link href="css/solid.min.css" rel="stylesheet">
-        <link href="css/v4-font-face.min.css" rel="stylesheet">
-        <link href="css/base.css" rel="stylesheet">
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Usage - seabreeze</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
         <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
         <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
         <script>hljs.highlightAll();</script> 
     </head>
 
-    <body class="homepage">
+    <body>
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href=".">seabreeze</a>
+                <a class="navbar-brand" href="..">seabreeze</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -35,13 +35,13 @@
                         <!-- Main navigation -->
                         <ul class="nav navbar-nav">
                             <li class="nav-item">
-                                <a href="." class="nav-link active" aria-current="page">Home</a>
+                                <a href=".." class="nav-link">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a href="installation/" class="nav-link">Installation</a>
+                                <a href="../installation/" class="nav-link">Installation</a>
                             </li>
                             <li class="nav-item">
-                                <a href="usage/" class="nav-link">Usage</a>
+                                <a href="./" class="nav-link active" aria-current="page">Usage</a>
                             </li>
                         </ul>
 
@@ -52,12 +52,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" class="nav-link disabled">
+                                <a rel="prev" href="../installation/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="installation/" class="nav-link">
+                                <a rel="next" class="nav-link disabled">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -79,8 +79,17 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#seabreeze" class="nav-link">seabreeze</a>
+            <li class="nav-item" data-bs-level="1"><a href="#preparing-input" class="nav-link">Preparing input</a>
               <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#commands" class="nav-link">Commands</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#analyse-genome-sizes" class="nav-link">Analyse genome sizes</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -88,8 +97,83 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="seabreeze">seabreeze</h1>
-<p>Documentation coming soon!</p></div>
+<h1 id="preparing-input">Preparing input</h1>
+<p>Assuming you have <a href="../installation/">completed installation</a>, you can now prepare input files for analysis. At its core <em>seabreeze</em> is designed for bacterial resequencing experiments, and therefore predicts mutations between reference-query pairs, where the reference sequence is referred to as an <em>ancestor</em> and the query sequence being compared to is called the <em>assembly</em>. This nomenclature is use throughout the documentation and the software.
+<em>seabreeze</em> requires FASTA files for all of the bacterial genomes being analysed. These FASTA files should only contain a single contig for the full-length genome. It should not contain additional entries for plasmids. <em>seabreeze</em> works best with genome assemblies generated from long-read sequencing as these can capture structural variants that occur between repeat sequences. It also does not work well for comparing genomes with high sequence/ phylogenetic divergence (for example between different bacterial species).</p>
+<p>All of the input/output of the analysis is stored in <code>data/</code>. The pairwise comparisons to be performed are specified in a csv file called <code>data.csv</code> in the <code>data/</code> directory. Populate the csv file with the ancestor-assembly pairs you wish to analyse. For example:</p>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome1</td>
+<td>genome2</td>
+</tr>
+<tr>
+<td>genome3</td>
+<td>genome4</td>
+</tr>
+</tbody>
+</table>
+<p>Place the corresponding FASTA files for these genomes in <code>02_genomes</code>. <em>seabreeze</em> expects that these file names to match, and contain the extension <code>.fasta</code>. Therefore, for this example, the <code>data/</code> directory should look like this:</p>
+<pre><code>seabreeze
+|
+|---data/
+|   |
+|   |---data.csv
+|   |---02_genomes/
+|   |   |
+|   |   |---genome1.fasta
+|   |   |---genome2.fasta
+|   |   |---genome3.fasta
+|   |   |---genome4.fasta
+</code></pre>
+<p>Note that many assemblies can use the same ancestor, but the same assembly cannot use many ancestors:
+For example, this is fine:</p>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome1</td>
+<td>genome2</td>
+</tr>
+<tr>
+<td>genome3</td>
+<td>genome2</td>
+</tr>
+</tbody>
+</table>
+<p>This will cause a fatal error:</p>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome1</td>
+<td>genome2</td>
+</tr>
+<tr>
+<td>genome1</td>
+<td>genome3</td>
+</tr>
+</tbody>
+</table>
+<p>Some commands ahead may require additional input, and will be specified in respective sections.</p>
+<h1 id="commands">Commands</h1>
+<h2 id="analyse-genome-sizes">Analyse genome sizes</h2></div>
             </div>
         </div>
 
@@ -97,13 +181,13 @@
             <hr>
             <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
-        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="../js/bootstrap.bundle.min.js"></script>
         <script>
-            var base_url = ".",
+            var base_url = "..",
                 shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
         </script>
-        <script src="js/base.js"></script>
-        <script src="search/main.js"></script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -168,8 +252,3 @@
 
     </body>
 </html>
-
-<!--
-MkDocs version : 1.6.1
-Build Date UTC : 2024-12-09 22:27:58.594716+00:00
--->
