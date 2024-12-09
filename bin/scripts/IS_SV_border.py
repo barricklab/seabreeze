@@ -21,7 +21,7 @@ parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose
 def fetch_isescan(filename):
 
     ''' returns a dataframe of ISescan table '''
-    
+
     columns_to_read=["cluster", "isBegin", "isEnd"]
     df = pd.read_table(filename, delimiter=',', usecols=columns_to_read)
     return df
@@ -32,7 +32,7 @@ def fetch_syri(filename):
 
     df = pd.read_table(filename, delimiter='\t', header=None, dtype=str)
     df.columns=["ref_ID", "ref_start", "ref_stop", "seq_deleted", "seq_inserted", "query_ID", "query_start", "query_stop", "tag_1", "tag_2", "tag_3", "tag_4"] #adding columns for easy reference
-    
+
     #additional columns which stores the name of IS elements and their distance from the boundary of the SV
 
     df['L_ref']=['NA']*(len(df))
@@ -63,7 +63,7 @@ def annotate_reference(df_syri,df_ancestor):
             start_IS=df_ancestor.loc[row_idx_anc,'isBegin']
             stop_IS=df_ancestor.loc[row_idx_anc,'isEnd']
             name_IS=df_ancestor.loc[row_idx_anc,'cluster']
-            name_IS=convert_is_name(name_IS)
+            #name_IS=convert_is_name(name_IS)
 
             left_difference_in = float(start_IS) - float(start_SV) # the IS element is inside the SV, near the start of SV
             right_difference_in = float(stop_SV) - float(stop_IS) # the IS element is inside the SV, near the end of SV
@@ -85,8 +85,8 @@ def annotate_reference(df_syri,df_ancestor):
             if abs(right_difference_out)<threshold:
                 df_syri.loc[row_idx_syri,"R_ref"] = name_IS
                 df_syri.loc[row_idx_syri,"R_ref_distance"]=str(int(right_difference_out))
-    
-    return df_syri    
+
+    return df_syri
 
 def annotate_query(df_syri,df_evolved):
 
@@ -105,7 +105,7 @@ def annotate_query(df_syri,df_evolved):
             start_IS=df_evolved.loc[row_idx_evol,'isBegin']
             stop_IS=df_evolved.loc[row_idx_evol,'isEnd']
             name_IS=df_evolved.loc[row_idx_evol,'cluster']
-            name_IS=convert_is_name(name_IS)
+            #name_IS=convert_is_name(name_IS)
 
             left_difference_in = float(start_IS) - float(start_SV) # the IS element is inside the SV, near the start of SV
             right_difference_in = float(stop_SV) - float(stop_IS) # the IS element is inside the SV, near the end of SV
@@ -136,12 +136,12 @@ def write_syri(df_syri,output_filename):
 
     columns_to_write=["ref_ID", "ref_start", "ref_stop","query_ID", "query_start", "query_stop", "tag_1", "tag_2", "tag_3", "tag_4", "L_ref", "L_ref_distance","R_ref", "R_ref_distance","L_query","L_query_distance" ,"R_query", "R_query_distance"]
     df_syri=df_syri[columns_to_write]
-    df_syri.to_csv(output_filename, sep='\t', index=False,  float_format='%.0f')
+    df_syri.to_csv(output_filename, index=False,  float_format='%.0f')
 
 def convert_is_name(isescan_name):
 
     ''' Accept a name of an IS element with ISescan nomenclature, and return the corresponding name from REL606.gff3 annotation as from this table: https://app.box.com/file/1350490004900 '''
-    
+
     IS_dict={"IS1_316":"IS1","IS3_168":"IS3","IS3_61":"IS150","IS4_107":"IS_4","IS4_169":"IS186"}
     if isescan_name in IS_dict:
         return IS_dict[isescan_name]
@@ -160,5 +160,3 @@ def main(ancestor, evolved, syri,output):
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args.ancestor, args.evolved, args.syri, args.output)
-
-

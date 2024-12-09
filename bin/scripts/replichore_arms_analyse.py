@@ -143,8 +143,7 @@ def main(genomes, data, sequences, output, noarms):
         row_idx=0
         for name in assemblies:
 
-            print(name)
-            file_name=f"{name}_reindex.fasta"
+            file_name=f"{name}.fasta"
             file_path=os.path.join(genomes,file_name)
             oric=get_sequence(sequences_df, assembly_to_ancestor_dict[name],'ori')
             dif=get_sequence(sequences_df, assembly_to_ancestor_dict[name],'dif')

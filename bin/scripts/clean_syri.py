@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Last update: 2024-02-29 [Now it uses ISEScan tables for both the the subject and query. This does not generate a different output vs using the gff3 file for the subject]
 # Author: Ira Zibbu
-# This script cleans up the syri.out files 
+# This script cleans up the syri.out files
 
 ''' imports '''
 
@@ -22,7 +22,7 @@ parser.add_argument('--isescan_subject', help='File name of isescan csv file of 
 parser.add_argument('--isescan_query', help='File name of isescan csv file of the subject (evolved clone)')
 parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose mode')
 
-# def fetch_repeat_regions(ref_filepath, prefix): 
+# def fetch_repeat_regions(ref_filepath, prefix):
 
 # 	""" accepts reference .gff3 file and returns a gff3 file with only the lines corresponding to IS elements and no header """
 
@@ -38,8 +38,8 @@ parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose
 # 	#print("Got repeat lines")
 # 	os.chdir(wd)
 
-# def read_gff3(ref_filepath, prefix): 
-	
+# def read_gff3(ref_filepath, prefix):
+
 # 	""" read gff3 file into a dataframe """
 
 # 	wd=os.getcwd()
@@ -47,14 +47,14 @@ parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose
 # 	input_filename=prefix+"_repeat.gff3"
 # 	df_gff3=pd.read_table(input_filename, delimiter='\t', header=None)
 # 	gff3_annotation_col=df_gff3.iloc[:,8] #column with IS element names
-# 	gff3_IS_list=gff3_annotation_col.tolist() 
+# 	gff3_IS_list=gff3_annotation_col.tolist()
 # 	idx=0
 # 	for name in gff3_IS_list: #only retaining the IS element names, and not other notes from the annotation column
 # 		name=name.replace('Name=','')
 # 		name=name.replace(";Note=repeat region",'')
 # 		gff3_IS_list[idx]=name
 # 		idx+=1
-# 	df2 = pd.DataFrame({'start': df_gff3.iloc[:,3], 'stop': df_gff3.loc[:,4], 'IS_name': gff3_IS_list}) #dataframe that stores the start/ stop coords of Is elements and 
+# 	df2 = pd.DataFrame({'start': df_gff3.iloc[:,3], 'stop': df_gff3.loc[:,4], 'IS_name': gff3_IS_list}) #dataframe that stores the start/ stop coords of Is elements and
 # 	#print("Read gff3 file")
 # 	os.chdir(wd)
 # 	return df2
@@ -115,7 +115,7 @@ def syri_remove_duplicate_lines(syri_filename): #
 # 					is_count+=1
 # 					is_len+=IS_stop-IS_start
 # 					row_idx_gff3+=1
-# 					continue			
+# 					continue
 # 				if ref_start <= IS_start and IS_start <= ref_stop and ref_stop <= IS_stop: #this case is when the IS element begins inside the SV and then extends beyond it
 # 					is_count+=1
 # 					is_len+=ref_stop-IS_start
@@ -130,14 +130,14 @@ def syri_remove_duplicate_lines(syri_filename): #
 # 					row_idx_gff3+=1
 
 # 			difference=ref_length-is_len # length of the SV that is not an IS element
-			
+
 # 			if ref_length > threshold and difference <= threshold:
 # 				df_syri_annotated.loc[row_idx_syri,'annotation_ref']=1
 
 # 		row_idx_syri+=1
 
 
-def syri_annotate_query_iselements_isescan(df_syri_annotated, isescan_filename): 
+def syri_annotate_query_iselements_isescan(df_syri_annotated, isescan_filename):
 
 	""" use the ISescan results ofthe evolved clone to annotate which SVs contain IS elements by checking if the query coords of the SV overlap with those of IS elements reported by ISescanf3 """
 
@@ -149,7 +149,7 @@ def syri_annotate_query_iselements_isescan(df_syri_annotated, isescan_filename):
 	row_idx_syri=0 #row number counter for df_syri_annotated
 
 
-	while row_idx_syri <= len(df_syri_annotated):  
+	while row_idx_syri <= len(df_syri_annotated):
 
 		if row_idx_syri == (len(df_syri_annotated)): #this code block is executed when the last line is encountered. It write out a tsv file
 				row_idx_syri+=1
@@ -188,7 +188,7 @@ def syri_annotate_query_iselements_isescan(df_syri_annotated, isescan_filename):
 					is_count+=1
 					is_len+=IS_stop-IS_start
 					row_idx_isescan+=1
-					continue			
+					continue
 
 				if query_start <= IS_start and IS_start <= query_stop and query_stop <= IS_stop: #this case is when the IS element begins inside the SV and then extends beyond it
 					is_count+=1
@@ -206,13 +206,13 @@ def syri_annotate_query_iselements_isescan(df_syri_annotated, isescan_filename):
 					row_idx_isescan+=1
 
 			difference=query_length-is_len # length of the SV that is not an IS element
-			
+
 			if query_length >= threshold and difference <= threshold:
 				df_syri_annotated.loc[row_idx_syri,'annotation_query']=1
 
 		row_idx_syri+=1
 
-def syri_annotate_subject_iselements_isescan(df_syri, isescan_filename): 
+def syri_annotate_subject_iselements_isescan(df_syri, isescan_filename):
 
 	""" use the ISescan results ofthe evolved clone to annotate which SVs contain IS elements by checking if the ref coords of the SV overlap with those of IS elements reported by ISescanf3 """
 
@@ -227,7 +227,7 @@ def syri_annotate_subject_iselements_isescan(df_syri, isescan_filename):
 	row_idx_syri=0 #row number counter for df_syri_annotated
 
 
-	while row_idx_syri <= len(df_syri_annotated):  
+	while row_idx_syri <= len(df_syri_annotated):
 
 		if row_idx_syri == (len(df_syri_annotated)): #this code block is executed when the last line is encountered. It write out a tsv file
 				row_idx_syri+=1
@@ -266,7 +266,7 @@ def syri_annotate_subject_iselements_isescan(df_syri, isescan_filename):
 					is_count+=1
 					is_len+=IS_stop-IS_start
 					row_idx_isescan+=1
-					continue			
+					continue
 
 				if ref_start <= IS_start and IS_start <= ref_stop and ref_stop <= IS_stop: #this case is when the IS element begins inside the SV and then extends beyond it
 					is_count+=1
@@ -284,14 +284,14 @@ def syri_annotate_subject_iselements_isescan(df_syri, isescan_filename):
 					row_idx_isescan+=1
 
 			difference=ref_length-is_len # length of the SV that is not an IS element
-			
+
 			if ref_length >= threshold and difference <= threshold:
 				df_syri_annotated.loc[row_idx_syri,'annotation_ref']=1
 
 		row_idx_syri+=1
 
 
-def rename_deletions(df_syri): 
+def rename_deletions(df_syri):
 
 	''' Renaming NOTAL and copyloss SVs to DEL, as they are effectively deletion '''
 
@@ -317,8 +317,8 @@ def rename_deletions(df_syri):
 
 	return df_syri
 
-def remove_IS_matches(df_syri): 
-	
+def remove_IS_matches(df_syri):
+
 	''' removing lines from the syri dataframe based on annotations provided by syri_annotate_iselements_isescan() and syri_annotate_iselements_gff3() '''
 
 	df_syri=convert_column_int(df_syri,'ref_start')
@@ -326,7 +326,7 @@ def remove_IS_matches(df_syri):
 
 	threshold=25 #a grace region allowed to when checking if two SVs are adjacent to each other
 	row_idx_1=0
-	rows_to_drop=[] # stores row indices of rows to be removed from the df_syri dataframe 
+	rows_to_drop=[] # stores row indices of rows to be removed from the df_syri dataframe
 	remove_tags=["CPG", "INS", "INVDP", "DUP"] #tags to be removed if they correspond to an IS element
 	for row_idx_1 in range(len(df_syri)): #loop over lines of df_syri
 
@@ -362,13 +362,13 @@ def remove_IS_matches(df_syri):
 				if row_idx_2 != row_idx_1: #prevent self matches
 					ref_start_2=int(df_syri.loc[row_idx_2,"ref_start"])
 					ref_stop_2=int(df_syri.loc[row_idx_2,"ref_stop"])
-					# checking to see if the IS element is contained inside another SV, with a grace region of 
+					# checking to see if the IS element is contained inside another SV, with a grace region of
 					if ref_start_2-ref_start_1 < threshold and ref_stop_1-ref_stop_2 < threshold:
-						
+
 						rows_to_drop.append(row_idx_1)
 
 		if any(tag in df_syri.loc[row_idx_1, "tag_1"] for tag in remove_tags): #current line has a tag from the above list
-			if df_syri.loc[row_idx_1, "annotation_ref"] == 0.0 and df_syri.loc[row_idx_1, "annotation_query"] == 1.0: 
+			if df_syri.loc[row_idx_1, "annotation_ref"] == 0.0 and df_syri.loc[row_idx_1, "annotation_query"] == 1.0:
 
 				# this corresponds to a new IS element insertion in the query (evolved clone)
 				ref_start_1=int(df_syri.loc[row_idx_1,"ref_start"])
@@ -381,10 +381,10 @@ def remove_IS_matches(df_syri):
 					if row_idx_2 != row_idx_1: #prevent self matches
 						ref_start_2=int(df_syri.loc[row_idx_2,"ref_start"])
 						ref_stop_2=int(df_syri.loc[row_idx_2,"ref_stop"])
-						# checking to see if the IS element is contained inside another SV, with a grace region of 
+						# checking to see if the IS element is contained inside another SV, with a grace region of
 						if ref_start_2-ref_start_1 < threshold and ref_stop_1-ref_stop_2 < threshold:
 							rows_to_drop.append(row_idx_1)
-	
+
 	df_syri=df_syri.drop(rows_to_drop)
 	df_syri.reset_index(drop=True, inplace=True)
 	#print("Dropped cpg ins IS elements")
@@ -394,8 +394,8 @@ def remove_IS_matches(df_syri):
 
 
 
-def deleted_IS_reassign(df_syri): 
-	
+def deleted_IS_reassign(df_syri):
+
 	''' when an IS element was part of a larger deletion '''
 
 	row_idx_1=0
@@ -413,7 +413,7 @@ def deleted_IS_reassign(df_syri):
 	return df_syri
 
 
-def SV_IS_reassign(df_syri): 
+def SV_IS_reassign(df_syri):
 
 	''' When an IS element spans the border of two adjacent SVs, which usually have an IS element '''
 
@@ -422,7 +422,7 @@ def SV_IS_reassign(df_syri):
 	for row_idx_1 in range(len(df_syri)-1): #loop over lines of df_syri
 		if df_syri.loc[row_idx_1,'ref_start'] == '-' or df_syri.loc[row_idx_1,'ref_stop'] == '-': #skip any SV that does not have its reference coords listed
 			continue
-		if df_syri.loc[row_idx_1, "annotation_ref"] == 1.0 and df_syri.loc[row_idx_1, "annotation_query"] == 1.0: 
+		if df_syri.loc[row_idx_1, "annotation_ref"] == 1.0 and df_syri.loc[row_idx_1, "annotation_query"] == 1.0:
 			stop_coord_upstream=int(df_syri.loc[(row_idx_1-1), 'ref_stop']) #stop coords of the SV directly upstream
 			if df_syri.loc[(row_idx_1+1),'ref_start'] == '-' or df_syri.loc[(row_idx_1+1),'ref_stop'] == '-': #skip any SV that does not have its reference coords listed
 				continue
@@ -435,7 +435,7 @@ def SV_IS_reassign(df_syri):
 	return df_syri
 
 
-def rename_cpl(df_syri): 
+def rename_cpl(df_syri):
 
 	''' Renaming 'CPL' as they are effectively deletion '''
 
@@ -460,7 +460,7 @@ def syn_IS_reassign(df_syri):
 	for row_idx_1 in range(len(df_syri)): #loop over lines of df_syri
 		if df_syri.loc[row_idx_1,'ref_start'] == '-' or df_syri.loc[row_idx_1,'ref_stop'] == '-': #skip any SV that does not have its reference coords listed
 			continue
-		if df_syri.loc[row_idx_1, "annotation_ref"] == 1.0 and df_syri.loc[row_idx_1, "annotation_query"] == 1.0: 
+		if df_syri.loc[row_idx_1, "annotation_ref"] == 1.0 and df_syri.loc[row_idx_1, "annotation_query"] == 1.0:
 			if "SYN" in df_syri.loc[((row_idx_1)-1),"tag_1"] and "SYN" in df_syri.loc[((row_idx_1)+1),"tag_1"]: #is the SV flanked by deletions?
 				stop_coord_upstream=int(df_syri.loc[(row_idx_1-1), 'query_stop']) #stop coords of the SV directly upstream
 				start_coord_downstream=int(df_syri.loc[(row_idx_1+1),'query_start']) #start coords of the SV directly downstream
@@ -473,7 +473,7 @@ def syn_IS_reassign(df_syri):
 
 	return df_syri
 
-def merge_syn_lines(df_syri): 
+def merge_syn_lines(df_syri):
 
 	'''merge adjacent syntenic lines'''
 
@@ -508,14 +508,14 @@ def merge_syn_lines(df_syri):
 					break
 			row_idx_2+=1
 			row_idx_1=row_idx_3 #row has the row immediately after the last of the continuous 'SYN' lines, skipping to that line
-			continue 
+			continue
 		if not("SYN" in df_syri.loc[row_idx_1,'tag_1']): #if not a SYN line, copy the line as is, and move on
 			df_syri_filtered.loc[row_idx_2,:]=df_syri.iloc[row_idx_1,:]
 			row_idx_2+=1
 			row_idx_1+=1
 			continue
 
-def merge_del_lines(df_syri): 
+def merge_del_lines(df_syri):
 
 	'''merge adjacet deletions'''
 
@@ -555,14 +555,14 @@ def merge_del_lines(df_syri):
 					break
 			row_idx_2+=1
 			row_idx_1=row_idx_3 #jth row has the row immediately after the last of the continuous 'DEL' lines, skipping to that line
-			continue 
+			continue
 		if not("DEL" in df_syri.loc[row_idx_1,"tag_1"]): #if not a DEL line, copy the line as is, and move on
 			df_syri_new.loc[row_idx_2,:]=df_syri.iloc[row_idx_1,:]
 			row_idx_2+=1
 			row_idx_1+=1
 
-def deleted_IS_near_syn(df_syri): 
-	
+def deleted_IS_near_syn(df_syri):
+
 	''' when an IS element was part of a larger deletion, with a syntenic region upstream and deletion downstream '''
 
 	row_idx_1=0
@@ -580,8 +580,8 @@ def deleted_IS_near_syn(df_syri):
 	#print("renamed deleted IS elements")
 	return df_syri
 
-def IS_in_IS(df_syri): 
-	
+def IS_in_IS(df_syri):
+
 	''' REL606 has an IS1 inside an IS150 at coords 588494-590471. If this region is annotated as an SV other than a deletion, it is likely misclassified / misidentified  '''
 
 	IS_start_ref=588494
@@ -592,9 +592,9 @@ def IS_in_IS(df_syri):
 	for row_idx_1 in range(len(df_syri)): #loop over lines of df_syri
 		if df_syri.loc[row_idx_1,'ref_start'] == '-' or df_syri.loc[row_idx_1,'ref_stop'] == '-': #skip any SV that does not have its reference coords listed
 			continue
-		if df_syri.loc[row_idx_1, "annotation_ref"] == 0 and df_syri.loc[row_idx_1, "annotation_query"] == 0: #not an IS element, skip			
+		if df_syri.loc[row_idx_1, "annotation_ref"] == 0 and df_syri.loc[row_idx_1, "annotation_query"] == 0: #not an IS element, skip
 			continue
-		if df_syri.loc[row_idx_1,"ref_start"]-IS_start_ref < threshold and df_syri.loc[row_idx_1,"ref_stop"]-IS_stop_ref < threshold and "copygain" in df_syri.loc[row_idx_1,"tag_4"]: #syri has tagged this IS1 in IS150 as a duplication 
+		if df_syri.loc[row_idx_1,"ref_start"]-IS_start_ref < threshold and df_syri.loc[row_idx_1,"ref_stop"]-IS_stop_ref < threshold and "copygain" in df_syri.loc[row_idx_1,"tag_4"]: #syri has tagged this IS1 in IS150 as a duplication
 			ref_start_1=int(df_syri.loc[row_idx_1,"ref_start"])
 			ref_stop_1=int(df_syri.loc[row_idx_1,"ref_stop"])
 			tag=df_syri.loc[row_idx_1, "tag_1"]
@@ -606,10 +606,10 @@ def IS_in_IS(df_syri):
 					continue
 				ref_start_2=int(df_syri.loc[row_idx_2,"ref_start"])
 				ref_stop_2=int(df_syri.loc[row_idx_2,"ref_stop"])
-				# checking to see if the IS element is contained inside another SV, with a grace region of 
+				# checking to see if the IS element is contained inside another SV, with a grace region of
 				if ref_start_2-ref_start_1 < threshold and ref_stop_1-ref_stop_2 < threshold:
 					rows_to_drop.append(row_idx_1)
-	
+
 	df_syri=df_syri.drop(rows_to_drop)
 	df_syri.reset_index(drop=True, inplace=True)
 	return df_syri
@@ -638,18 +638,18 @@ def add_deletion_coords(df_syri):
 
 	for row_idx_1 in range(len(df_syri)):
 		if "DEL" in df_syri.loc[row_idx_1,"tag_1"]:
-			
+
 			del_start_ref=int(df_syri.loc[row_idx_1,"ref_start"])
 			del_stop_ref=int(df_syri.loc[row_idx_1,"ref_stop"])
 
 			for row_idx_2 in range(len(df_syri)): #loop to find which SV the IS element is nested in
-				
+
 				if df_syri.loc[row_idx_2,'ref_start'] == '-' or df_syri.loc[row_idx_2,'ref_stop'] == '-': #skip any SV that does not have its reference coords listed
 					continue
-				
+
 				if df_syri.loc[row_idx_2,'query_start'] == '-' or df_syri.loc[row_idx_2,'query_stop'] == '-': #skip any SV that does not have its query coords listed
 					continue
-				
+
 				ref_start_SV=int(df_syri.loc[row_idx_2,"ref_start"])
 				ref_stop_SV=int(df_syri.loc[row_idx_2,"ref_stop"])
 				query_start_SV=int(df_syri.loc[row_idx_2, "query_start"])
@@ -664,20 +664,20 @@ def add_deletion_coords(df_syri):
 					if "SYN" in SV_name:
 						distance=del_start_ref-ref_start_SV
 						del_query_coords=query_start_SV+distance
-					
+
 					if "INV" in SV_name:
 						distance=ref_stop_SV-del_stop_ref
 						del_query_coords=query_start_SV+distance
-					
+
 					df_syri.loc[row_idx_1,"query_start"]=del_query_coords
 					df_syri.loc[row_idx_1,"query_stop"]=del_query_coords
-	
+
 	df_syninv = df_syri[df_syri['tag_1'].str.contains("SYN|INV")] # only contains the lines corresponding to inversions and syntenic regions of df_syri
 	index_list = df_syninv.index.tolist()
 
 	for row_idx_1 in range(len(df_syri)):
 		if "DEL" in df_syri.loc[row_idx_1,"tag_1"]:
-			
+
 			if df_syri.loc[row_idx_1,"query_start"] != '-' and df_syri.loc[row_idx_1,"query_stop"] != '-': # if the query coords exist, skip
 				continue
 
@@ -692,13 +692,13 @@ def add_deletion_coords(df_syri):
 
 				if index_1 < row_idx_1 and index_2 > row_idx_1:
 					query_coords_del=df_syninv.loc[index_1,"query_stop"]
-					
+
 			df_syri.loc[row_idx_1,"query_start"]=query_coords_del
 			df_syri.loc[row_idx_1,"query_stop"]=query_coords_del
-	
+
 	print("PROGRESS: Added query coords for deletions")
 	return df_syri
-								
+
 
 
 def main(syri, verbose, isescan_subject, isescan_query):
@@ -767,7 +767,7 @@ def main(syri, verbose, isescan_subject, isescan_query):
 
 	print("rename_missing_chrid", df_syri)
 
-	output_filename=syri+"_v2"
+	output_filename=syri.replace("syri.out", "_clean.syri.out")
 	columns_to_write=["ref_ID", "ref_start", "ref_stop", "seq_deleted", "seq_inserted", "query_ID", "query_start", "query_stop", "tag_1", "tag_2", "tag_3", "tag_4"]
 	df_syri=df_syri[columns_to_write]
 

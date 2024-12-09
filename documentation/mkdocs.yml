@@ -2,3 +2,4 @@ site_name: seabreeze
 nav:
   - Home: index.md
   - Installation: installation.md
+  - Usage: usage.md

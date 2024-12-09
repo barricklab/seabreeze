@@ -34,10 +34,9 @@ def main(folder,data,sequences,output):
 
     for name in assemblies:
 
-        print(name)
         file_name=f"{name}.fasta" # input file name
         file_in=os.path.join(folder,file_name)
-        file_name=f"{name}_reindex.fasta" # output file name
+        file_name=f"{name}.fasta" # output file name
         file_out=os.path.join(output,file_name)
         oric=get_sequence(sequences_df, assembly_to_ancestor_dict[name],'ori')
         reindex_fasta(file_in, file_out, oric)

@@ -1,17 +1,32 @@
-# seabreeze
+# Installtion
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+## Requirements
+- A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. 
+- _seabreeze_ requires conda >= 24.3.0 to install python packages and manage environments. We recommend [Miniforge](https://github.com/conda-forge/miniforge), a minimal conda installer that is similar to [Miniconda](https://docs.anaconda.com/miniconda/). 
 
-## Commands
+## Installation
+_seabreeze_ is a Snakemake workflow with associated Python scripts. Download the latest release of _seabreeze_ from the [Github Repository]().
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+## Set up
+_seabreeze_ only requires an intial conda environment to be set up. Navigate to the _seabreeze_ diectory and run the following command:
+```
+ conda env create --name seabreeze --file bin/workflow/envs/seabreeze.yml
+```
 
-## Project layout
+You're all set! See [Usage] to get started.
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+## Optional
+By default, _seabreeze_ creates conda environments and installs packages in the _seabreeze_ working directory. However, if you plan to use _seabreeze_ multiple times, or with different directories for different samples, then it can be helpful to have a common location on your system to store environments. This can save disk space and time. 
+
+Create a folder for Snakemake to store conda environments. We recommend a directory in $HOME, but it could be anywhere.
+```
+mkdir $HOME/snakemake_conda_envs
+```
+
+Append this line to your `~/.bashrc`, `~/.zshrc` or as applicable to the shell you are using:
+```
+export SNAKEMAKE_CONDA_PREFIX=$HOME/snakemake_conda_envs
+```
+   
+
+

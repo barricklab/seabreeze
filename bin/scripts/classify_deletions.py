@@ -59,12 +59,12 @@ def classify_deletions(file,inversion,deletion):
 
     ''' returns a dict with the name of clone, and count of each type of IS'''
 
-    df=pd.read_csv(file, sep='\t')
-    print(df)
+    df=pd.read_csv(file)
+    #print(df)
     clone_name=file.replace('_boundaries.tsv','')
 
     if deletion:
-        print(f"Counting deletions")
+        #print(f"Counting deletions")
         summary_dict={'clone':'', 'total':0,'between_IS':0, 'IS_mediated':0, 'other':0}
         summary_dict['clone']=file.replace('_boundaries.tsv','')
         df_del = df[df.loc[:,'tag_3'].str.contains('DEL')]
@@ -110,12 +110,12 @@ def classify_deletions(file,inversion,deletion):
                 df_del.loc[row_idx,"Evidence"]='NA'
 
                # path_to_clone =
-        print(summary_dict)
+        #print(summary_dict)
         out_filename= clone_name + "_deletion.csv"
         df_del.to_csv(out_filename, index=False,float_format='%.0f')
 
     if inversion:
-        print (f"Counting inversions")
+        #print (f"Counting inversions")
         summary_dict={'clone':'', 'total':0,'between_IS':0, 'IS_mediated':0, 'other':0}
         summary_dict['clone']=file.replace('_boundaries.tsv','')
         df_inv = df[df.loc[:,'tag_3']=='INV']
@@ -143,13 +143,25 @@ def classify_deletions(file,inversion,deletion):
                 df_inv.loc[row_idx,"Evidence"]='evolved'
                 continue
 
+            if df_inv.loc[row_idx,'L_query'] == df_inv.loc[row_idx,'R_query'] and pd.notna(df_inv.loc[row_idx,'L_query']):
+                summary_dict['IS_mediated']+=1
+                df_inv.loc[row_idx,"Mechanism"]='IS_mediated'
+                df_inv.loc[row_idx,"Evidence"]='evolved'
+                continue
+
+            if (df_inv.loc[row_idx,'L_ref'] == df_inv.loc[row_idx,'R_ref']):
+                summary_dict['between_IS']+=1
+                df_inv.loc[row_idx,"Mechanism"]='between_IS'
+                df_inv.loc[row_idx,"Evidence"]='incomplete'
+                continue
+
             else:
                 summary_dict['other']+=1
                 df_inv.loc[row_idx,"Mechanism"]='other'
                 df_inv.loc[row_idx,"Evidence"]='NA'
 
         out_filename= clone_name + "_inversion.csv"
-        print(summary_dict)
+        #print(summary_dict)
         df_inv.to_csv(out_filename, index=False,float_format='%.0f')
 
     return summary_dict
@@ -160,12 +172,12 @@ def main(folder,output,inversion,deletion):
     #df_summary=pd.DataFrame(np.nan, index=range(len(csv_names)), columns=['clone','between_IS', 'IS_mediated','other'])
     summary_list=[]
     for file in csv_names:
-        print (file)
+        #print (file)
         summary_dict=classify_deletions(file,inversion,deletion)
         summary_list.append(summary_dict)
     df=pd.DataFrame(summary_list)
     df.to_csv(output, index=False,float_format='%.0f')
-    print(f"output name is {output}")
+    #print(f"output name is {output}")
     # if os.path.isfile(output):
     #     print(f"The file '{output}' exists in the current working directory.")
     # else:

@@ -26,7 +26,7 @@ rule predict_replichore_balance:
     input:
         ori_dif_coords = "data/04_rename_genome/ori_dif_coords.csv",
         ori_dif_coords_reindexed = "data/08_reindex_genome_oric/ori_dif_coords.csv",
-        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.csv"
+        replichore_arms = "data/08_reindex_genome_oric/replichore_arms.csv",
         inversion_replichores = expand("data/11_annotated_boundaries/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
 
 rule predict_SV_mechanism:
@@ -105,7 +105,6 @@ rule rename_contigs:
     shell:
         "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
 
-
 rule compute_genome_stats:
     conda:
         "bin/workflow/envs/biopython.yml"
@@ -138,7 +137,6 @@ rule find_IS_elements:
         "data/logs/find_IS_elements/{sample}.log"
     shell:
         """
-        echo {wildcards.sample}
         cp {input} ./{wildcards.sample}.fasta
         isescan.py --seqfile {wildcards.sample}.fasta --output data/05_isescan_tables/{wildcards.sample} --nthread 4 >> {log} 2>&1
         mv data/05_isescan_tables/{wildcards.sample}/{wildcards.sample}.fasta.csv data/05_isescan_tables/{wildcards.sample}.csv
@@ -176,8 +174,7 @@ rule align_genomes_nucmer:
         show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
         touch {wildcards.sample}.done
         cd ../../../
-        echo "Alignment complete. Working dir set to:"
-        pwd
+
         """
 
 # now call structural variants from the alignments
@@ -202,14 +199,10 @@ rule call_variants_syri:
         mkdir -p {params.output_dir}
         cd {params.output_dir}
         touch ../../../{log}
-        echo " the subject is {input.subject_path}"
-        echo "the query is {input.query_path}"
         syri --nosnp -c ../../../{input.coords} -d ../../../{input.filtered} -r ../../../{input.subject_path} -q ../../../{input.query_path} --prefix {wildcards.sample} > ../../../{log} 2>&1
         touch {wildcards.sample}.done
         rm {wildcards.sample}syri.log {wildcards.sample}syri.summary
         cd ../../../
-        echo "syri complete. Working dir set to:"
-        pwd
         """
 
 # generate the synteny plots with plotsr
@@ -239,8 +232,7 @@ rule generate_synteny_plot:
         ../../../{input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}syri.out -H 5 -W 10 -o {wildcards.sample}.plot.pdf --lf {wildcards.sample}.log
         mv {wildcards.sample}.log ../../../{log}
         cd ../../..
-        echo "Synteny plot generated. Working dir set to:"
-        pwd
+
         """
 
 # now clean up the syri files to predict a minimal set of structural variants
@@ -252,7 +244,7 @@ rule clean_syri_output:
         query_path = "data/05_isescan_tables/{sample}.csv", # path to the isescan file of the
         subject_path = lambda wildcards: "data/05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
     output:
-        "data/07_syri_output/{sample}/{sample}syri.out_v2"
+        "data/07_syri_output/{sample}/{sample}_clean.syri.out"
     params:
         # isescan_subject_path = expand("data/05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()), # listing this as an input triggers an InputExceptionError idk why
         # isescan_query = lambda wildcards: "{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # just the name of the ancestor (does not include the .fasta extension)
@@ -264,10 +256,8 @@ rule clean_syri_output:
     shell:
         """
         cd {params.input_dir}
-        echo "{input.subject_path}"
         ../../../{params.script} --syri {wildcards.sample}syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} > ../../../{log} 2>&1
         cd ../../..
-        echo "working dir set back to"
         pwd
         """
 # with the new clean syri file, generate a new plot
@@ -275,7 +265,7 @@ rule generate_synteny_plot_clean:
     conda:
         "bin/workflow/envs/plotsr.yml"
     input:
-        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+        syri = "data/07_syri_output/{sample}/{sample}_clean.syri.out",
         script = "bin/scripts/plotsr/plotsr-bin",
         genome_table = "data/07_syri_output/{sample}/{sample}.genomes.tsv",
     output:
@@ -288,7 +278,7 @@ rule generate_synteny_plot_clean:
     shell:
         """
         cd {params.input_dir}
-        ../../../{input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}syri.out_v2 -H 5 -W 10 -o {wildcards.sample}.plot.2.pdf --lf {wildcards.sample}.2.log
+        ../../../{input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}.plot.2.pdf --lf {wildcards.sample}.2.log
         mv {wildcards.sample}.2.log ../../../{log}
         cd ../../..
         pwd
@@ -297,7 +287,7 @@ rule generate_synteny_plot_clean:
 # generate a csv file with the ori and dif coords of the genomes in their original index
 rule annotate_ori_dif_locations:
     conda:
-        "bin/workflow/envs/pandas.yml"
+        "bin/workflow/envs/biopython.yml"
     input:
         genomes = expand("data/04_rename_genome/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
         script = "bin/scripts/replichore_arms_analyse.py"
@@ -305,12 +295,13 @@ rule annotate_ori_dif_locations:
         ori_dif_coords = "data/04_rename_genome/ori_dif_coords.csv"
     params:
         data="data/data.csv",
-        sequences="data/sequences.csv",
+        sequences="data/ori_dif_sequences.csv",
         folder = "data/04_rename_genome/"
+    log:
+        "data/logs/annotate_ori_dif_locations/annotate_ori_dif_locations.log"
     shell:
         """
-        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output} --noarms
-        pwd
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output} --noarms > {log}  2>&1
         """
 
 # reindex all the fasta file to the origin to analyse the replichore arms and find ori and dif position
@@ -326,17 +317,20 @@ rule reindex_contigs_oric:
     params:
         folder = "data/04_rename_genome",
         data = "data/data.csv",
-        sequences="data/sequences.csv",
+        sequences="data/ori_dif_sequences.csv",
         output = "data/08_reindex_genome_oric"
+    log:
+        "data/logs/reindex_contigs_oric/reindex_contigs_oric.log"
     shell:
-        "{input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output}"
+        """
+        {input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output} > {log} 2>&1
+        """
 
-
-# generate a csv file with the oric and dif of the genomens reindexed to the ori and a tsv file with lenths of the replichore arms of each clone
+# generate a csv file with the oric and dif of the genomens reindexed to the ori and a csv file with lenths of the replichore arms of each clone
 
 rule analyse_replichore_arms:
     conda:
-        "bin/workflow/envs/pandas.yml"
+        "bin/workflow/envs/biopython.yml"
     input:
         genomes = expand("data/08_reindex_genome_oric/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
         script = "bin/scripts/replichore_arms_analyse.py"
@@ -346,30 +340,34 @@ rule analyse_replichore_arms:
     params:
         folder = "data/08_reindex_genome_oric/",
         data = "data/data.csv",
-        sequences="data/sequences.csv",
+        sequences="data/ori_dif_sequences.csv"
+    log:
+        "data/logs/analyse_replichore_arms/analyse_replichore_arms.log"
     shell:
         """
-        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.ori_dif_coords} --noarms
-        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.ori_dif_coords} --noarms > {log} 2>&1
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}  >> {log} 2>&1
         """
 
 
-# generate tsv files which annotate the boundaries of the SVs
+# generate csv files which annotate the boundaries of the SVs
 rule annotate_SV_boundaries_IS:
     conda:
         "bin/workflow/envs/pandas.yml"
     input:
-        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+        syri = "data/07_syri_output/{sample}/{sample}_clean.syri.out",
         assembly_IS_csv = "data/05_isescan_tables/{sample}.csv",
         ancestor_IS_csv = lambda wildcards: "data/05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the csv file of the ancestor
         script = "bin/scripts/IS_SV_border.py"
     output:
-        "data/11_annotated_boundaries/{sample}_boundaries.tsv"
+        "data/11_annotated_boundaries/{sample}_boundaries.csv"
+    log:
+        "data/logs/annotate_SV_boundaries_IS/{sample}.log"
     shell:
         """
         mkdir -p data/11_annotated_boundaries
         cd data/11_annotated_boundaries
-        ../../{input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.tsv
+        ../../{input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.csv > ../../{log} 2>&1
         cd ../..
         """
 
@@ -380,7 +378,7 @@ rule annotate_SV_mechanism:
     conda:
         "bin/workflow/envs/biopython.yml"
     input:
-        boundaries_csv = expand("data/11_annotated_boundaries/{sample}_boundaries.tsv", sample=df['assembly'].tolist()),
+        boundaries_csv = expand("data/11_annotated_boundaries/{sample}_boundaries.csv", sample=df['assembly'].tolist()),
         script = "bin/scripts/classify_deletions.py"
     output:
         inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
@@ -391,10 +389,12 @@ rule annotate_SV_mechanism:
         input_dir = "data/11_annotated_boundaries/",
         output_deletion = "deletion_mechanism.csv",
         output_inversion = "inversion_mechanism.csv"
+    log:
+        "data/logs/annotate_SV_mechanism/annotate_SV_mechanism.log"
     shell:
         """
-        {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion
-        {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion
+        {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion > {log} 2>&1
+        {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion >> {log} 2>&1
         cd ..
         """
 
@@ -414,9 +414,12 @@ rule classify_inversion_replichore:
     params:
         input_dir = "data/11_annotated_boundaries/",
         output_table = "inversion_replichores.csv",
+        data="data/data.csv"
+    log:
+        "data/log/classify_inversion_replichore/classify_inversion_replichore.log"
     shell:
         """
-        {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data data.csv
+        {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1
         """
 
 # generate annotations for genomes using prokka and with the IS elements reported by ISEscan
@@ -441,7 +444,7 @@ rule annotate_genomes_prokka:
         breseq CONVERT-REFERENCE -f GFF3 -s {input.is_table} -o {output} {params.prokka_annotation} >> {log} 2>&1
         """
 
-# Use the syri.out_v2 files to make the HTML tables from breseq
+# Use the clean_syri.out files to make the HTML tables from breseq
 rule generate_genome_diffs_tables:
     conda:
         "bin/workflow/envs/breseq.yml"
@@ -454,14 +457,16 @@ rule generate_genome_diffs_tables:
         html = "data/12_genome_diff_tables/html/{sample}.html"
     params:
         gd_folder = "data/12_genome_diff_tables/gd",
-        html_folder = "data/12_genome_diff_tables/html",
+        html_folder = "data/12_genome_diff_tables/html"
+    log:
+        "data/generate_genome_diffs_tables/{sample}.log"
     shell:
         """
         mkdir -p {params.gd_folder}
         mkdir -p {params.html_folder}
         cd {params.gd_folder}
-        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification
+        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > {log} 2>&1
         cd ../../../{params.html_folder}
-        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd}
+        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd} >> {log} 2>&1
         cd ../../../
         """

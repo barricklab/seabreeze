@@ -207,10 +207,10 @@ def main(folder,output,oridif,data):
     df_data = pd.read_csv(data)
 
     # these dictionaries map assembly to its path and assembly to its ancestor
-    assembly_to_path_dict = dict(zip(df_data['assembly'], df_data['assembly_path']))
+    #assembly_to_path_dict = dict(zip(df_data['assembly'], df_data['assembly_path']))
     assembly_to_ancestor_dict = dict(zip(df_data['assembly'], df_data['ancestor']))
 
-    df_oridif=pd.read_csv(oridif,sep='\t')
+    df_oridif=pd.read_csv(oridif)
     csv_names=get_csv_names(folder)
     summary_list=[]
     df_table = pd.DataFrame()

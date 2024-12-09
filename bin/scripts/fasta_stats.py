@@ -42,8 +42,8 @@ def get_genome_sizes(assembly,ancestor):
     genome_stats = {'size_assembly':0,'size_ancestor':0,'difference':0,'percent_change':0}
     genome_stats['size_assembly'] = len(assembly.seq)
     genome_stats['size_ancestor'] = len(ancestor.seq)
-    genome_stats['difference'] = genome_stats['size_ancestor']-genome_stats['size_assembly']
-    genome_stats['percent_change'] = genome_stats['difference']/genome_stats['size_ancestor']
+    genome_stats['difference'] = genome_stats['size_assembly']-genome_stats['size_ancestor']
+    genome_stats['percent_change'] = round((genome_stats['difference']/genome_stats['size_ancestor'])*100,4)
 
     return genome_stats
 
