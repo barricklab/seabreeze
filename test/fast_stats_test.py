@@ -27,8 +27,8 @@ def test_rename_contigs():
 
     assert genome_stats_yersinia['size_assembly']==4534590
     assert genome_stats_yersinia['size_ancestor']==4600755
-    assert genome_stats_yersinia['difference']==66165
+    assert genome_stats_yersinia['difference']==-66165
 
     assert genome_stats_ltee['size_assembly']==4650661
     assert genome_stats_ltee['size_ancestor']==4629812
-    assert genome_stats_ltee['difference']==-20849
+    assert genome_stats_ltee['difference']==20849
