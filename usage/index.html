@@ -43,6 +43,9 @@
                             <li class="nav-item">
                                 <a href="./" class="nav-link active" aria-current="page">Usage</a>
                             </li>
+                            <li class="nav-item">
+                                <a href="../output/" class="nav-link">Output</a>
+                            </li>
                         </ul>
 
                     <ul class="nav navbar-nav ms-md-auto">
@@ -57,7 +60,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" class="nav-link disabled">
+                                <a rel="next" href="../output/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -173,7 +176,15 @@ For example, this is fine:</p>
 </table>
 <p>Some commands ahead may require additional input, and will be specified in respective sections.</p>
 <h1 id="commands">Commands</h1>
-<h2 id="analyse-genome-sizes">Analyse genome sizes</h2></div>
+<p>All of the <em>seabreeze</em> commands take the following format and should be executed from the <em>seabreeze</em> root directory:</p>
+<pre><code>snakemake --use-conda --cores n &lt;command&gt;
+</code></pre>
+<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to this command and are detailed in 'Additional Options`.</p>
+<h2 id="analyse-genome-sizes">Analyse genome sizes</h2>
+<p>This command compares the sizes of the assemblies to their specified ancestors in a pairwise comparisons. </p>
+<pre><code>snakemake --use-conda --cores n analyse_genome_sizes
+</code></pre>
+<p>The output file generated is <code>data/04_rename_genome/genome_size_stats.csv</code>. Please see <a href="../output/">Output</a> for more information about the fields in this table.</p></div>
             </div>
         </div>
 
