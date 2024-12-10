@@ -416,7 +416,7 @@ rule classify_inversion_replichore:
         output_table = "inversion_replichores.csv",
         data="data/data.csv"
     log:
-        "data/log/classify_inversion_replichore/classify_inversion_replichore.log"
+        "data/logs/classify_inversion_replichore/classify_inversion_replichore.log"
     shell:
         """
         {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1

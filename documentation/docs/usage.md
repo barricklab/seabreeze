@@ -44,8 +44,19 @@ Some commands ahead may require additional input, and will be specified in respe
 
 # Commands
 
-
+All of the _seabreeze_ commands take the following format and should be executed from the _seabreeze_ root directory:
+```
+snakemake --use-conda --cores n <command>
+```
+Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to this command and are detailed in 'Additional Options`.
 
 ## Analyse genome sizes
+
+This command compares the sizes of the assemblies to their specified ancestors in a pairwise comparisons. 
+
+```
+snakemake --use-conda --cores n analyse_genome_sizes
+```
+The output file generated is `data/04_rename_genome/genome_size_stats.csv`. Please see [Output](output.md) for more information about the fields in this table.
 
 
