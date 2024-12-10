@@ -11,6 +11,7 @@ import subprocess
 
 parser = argparse.ArgumentParser(description='align_and_visual_timeseries.py: a script to generate syneny plots for time series fasta files with rearrangement intermediates')
 parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose mode')
+parser.add_argument('--plotsr', help='Path to plotsr-bin')
 parser.add_argument('--batch', '-b', action='store_true', help='Batch mode. If not used, series mode is run by default')
 parser.add_argument('fasta', nargs='+', help='List of fasta files, in the order of generating plots')
 
@@ -130,14 +131,14 @@ def make_genomes_file(fasta,names,count):
         with open(file_name, 'a') as file:
             file.write(line)
 
-def makeplots(syri, genomes, count, batch,length): #syri can be single file (for batch mode) or a list of file names (for series mode)
+def makeplots(syri, genomes, count, batch,length,plotsr): #syri can be single file (for batch mode) or a list of file names (for series mode)
 
     ''' generate the synteny plots '''
 
     if batch: # generate pairwise syteny plot
 
         prefix="file"+str(count)
-        plotsr_command=['plotsr-bin','-s','500','--genomes',genomes,'--sr',syri,'-H','5','-W','10','-o',f"{prefix}_plotsr.pdf"]
+        plotsr_command=[plotsr,'-s','500','--genomes',genomes,'--sr',syri,'-H','5','-W','10','-o',f"{prefix}_plotsr.pdf"]
 
         try:
             # Run the subprocess
@@ -149,7 +150,7 @@ def makeplots(syri, genomes, count, batch,length): #syri can be single file (for
     if not(batch): #accept an ordered list of syri files to generate one large synteny plots in series
 
         prefix="file"
-        plotsr_command=['plotsr-bin','-s','500','--genomes',genomes]
+        plotsr_command=[plotsr,'-s','500','--genomes',genomes]
 
         for file in syri: # add the syri option and entries to the command
             plotsr_command.append('--sr')
@@ -164,7 +165,7 @@ def makeplots(syri, genomes, count, batch,length): #syri can be single file (for
         except subprocess.CalledProcessError as e:
             print(f"Error running plotsr nucmer: {e}")
 
-def main(batch, fasta):
+def main(batch, fasta,plotsr):
     check_contig_count(fasta) # abort process if fasta files have more than one entry
 
 
@@ -192,7 +193,7 @@ def main(batch, fasta):
             prefix="file"+str(count)
             syri=prefix+"syri.out"
             genomes=prefix+".genomes.tsv"
-            makeplots(syri,genomes,count,batch,'')
+            makeplots(syri,genomes,count,batch,'',plotsr)
 
     if not(batch):
 
@@ -220,8 +221,8 @@ def main(batch, fasta):
         count='' # the files for series mode only have "file" as the prefix with no following numbers
         prefix="file"+str(count)
         genomes=prefix+".genomes.tsv"
-        makeplots(syri,genomes,count,batch,str(5*len(fasta)))
+        makeplots(syri,genomes,count,batch,str(5*len(fasta)),plotsr)
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    main(args.batch, args.fasta)
+    main(args.batch, args.fasta,args.plotsr)
