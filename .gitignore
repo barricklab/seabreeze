@@ -7,3 +7,4 @@ data/
 documentation/site/
 sandbox/
 test/__pycache__/
+bin/scripts/__pycache__/*
