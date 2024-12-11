@@ -1,4 +1,4 @@
-# Installtion
+# Installation
 
 ## Requirements
 - A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. 
