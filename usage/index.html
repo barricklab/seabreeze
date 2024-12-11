@@ -46,6 +46,9 @@
                             <li class="nav-item">
                                 <a href="../output/" class="nav-link">Output</a>
                             </li>
+                            <li class="nav-item">
+                                <a href="../tutorial/" class="nav-link">Tutorial</a>
+                            </li>
                         </ul>
 
                     <ul class="nav navbar-nav ms-md-auto">
@@ -90,6 +93,18 @@
             <li class="nav-item" data-bs-level="1"><a href="#commands" class="nav-link">Commands</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#analyse-genome-sizes" class="nav-link">Analyse genome sizes</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#find-insertion-sequences" class="nav-link">Find insertion sequences</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#predict-svs" class="nav-link">Predict SVs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#additional-snakemake-options" class="nav-link">Additional Snakemake options</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -172,6 +187,36 @@ For example, this is fine:</p>
 <td>genome1</td>
 <td>genome3</td>
 </tr>
+<tr>
+<td>It is also a good idea to set up a comparison of the ancestor genomes to themselves. This can be a good quality control step, as we do not expect the pipeline to predict any mutations in a genome relative to itself. The following table demonstrates an implementation of this:</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome1</td>
+<td>genome2</td>
+</tr>
+<tr>
+<td>genome3</td>
+<td>genome4</td>
+</tr>
+<tr>
+<td>genome2</td>
+<td>genome2</td>
+</tr>
+<tr>
+<td>genome4</td>
+<td>genome4</td>
+</tr>
 </tbody>
 </table>
 <p>Some commands ahead may require additional input, and will be specified in respective sections.</p>
@@ -179,12 +224,32 @@ For example, this is fine:</p>
 <p>All of the <em>seabreeze</em> commands take the following format and should be executed from the <em>seabreeze</em> root directory:</p>
 <pre><code>snakemake --use-conda --cores n &lt;command&gt;
 </code></pre>
-<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to this command and are detailed in 'Additional Options`.</p>
+<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to this command and are detailed in 'Additional Options'.</p>
 <h2 id="analyse-genome-sizes">Analyse genome sizes</h2>
-<p>This command compares the sizes of the assemblies to their specified ancestors in a pairwise comparisons. </p>
+<p>This command compares the sizes of the assemblies to their specified ancestors in a pairwise manner. </p>
 <pre><code>snakemake --use-conda --cores n analyse_genome_sizes
 </code></pre>
-<p>The output file generated is <code>data/04_rename_genome/genome_size_stats.csv</code>. Please see <a href="../output/">Output</a> for more information about the fields in this table.</p></div>
+<p>The output file generated is <code>data/04_rename_genome/genome_size_stats.csv</code>. Please see <a href="../output/">output</a> for more information about the fields in this table, and the <a href="../tutorial/">tutorial</a> for a sample.</p>
+<h2 id="find-insertion-sequences">Find insertion sequences</h2>
+<p>This command uses <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md?plain=1">ISEscan</a> to annotate partial and full-length IS elements in the genomes. </p>
+<pre><code>snakemake --use-conda --cores 4 predict_IS_elements
+</code></pre>
+<p>This command primarily generates a series of csv files<code>data/05_isescan_tables/&lt;assembly&gt;.csv</code>, with each csv file corresponding to an assembly in <code>data/data.csv</code>. ISEScan also generates additional output for each assembly, which is stored in their respective directories <code>data/05_iescan_tables/&lt;assembly&gt;/</code>.  For information about interpreting this csv file, we refer users to the official <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md">ISEScan documentation</a>. </p>
+<h2 id="predict-svs">Predict SVs</h2>
+<p>This command aligns the assembly-ancestor pairs, predicts structural variants and generates synteny plots. </p>
+<pre><code>snakemake --use-conda --cores 4 predict_structural_variants
+</code></pre>
+<ul>
+<li><code>data/07_syri_output/&lt;assembly&gt;/&lt;assembly&gt;_clean.syri.out</code> is a tsv file that describes the location and type of SVs in the assembly, relative to its ancestor. We refer the user to the official <a href="https://schneebergerlab.github.io/syri/fileformat.html">SyRI documentation</a> for information on interpreting this table.</li>
+<li><code>data/07_syri_output/&lt;assembly&gt;/&lt;assembly&gt;.plot.2.pdf</code> is a synteny plot of the rearrangements in the above tsv file. </li>
+</ul>
+<p>This command also generates other files. Please see the <a href="../output/">output</a> page. </p>
+<blockquote>
+<p>Tip: The 4th and 5th columns of the <code>&lt;assembly&gt;_clean.syri.out</code> file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running</p>
+</blockquote>
+<pre><code>cat &lt;assembly&gt;_clean.syri.out | cut --complement -f 4-5
+</code></pre>
+<h2 id="additional-snakemake-options">Additional Snakemake options</h2></div>
             </div>
         </div>
 

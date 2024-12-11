@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Installation - seabreeze</title>
+        <title>Tutorial - seabreeze</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/fontawesome.min.css" rel="stylesheet">
         <link href="../css/brands.min.css" rel="stylesheet">
@@ -38,7 +38,7 @@
                                 <a href=".." class="nav-link">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a href="./" class="nav-link active" aria-current="page">Installation</a>
+                                <a href="../installation/" class="nav-link">Installation</a>
                             </li>
                             <li class="nav-item">
                                 <a href="../usage/" class="nav-link">Usage</a>
@@ -47,7 +47,7 @@
                                 <a href="../output/" class="nav-link">Output</a>
                             </li>
                             <li class="nav-item">
-                                <a href="../tutorial/" class="nav-link">Tutorial</a>
+                                <a href="./" class="nav-link active" aria-current="page">Tutorial</a>
                             </li>
                         </ul>
 
@@ -58,12 +58,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href=".." class="nav-link">
+                                <a rel="prev" href="../output/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../usage/" class="nav-link">
+                                <a rel="next" class="nav-link disabled">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -85,24 +85,13 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#installation" class="nav-link">Installation</a>
-              <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#requirements" class="nav-link">Requirements</a>
+            <li class="nav-item" data-bs-level="2"><a href="#compute-size-difference-between-genomes" class="nav-link">Compute size difference between genomes</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#installation_1" class="nav-link">Installation</a>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#predict-the-location-of-insertion-sequences" class="nav-link">Predict the location of insertion sequences</a>
               <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#set-up" class="nav-link">Set up</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#optional" class="nav-link">Optional</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
               </ul>
             </li>
         </ul>
@@ -110,30 +99,113 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="installation">Installation</h1>
-<h2 id="requirements">Requirements</h2>
-<ul>
-<li>A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. </li>
-<li><em>seabreeze</em> requires conda &gt;= 24.3.0 to install python packages and manage environments. We recommend <a href="https://github.com/conda-forge/miniforge">Miniforge</a>, a minimal conda installer that is similar to <a href="https://docs.anaconda.com/miniconda/">Miniconda</a>. </li>
-</ul>
-<h2 id="installation_1">Installation</h2>
-<p><em>seabreeze</em> is a Snakemake workflow with associated Python scripts. Download the latest release of <em>seabreeze</em> from the <a href="https://github.com/barricklab/seabreeze/releases">Github Repository</a>.</p>
-<h2 id="set-up">Set up</h2>
-<p><em>seabreeze</em> only requires an intial conda environment to be set up. Navigate to the <em>seabreeze</em> diectory and run the following command:</p>
-<pre><code> conda env create --name seabreeze --file bin/workflow/envs/seabreeze.yml
+<p>This is a tutorial with example data for <em>seabreeze</em>. Please <a href="../installation/">install the software, create the conda enviroment and activate it</a> first. </p>
+<p>To get started, navigate to the root of the <em>seabreeze</em> directory, and copy the <code>example/</code> directory:</p>
+<pre><code>cp -r example/ data/
 </code></pre>
-<p>Activate the conda environment before running the commands</p>
-<pre><code>conda activate seabreeze
+<p>The newly created <code>data/</code> folder should look like this:</p>
+<pre><code>|---data/
+|   |
+|   |---data.csv
+|   |---ori_dif_sequences.csv
+|   |---02_genomes/
+|   |   |
+|   |   |---REL606_evolved_1.fasta
+|   |   |---REL606_evolved_2.fasta
+|   |   |---REL606.fasta
 </code></pre>
-<p>You're all set! See <a href="../usage/">Usage</a> to get started.</p>
-<h2 id="optional">Optional</h2>
-<p>By default, <em>seabreeze</em> creates conda environments and installs packages in the <em>seabreeze</em> working directory. However, if you plan to use <em>seabreeze</em> multiple times, or with different directories for different samples, then it can be helpful to have a common location on your system to store environments. This can save disk space and time. </p>
-<p>Create a folder for Snakemake to store conda environments. We recommend a directory in $HOME, but it could be anywhere.</p>
-<pre><code>mkdir $HOME/snakemake_conda_envs
+<p>For this tutorial, structural variant mutations have been simulated on the <em>E. coli</em> strain REL606 genome using <em>breseq</em>. These mutated genome assemblies are <code>REL606_evolved_1.fasta</code> and <code>REL606_evolved_2.fasta</code>. We aim to identify the structural variants in these assemblies relative to their ancestor, <code>REL606.fasta</code>. These pairwise comparisons to be performed are specified in a csv file called <code>data.csv</code> in the <code>data/</code> directory.  For more information about the valid format of this file, please see the <a href="../usage/">usage</a> page.</p>
+<p>To view this csv file:</p>
+<pre><code>cat data/data.csv
 </code></pre>
-<p>Append this line to your <code>~/.bashrc</code>, <code>~/.zshrc</code> or as applicable to the shell you are using:</p>
-<pre><code>export SNAKEMAKE_CONDA_PREFIX=$HOME/snakemake_conda_envs
-</code></pre></div>
+<p>It should look like this:</p>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REL606</td>
+<td>REL606</td>
+<td></td>
+</tr>
+<tr>
+<td>REL606_evolved_1</td>
+<td>REL606</td>
+<td></td>
+</tr>
+<tr>
+<td>REL606_evolved_2</td>
+<td>REL606</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>We include a comparison of <code>REL606</code> to itself as a quality check step, as we do not expect any mutations when a genome is compared to itself.</p>
+<p>All of the following commands should be run from the <em>seabreeze</em> root directory. Here, 4 cores have been allocated to run <em>seabreeze</em> but this number can be higher on lower depending on your hardware.</p>
+<h2 id="compute-size-difference-between-genomes">Compute size difference between genomes</h2>
+<p>This command compares the sizes of the assemblies to their specified ancestors in a pairwise manner. </p>
+<pre><code>snakemake --use-conda --cores 4 analyse_genome_sizes
+</code></pre>
+<p>The output file generated is <code>data/04_rename_genome/genome_size_stats.csv</code>. Please see <a href="../output/">Output</a> for more information about the fields in this table. This table should look this this:</p>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+<th>size_assembly</th>
+<th>size_ancestor</th>
+<th>difference</th>
+<th>percent_change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REL606</td>
+<td>REL606</td>
+<td>4629812</td>
+<td>4629812</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>REL606_evolved_1</td>
+<td>REL606</td>
+<td>4617111</td>
+<td>4629812</td>
+<td>-12701</td>
+<td>-0.2743</td>
+</tr>
+<tr>
+<td>REL606_evolved_2</td>
+<td>REL606</td>
+<td>4549910</td>
+<td>4629812</td>
+<td>-79902</td>
+<td>-1.7258</td>
+</tr>
+</tbody>
+</table>
+<p>As we expected, there is no size difference when <code>REL606</code> is compared to itself. We can see that both of the assemblies <code>REL606_evolved_1</code> and <code>REL606_evolved_2</code> are smaller than the ancestor.</p>
+<h2 id="predict-the-location-of-insertion-sequences">Predict the location of insertion sequences</h2>
+<p>This command uses <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md?plain=1">ISEscan</a> to annotate partial and full-length IS elements in the genomes. </p>
+<pre><code>snakemake --use-conda --cores 4 predict_IS_elements
+</code></pre>
+<p>All of the output generated is stored in <code>data/05_isescan_tables/</code>. This tutorial should generate the following files in this directory:</p>
+<pre><code>|---05_isescan_tables/
+|   |
+|   |---REL606.csv
+|   |---REL606_evolved_1.csv
+|   |---REL606_evolved_2.csv
+|   |---REL606/
+|   |---REL606_evolved_1/
+|   |---REL606_evolved_2/
+</code></pre>
+<p>Each assembly has a .csv file that describes the locations of IS elements in that genome, and a directory where the additionally files generated by <em>ISEScan</em> are made. For information about interpreting this csv file, we refer users to the official <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md">ISEScan documentation</a>.</p></div>
             </div>
         </div>
 
