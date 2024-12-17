@@ -137,7 +137,8 @@
 <p>Tip: The 4th and 5th columns of the <code>&lt;assembly&gt;_clean.syri.out</code> file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running</p>
 </blockquote>
 <pre><code>cat &lt;assembly&gt;_clean.syri.out | cut --complement -f 4-5
-</code></pre></div>
+</code></pre>
+<p>Note: SyRI sometimes fails to correctly identify copy number variation (deletions and amplifications) or more complex rearrangements (such as overlapping inversions).</p></div>
             </div>
         </div>
 

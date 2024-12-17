@@ -99,6 +99,10 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#annotate-genes-in-svs" class="nav-link">Annotate genes in SVs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -259,7 +263,9 @@ genome  4615673 4629812 genome  4602972 4617111 SYN14   -   SYN -
 <p>The ancestor genome is the blue line, and the orange line is the evolved genome REL606_evolved_1. The grey ribbons show syntenic regions. We can see that there was one large inversion (in yellow) and several smaller deletions across the genome (in red).</p>
 <p>One of the steps that <em>seabreeze</em> performs is to remove false positive SV calls and misassigned SVs. As an example of what this synteny plot looks like before this processing, we can view the plot <code>REL606_evolved_1.plot.pdf</code> </p>
 <p><img alt="plot_2" src="../synteny_plot_2.png" /></p>
-<p>Two deletions (~0.5Mb and ~2.8Mb) were not correctly called. There also appear to be many small "duplications". These correspond to spurious alignments between the many copies of IS elements, and do not always represent bona fide instances of structural variant mutations. It should also be noted that <em>seabreeze</em> does not track IS transposition events.</p></div>
+<p>Two deletions (~0.5Mb and ~2.8Mb) were not correctly called. There also appear to be many small "duplications". These correspond to spurious alignments between the many copies of IS elements, and do not always represent bona fide instances of structural variant mutations. It should also be noted that <em>seabreeze</em> does not track IS transposition events.</p>
+<h2 id="annotate-genes-in-svs">Annotate genes in SVs</h2>
+<p>To annotate the genes present in the deletions, inversions and amplifications, </p></div>
             </div>
         </div>
 

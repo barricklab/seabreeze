@@ -263,6 +263,10 @@ For example, this is fine:</p>
 <pre><code>cat &lt;assembly&gt;_clean.syri.out | cut --complement -f 4-5
 </code></pre>
 <h2 id="annotate-genes-in-svs">Annotate genes in SVs</h2>
+<p>This command uses <a href="https://github.com/tseemann/prokka">prokka</a> annotate the assemblies and <a href="https://github.com/barricklab/breseq">breseq</a> to annotate the genes present in the deletions, inversions and amplifications.</p>
+<pre><code>snakemake --use-conda --cores 4 annotate_SV_regions
+</code></pre>
+<p>For each assembly, an HTML table <code>data/12_genome_diff_tables/html/&lt;assembly&gt;.html</code> . Please see the <a href=""><em>breseq</em> manual</a> for information on interpreting this table. For a sample table, please see <a href="../tutorial/">the tutorial</a>. </p>
 <h2 id="predict-sv-mechanism">Predict SV mechanism</h2>
 <h2 id="predict-replichore-and-inversion-balance">Predict replichore and inversion balance</h2>
 <h2 id="additional-snakemake-options">Additional Snakemake options</h2>
