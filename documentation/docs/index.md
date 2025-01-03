@@ -1,4 +1,4 @@
-
+# seabreeze
 _seabreeze_ is a tool for the comprehensive analysis of structural variant (SV) mutations in bacterial resequencing experiments; it automates and unites several analyses into a single, easy-to-use pipeline. _seabreeze_ uses a combination of existing packages and custom scripts, with Snakemake to manage dependencies and the workflow.
 
 - To get started, please refer to the [installation](installation.md).
@@ -8,3 +8,4 @@ _seabreeze_ is a tool for the comprehensive analysis of structural variant (SV) 
 - If you have any questions, want to report bugs/error or submit a request for a new feature, please start a new [GitHub issue](https://github.com/barricklab/seabreeze/issues). 
 - See other software to analyse bacterial genomes from the [Barrick Lab at the University of Texas at Austin](https://barricklab.org/twiki/bin/view/Lab/SoftwareList. )
 - Contact the creators at irazibbu@utexas.edu or jbarrick@cm.utexas.edu.
+

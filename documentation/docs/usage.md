@@ -107,7 +107,17 @@ For each assembly, an HTML table `data/12_genome_diff_tables/html/<assembly>.htm
 
 ## Predict SV mechanism
 
+Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.
 
+```
+snakamake --use-conda --cores 4 predict_SV_mechanism
+```
+
+- This command generates two summary csv files: `data/11_annotated_boundaries/deletion_mechanism.csv` and `data/11_annotated_boundaries/inversion_mechanism.csv` that contain information about the mechanism of deletions and inversions respectively, for all of the assemblies.
+- Detailed information about the mechanism of each deletion for every assembly is in the csv files `data/11_annotated_boundaries/<assembly>_deletion.csv`
+- Detailed information about the mechanism of each deletion for every assembly is in the csv files `data/11_annotated_boundaries/<assembly>_inversion.csv`
+
+Information about these csv files can be found on the [output](output.md) page and examples on the [tutorial](tutorial.md) page.
 
 ## Predict replichore and inversion balance
 
