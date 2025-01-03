@@ -381,8 +381,8 @@ rule annotate_SV_mechanism:
         boundaries_csv = expand("data/11_annotated_boundaries/{sample}_boundaries.csv", sample=df['assembly'].tolist()),
         script = "bin/scripts/classify_deletions.py"
     output:
-        inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
-        deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        #inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        #deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
     params:
@@ -431,7 +431,7 @@ rule annotate_genomes_prokka:
         genome="data/04_rename_genome/{sample}.fasta",
         is_table="data/05_isescan_tables/{sample}.csv"
     output:
-        "09_annotated_genomes/{sample}.gff"
+        "data/09_annotated_genomes/{sample}/{sample}.gff"
     params:
         prefix="{sample}",
         outdir="09_annotated_genomes/{sample}",
@@ -440,7 +440,7 @@ rule annotate_genomes_prokka:
         "data/logs/annotate_genomes_prokka/{sample}.log"
     shell:
         """
-        prokka --prefix {params.prefix} --outdir {params.outdir} {input.genome} > {log} 2>&1
+        prokka --force --prefix {params.prefix} --outdir {params.outdir} {input.genome} > {log} 2>&1
         breseq CONVERT-REFERENCE -f GFF3 -s {input.is_table} -o {output} {params.prokka_annotation} >> {log} 2>&1
         """
 
@@ -449,9 +449,9 @@ rule generate_genome_diffs_tables:
     conda:
         "bin/workflow/envs/breseq.yml"
     input:
-        syri = "data/07_syri_output/{sample}/{sample}syri.out_v2",
+        syri = "data/07_syri_output/{sample}/{sample}_clean.syri.out",
         script = "bin/scripts/syri2gd.py",
-        reference = "09_annotated_genomes/{sample}.gff"
+        reference = "data/09_annotated_genomes/{sample}/{sample}.gff"
     output:
         gd = "data/12_genome_diff_tables/gd/{sample}.gd",
         html = "data/12_genome_diff_tables/html/{sample}.html"
@@ -465,8 +465,8 @@ rule generate_genome_diffs_tables:
         mkdir -p {params.gd_folder}
         mkdir -p {params.html_folder}
         cd {params.gd_folder}
-        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > {log} 2>&1
+        ../../../{input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > ../../../{log} 2>&1
         cd ../../../{params.html_folder}
-        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd} >> {log} 2>&1
+        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd} >> ../../../{log} 2>&1
         cd ../../../
         """
