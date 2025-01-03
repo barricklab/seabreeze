@@ -29,7 +29,7 @@ Create a folder for Snakemake to store conda environments. We recommend a direct
 mkdir $HOME/snakemake_conda_envs
 ```
 
-Append this line to your `~/.bashrc`, `~/.zshrc` or as applicable to the shell you are using:
+Append this line to your `~/.bashrc`, `~/.zshrc` or as applicable to the shell you are using, using the path to the directory created in the previous step.
 ```
 export SNAKEMAKE_CONDA_PREFIX=$HOME/snakemake_conda_envs
 ```
