@@ -128,9 +128,9 @@
                     <div class="col-md-9" role="main">
 
 <h1 id="preparing-input">Preparing input</h1>
-<p>Assuming you have <a href="../installation/">completed installation</a>, you can now prepare input files for analysis. At its core <em>seabreeze</em> is designed for bacterial resequencing experiments, and therefore predicts mutations between reference-query pairs, where the reference sequence is referred to as an <em>ancestor</em> and the query sequence being compared to is called the <em>assembly</em>. This nomenclature is use throughout the documentation and the software.
+<p>Assuming you have <a href="../installation/">completed installation</a>, you can now prepare input files for analysis. At its core, <em>seabreeze</em> is designed for bacterial resequencing experiments, and therefore predicts mutations between reference-query pairs, where the reference sequence is referred to as an <em>ancestor</em> and the query sequence being compared to is called the <em>assembly</em>. This nomenclature is use throughout the documentation and the software.
 <em>seabreeze</em> requires FASTA files for all of the bacterial genomes being analysed. These FASTA files should only contain a single contig for the full-length genome. It should not contain additional entries for plasmids. <em>seabreeze</em> works best with genome assemblies generated from long-read sequencing as these can capture structural variants that occur between repeat sequences. It also does not work well for comparing genomes with high sequence/ phylogenetic divergence (for example between different bacterial species).</p>
-<p>All of the input/output of the analysis is stored in <code>data/</code>. The pairwise comparisons to be performed are specified in a csv file called <code>data.csv</code> in the <code>data/</code> directory. Populate the csv file with the ancestor-assembly pairs you wish to analyse. For example:</p>
+<p>All of the input/output of the analysis is stored in the <code>data/</code> directory in the <em>seabreeze</em> folder. The pairwise comparisons to be performed are specified in a csv file called <code>data.csv</code> in the <code>data/</code> directory. This file has only two columns <code>ancestor</code> and <code>assembly</code>, in a standard csv format. Populate the csv file with the ancestor-assembly pairs you wish to analyse. For example:</p>
 <table>
 <thead>
 <tr>
@@ -199,12 +199,9 @@ For example, this is fine:</p>
 <td>genome1</td>
 <td>genome3</td>
 </tr>
-<tr>
-<td>It is also a good idea to set up a comparison of the ancestor genomes to themselves. This can be a good quality control step, as we do not expect the pipeline to predict any mutations in a genome relative to itself. The following table demonstrates an implementation of this:</td>
-<td></td>
-</tr>
 </tbody>
 </table>
+<p>It is also a good idea to set up a comparison of the ancestor genomes to themselves. This can be a quality control step, as we do not expect the pipeline to predict any mutations in a genome relative to itself. The following table demonstrates an implementation of this:</p>
 <table>
 <thead>
 <tr>
@@ -237,7 +234,7 @@ For example, this is fine:</p>
 <p>All of the <em>seabreeze</em> commands take the following format and should be executed from the <em>seabreeze</em> root directory:</p>
 <pre><code>snakemake --use-conda --cores n &lt;command&gt;
 </code></pre>
-<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to this command and are detailed in 'Additional Options'.</p>
+<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to commands and are detailed in 'Additional Options'.</p>
 <h2 id="analyse-genome-sizes">Analyse genome sizes</h2>
 <p>This command compares the sizes of the assemblies to their specified ancestors in a pairwise manner. </p>
 <pre><code>snakemake --use-conda --cores n analyse_genome_sizes
@@ -268,6 +265,15 @@ For example, this is fine:</p>
 </code></pre>
 <p>For each assembly, an HTML table <code>data/12_genome_diff_tables/html/&lt;assembly&gt;.html</code> . Please see the <a href=""><em>breseq</em> manual</a> for information on interpreting this table. For a sample table, please see <a href="../tutorial/">the tutorial</a>. </p>
 <h2 id="predict-sv-mechanism">Predict SV mechanism</h2>
+<p>Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.</p>
+<pre><code>snakamake --use-conda --cores 4 predict_SV_mechanism
+</code></pre>
+<ul>
+<li>This command generates two summary csv files: <code>data/11_annotated_boundaries/deletion_mechanism.csv</code> and <code>data/11_annotated_boundaries/inversion_mechanism.csv</code> that contain information about the mechanism of deletions and inversions respectively, for all of the assemblies.</li>
+<li>Detailed information about the mechanism of each deletion for every assembly is in the csv files <code>data/11_annotated_boundaries/&lt;assembly&gt;_deletion.csv</code></li>
+<li>Detailed information about the mechanism of each deletion for every assembly is in the csv files <code>data/11_annotated_boundaries/&lt;assembly&gt;_inversion.csv</code></li>
+</ul>
+<p>Information about these csv files can be found on the <a href="../output/">output</a> page and examples on the <a href="../tutorial/">tutorial</a> page.</p>
 <h2 id="predict-replichore-and-inversion-balance">Predict replichore and inversion balance</h2>
 <h2 id="additional-snakemake-options">Additional Snakemake options</h2>
 <p>These are additional Snakemake options that can be included as follows. They work for all commands</p>
