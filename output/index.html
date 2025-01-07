@@ -148,19 +148,19 @@
 </code></pre>
 <p>Note: SyRI sometimes fails to correctly identify copy number variation (deletions and amplifications) or more complex rearrangements (such as overlapping inversions).</p>
 <h2 id="annotate-genes-in-svs">Annotate genes in SVs</h2>
-<p>This command uses <a href="https://github.com/tseemann/prokka">prokka</a> annotate the assemblies and generates GFF files for each in <code>data/09_annotated_genomes/&lt;assembly&gt;/&lt;assembly&gt;.gff</code>.</p>
-<p>Next, <a href="https://github.com/barricklab/breseq">breseq</a> uses these GFF files to annotate the genes present in the deletions, inversions and amplifications. This step produces two outputs for each assembly:
-- <code>data/12_genome_diff_tables/gd/&lt;assembly&gt;.gd</code>: This is a GenomeDiff format that is a tsv file describing the locations, size and types of SVs. Please see the <a href="https://gensoft.pasteur.fr/docs/breseq/0.35.0/gd_format.html">breseq</a> documentation for more information about this file format. 
-- <code>data/12_genome_diff_tables/html/&lt;assembly&gt;.html</code>: This is an html, human-readable version of the GenomeDiff file that contains the names of the genes contained in the SV regions. For an example of this table, please see the <a href="../tutorial/">tutorial</a>. For information about the columns in this table, please see the <a href="https://gensoft.pasteur.fr/docs/breseq/0.35.0/output.html#html-human-readable-output">breseq</a> documentation. </p>
+<p>This command uses <a href="https://github.com/tseemann/prokka">prokka</a> annotate genes in the assemblies and combines insertion sequence ore and generates GFF files for each in <code>data/09_annotated_genomes/&lt;assembly&gt;/&lt;assembly&gt;.gff</code>.</p>
+<p>Next, <a href="https://github.com/barricklab/breseq">breseq</a> uses these GFF files to annotate the genes present in the deletions, inversions and amplifications. This step produces two outputs for each assembly:</p>
+<ul>
+<li><code>data/12_genome_diff_tables/gd/&lt;assembly&gt;.gd</code>: This is a GenomeDiff format that is a tsv file describing the locations, size and types of SVs. Please see the <a href="https://gensoft.pasteur.fr/docs/breseq/0.35.0/gd_format.html">breseq</a> documentation for more information about this file format. </li>
+<li><code>data/12_genome_diff_tables/html/&lt;assembly&gt;.html</code>: This is an html, human-readable version of the GenomeDiff file that contains the names of the genes contained in the SV regions. For an example of this table, please see the <a href="../tutorial/">tutorial</a>. For information about the columns in this table, please see the <a href="https://gensoft.pasteur.fr/docs/breseq/0.35.0/output.html#html-human-readable-output">breseq</a> documentation. </li>
+</ul>
 <h2 id="predict-sv-mechanism">Predict SV mechanism</h2>
 <p>This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms. All of the output from this step is in the directory <code>data/11_annotated_boundaries/</code>. Each assembly has three files associated with it:</p>
-<ol>
+<ul>
 <li>
-<p><code>data/11_annotated_boundaries/&lt;assembly&gt;_boundaries.csv</code>: This csv file annotates insertion sequences that are within a threshold distance of the start and end sites of a structural variant. The threshold has arbitrarily been set to 20bp. This csv file has the following columns:</p>
-</li>
-<li>
-<p><code>ref_start</code>: Start site of the SV in the ancestor</p>
-</li>
+<p><code>data/11_annotated_boundaries/&lt;assembly&gt;_boundaries.csv</code>: This csv file annotates insertion sequences that are within a threshold distance of the start and end sites of a structural variant. The threshold has arbitrarily been set to 20bp. This csv file has the following columns. Note: For deletions, the <code>query_start</code> and <code>query_stop</code> coordinates will be of the same length. Additionally, the distances can be positive or negative, depending on if the insertion sequence starts/ends before or after that edge of the SV.</p>
+<ul>
+<li><code>ref_start</code>: Start site of the SV in the ancestor</li>
 <li><code>ref_stop</code>: Stop site of the SV in the ancestor</li>
 <li><code>query_start</code>: Start site of the SV in the assembly</li>
 <li><code>query_stop</code>: Stop site of the SV in the aseembly</li>
@@ -173,17 +173,32 @@
 <li><code>L_query_distance</code>: Distance of the closest end of the insertion sequence from the start site of the SV in the assembly.</li>
 <li><code>R_query</code>: Name of insertion sequence within threshold distance of the stop site of the SV in the assembly. This is 'NA' if none is found.</li>
 <li><code>R_query_distance</code>: Distance of the closest end of the insertion sequence from the start site of the SV in the assembly.</li>
-</ol>
-<p>Note: For deletions, the <code>query_start</code> and <code>query_stop</code> coordinates will be of the same length. Additionally, the distances can be positive or negative, depending on if the insertion sequence starts/ends before or after that edge of the SV.</p>
-<ol>
-<li>
-<p><code>data/11_annotated_boundaries/&lt;assembly&gt;_deletion.csv</code>: This file contains the same fields as (1), with two additional columns. These columns describe the various configurations in which insertion sequences can flank an SV.</p>
+</ul>
 </li>
 <li>
-<p><code>Mechanism</code>: This field can take on values of 'between_IS', 'IS_mediated' and 'Other'</p>
-</li>
+<p><code>data/11_annotated_boundaries/&lt;assembly&gt;_deletion.csv</code>: This file contains the same fields as above, with two additional columns. These columns describe the various configurations in which insertion sequences can flank a deletion.</p>
+<ul>
+<li><code>Mechanism</code>: This field can take on values of 'between_IS' (when a deletion occurs between two IS elements that were already present in the ancestor), 'IS_mediated' (when only one or none of the implicated IS elements were present in the ancestor) and 'other' (through recombination between other repeats or illegitimate recombination)</li>
 <li><code>Evidence</code>: This field can take on values of 'full', 'evolved', 'incomplete' or 'NA'. </li>
-</ol></div>
+</ul>
+</li>
+</ul>
+<p>The following image describes the different configurations in which insertion sequences can be present around a deletion, and the mechanism and evidence that is assigned on that basis. The red arrow depicts the region that was deleted, and the blue boxes indicate insertion sequences.</p>
+<p><img alt="image_deletion" src="../deletion_mechanism_1.png" /></p>
+<ul>
+<li><code>data/11_annotated_boundaries/&lt;assembly&gt;_inversion.csv</code>: This file describes the various configurations in which insertion sequences can flank an inversion. It contains the same columns as the above file.</li>
+</ul>
+<p>The following image describes the different configurations in which insertion sequences can be present around an inversion, and the mechanism and evidence that is assigned on that basis. The orange arrow depicts the region that was inverted, and the blue boxes indicate insertion sequences.</p>
+<p><img alt="image_inversion" src="../inversion_mechanism_1.png" /></p>
+<p>Additionally, this command generates two summary files: <code>data/11_annotated_boundaries/deletion_mechanism.csv</code> and <code>data/11_annotated_boundaries/inversion_mechanism.csv</code>. They contain information about the mechanism of deletions and inversions respectively, for all of the assemblies. Both these files have the same fields:</p>
+<ul>
+<li><code>clone</code>: name of the assembly</li>
+<li><code>total</code>: total number of inversions or deletions</li>
+<li><code>between_IS</code>: number of inversions or deletions that whose mechanism was 'between_IS'</li>
+<li><code>IS_mediated</code>: number of inversions or deletions that whose mechanism was 'IS_mediated'</li>
+<li><code>other</code>: number of inversions or deletions whose mechanism was through recombination between other repeats or illegitimate recombination</li>
+</ul>
+<p>For examples of all of these tables, please see the <a href="../tutorial/">tutorial</a>. </p></div>
             </div>
         </div>
 

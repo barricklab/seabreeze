@@ -283,7 +283,230 @@ genome  4615673 4629812 genome  4602972 4617111 SYN14   -   SYN -
 <p>Let us look at <code>REL606_evolved_1.html</code> as an example. This file can be opened by your web browser application.
  <img alt="html_1" src="../html_table_1.png" /></p>
 <p>This table describes the mutations, their type, location and the genes present in them. For more information on this table, please see <a href="https://gensoft.pasteur.fr/docs/breseq/0.35.0/output.html#html-human-readable-output">breseq documentation</a>. </p>
-<h2 id="predict-sv-mechanism">Predict SV mechanism</h2></div>
+<h2 id="predict-sv-mechanism">Predict SV mechanism</h2>
+<p>Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.</p>
+<pre><code>snakamake --use-conda --cores 4 predict_SV_mechanism
+</code></pre>
+<p>This command generates several files: two summary files <code>deletion_mechanism.csv</code> and <code>inversion_mechanism.csv</code>, and three files for each of the three assemblies:</p>
+<pre><code>|---data/
+|   |---11_annotated_boundaries
+|   |   |---deletion_mechanism.csv
+|   |   |---inversion_mechanism.csv
+|   |   |---REL606_boundaries.csv
+|   |   |---REL606_deletion.csv
+|   |   |---REL606_inversion.csv
+|   |   |---REL606_evolved_1_boundaries.csv
+|   |   |---REL606_evolved_1_deletion.csv
+|   |   |---REL606_evolved_1_inversion.csv
+|   |   |---REL606_evolved_2_boundaries.csv
+|   |   |---REL606_evolved_2_deletion.csv
+|   |   |---REL606_evolved_2_inversion.csv
+</code></pre>
+<p>Let's look at the output for the assembly <code>REL606_evolved_1_deletion.csv</code>, which describes the putative mechanism of the deletions:</p>
+<table>
+<thead>
+<tr>
+<th>ref_start</th>
+<th>ref_stop</th>
+<th>query_start</th>
+<th>query_stop</th>
+<th>tag_3</th>
+<th>L_ref</th>
+<th>L_ref_distance</th>
+<th>R_ref</th>
+<th>R_ref_distance</th>
+<th>L_query</th>
+<th>L_query_distance</th>
+<th>R_query</th>
+<th>R_query_distance</th>
+<th>Mechanism</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>590473</td>
+<td>599656</td>
+<td>595344</td>
+<td>595344</td>
+<td>DEL</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td>other</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>2775970</td>
+<td>2789333</td>
+<td>2784492</td>
+<td>2784492</td>
+<td>DEL</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td>IS3_61</td>
+<td>-7</td>
+<td>IS3_61</td>
+<td>7</td>
+<td>IS_mediated</td>
+<td>evolved</td>
+</tr>
+<tr>
+<td>3002909</td>
+<td>3008938</td>
+<td>2998062</td>
+<td>2998062</td>
+<td>DEL</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td>other</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>3894996</td>
+<td>3901133</td>
+<td>3885540</td>
+<td>3885540</td>
+<td>DEL</td>
+<td>IS3_61</td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td>IS3_61</td>
+<td>0</td>
+<td>IS3_61</td>
+<td>0</td>
+<td>IS_mediated</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<p>We see that two deletions seem to involve IS3_61. For more information about this table, please see the <a href="../output/">output documentation</a>.</p>
+<p>Now let us look at the output for the assembly <code>REL606_evolved_1_inversion.csv</code>, which describes the putative mechanism of the inversions:</p>
+<table>
+<thead>
+<tr>
+<th>ref_start</th>
+<th>ref_stop</th>
+<th>query_start</th>
+<th>query_stop</th>
+<th>tag_3</th>
+<th>L_ref</th>
+<th>L_ref_distance</th>
+<th>R_ref</th>
+<th>R_ref_distance</th>
+<th>L_query</th>
+<th>L_query_distance</th>
+<th>R_query</th>
+<th>R_query_distance</th>
+<th>Mechanism</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>699997</td>
+<td>2100900</td>
+<td>697133</td>
+<td>2105267</td>
+<td>INV</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td>0</td>
+<td>other</td>
+<td>NA</td>
+</tr>
+</tbody>
+</table>
+<p>There was only a single inversion in this assembly, which occurred by an unknown mechanism <em>seabreeze</em> could not predict.</p>
+<p>Looking at the summary file <code>deletion_mechniams.csv</code>, we can at a glance look at the mechanism for deletion in all of the assemblies:</p>
+<table>
+<thead>
+<tr>
+<th>clone</th>
+<th>total</th>
+<th>between_IS</th>
+<th>IS_mediated</th>
+<th>other</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REL606</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>REL606_evolved_2</td>
+<td>4</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>REL606_evolved_1</td>
+<td>4</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>Similarly, for the inversions in <code>inversion_mechanism.csv</code>:</p>
+<table>
+<thead>
+<tr>
+<th>clone</th>
+<th>total</th>
+<th>between_IS</th>
+<th>IS_mediated</th>
+<th>other</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REL606</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>REL606_evolved_2</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>REL606_evolved_1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
             </div>
         </div>
 
