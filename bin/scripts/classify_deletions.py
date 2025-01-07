@@ -66,7 +66,7 @@ def classify_deletions(file,inversion,deletion):
     if deletion:
         print(f"Counting deletions")
         summary_dict={'clone':'', 'total':0,'between_IS':0, 'IS_mediated':0, 'other':0}
-        summary_dict['clone']=file.replace('_boundaries.tsv','')
+        summary_dict['clone']=file.replace('_boundaries.csv','')
         df_del = df[df.loc[:,'tag_3'].str.contains('DEL')]
         df_del['Mechanism']=['']*(len(df_del)) # stores the mechanism of that SV
         df_del['Evidence']=['']*(len(df_del)) # stores the mechanism of that SV
@@ -121,7 +121,7 @@ def classify_deletions(file,inversion,deletion):
     if inversion:
         print (f"Counting inversions")
         summary_dict={'clone':'', 'total':0,'between_IS':0, 'IS_mediated':0, 'other':0}
-        summary_dict['clone']=file.replace('_boundaries.tsv','')
+        summary_dict['clone']=file.replace('_boundaries.csv','')
         df_inv = df[df.loc[:,'tag_3']=='INV']
         df_inv['Mechanism']=['']*(len(df_inv)) # stores the mechanism of that SV
         df_inv['Evidence']=['']*(len(df_inv)) # stores the mechanism of that SV

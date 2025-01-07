@@ -164,6 +164,64 @@ Let us look at `REL606_evolved_1.html` as an example. This file can be opened by
  ![html_1](html_table_1.png)
 
 This table describes the mutations, their type, location and the genes present in them. For more information on this table, please see [breseq documentation](https://gensoft.pasteur.fr/docs/breseq/0.35.0/output.html#html-human-readable-output). 
-
 ## Predict SV mechanism
+
+Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.
+
+```
+snakamake --use-conda --cores 4 predict_SV_mechanism
+```
+
+This command generates several files: two summary files `deletion_mechanism.csv` and `inversion_mechanism.csv`, and three files for each of the three assemblies:
+
+```
+|---data/
+|   |---11_annotated_boundaries
+|   |   |---deletion_mechanism.csv
+|   |   |---inversion_mechanism.csv
+|   |   |---REL606_boundaries.csv
+|   |   |---REL606_deletion.csv
+|   |   |---REL606_inversion.csv
+|   |   |---REL606_evolved_1_boundaries.csv
+|   |   |---REL606_evolved_1_deletion.csv
+|   |   |---REL606_evolved_1_inversion.csv
+|   |   |---REL606_evolved_2_boundaries.csv
+|   |   |---REL606_evolved_2_deletion.csv
+|   |   |---REL606_evolved_2_inversion.csv
+```
+
+Let's look at the output for the assembly `REL606_evolved_1_deletion.csv`, which describes the putative mechanism of the deletions:
+
+| ref_start | ref_stop | query_start | query_stop | tag_3 | L_ref  | L_ref_distance | R_ref | R_ref_distance | L_query | L_query_distance | R_query | R_query_distance | Mechanism   | Evidence |
+| --------- | -------- | ----------- | ---------- | ----- | ------ | -------------- | ----- | -------------- | ------- | ---------------- | ------- | ---------------- | ----------- | -------- |
+| 590473    | 599656   | 595344      | 595344     | DEL   |        | 0              |       | 0              |         | 0                |         | 0                | other       | NA       |
+| 2775970   | 2789333  | 2784492     | 2784492    | DEL   |        | 0              |       | 0              | IS3_61  | -7               | IS3_61  | 7                | IS_mediated | evolved  |
+| 3002909   | 3008938  | 2998062     | 2998062    | DEL   |        | 0              |       | 0              |         | 0                |         | 0                | other       | NA       |
+| 3894996   | 3901133  | 3885540     | 3885540    | DEL   | IS3_61 | 0              |       | 0              | IS3_61  | 0                | IS3_61  | 0                | IS_mediated | full     |
+
+We see that two deletions seem to involve IS3_61. For more information about this table, please see the [output documentation](output.md).
+
+Now let us look at the output for the assembly `REL606_evolved_1_inversion.csv`, which describes the putative mechanism of the inversions:
+
+|ref_start|ref_stop|query_start|query_stop|tag_3|L_ref|L_ref_distance|R_ref|R_ref_distance|L_query|L_query_distance|R_query|R_query_distance|Mechanism|Evidence|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|699997|2100900|697133|2105267|INV||0||0||0||0|other|NA|
+
+There was only a single inversion in this assembly, which occurred by an unknown mechanism _seabreeze_ could not predict.
+
+Looking at the summary file `deletion_mechniams.csv`, we can at a glance look at the mechanism for deletion in all of the assemblies:
+
+| clone                           | total | between_IS | IS_mediated | other |
+| ------------------------------- | ----- | ---------- | ----------- | ----- |
+| REL606       | 0     | 0          | 0           | 0     |
+| REL606_evolved_2| 4     | 0          | 1           | 3     |
+| REL606_evolved_1 | 4     | 0          | 2           | 2     |
+
+Similarly, for the inversions in `inversion_mechanism.csv`:
+
+|clone|total|between_IS|IS_mediated|other|
+|---|---|---|---|---|
+|REL606|0|0|0|0|
+|REL606_evolved_2 |2|1|0|1|
+|REL606_evolved_1|1|0|0|1|
 
