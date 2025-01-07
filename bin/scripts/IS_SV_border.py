@@ -134,12 +134,12 @@ def write_syri(df_syri,output_filename):
 
     '''accepts a syri dataframe and writes out a tab separated file'''
 
-    columns_to_write=["ref_ID", "ref_start", "ref_stop","query_ID", "query_start", "query_stop", "tag_1", "tag_2", "tag_3", "tag_4", "L_ref", "L_ref_distance","R_ref", "R_ref_distance","L_query","L_query_distance" ,"R_query", "R_query_distance"]
+    columns_to_write=["ref_start", "ref_stop","query_start", "query_stop", "tag_3", "L_ref", "L_ref_distance","R_ref", "R_ref_distance","L_query","L_query_distance" ,"R_query", "R_query_distance"]
     df_syri=df_syri[columns_to_write]
     df_syri.to_csv(output_filename, index=False,  float_format='%.0f')
 
 def convert_is_name(isescan_name):
-
+    # This function is not in use in this version of SyRI
     ''' Accept a name of an IS element with ISescan nomenclature, and return the corresponding name from REL606.gff3 annotation as from this table: https://app.box.com/file/1350490004900 '''
 
     IS_dict={"IS1_316":"IS1","IS3_168":"IS3","IS3_61":"IS150","IS4_107":"IS_4","IS4_169":"IS186"}

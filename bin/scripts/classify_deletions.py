@@ -112,9 +112,9 @@ def classify_deletions(file,inversion,deletion):
                # path_to_clone =
         print(summary_dict)
         out_filename= clone_name + "_deletion.csv"
-        columns_to_drop=["tag_1","tag_2","tag_3","tag_4"]
+        #columns_to_drop=["tag_1","tag_2","tag_3","tag_4"]
 
-        df_del=df_del.drop(columns=columns_to_drop)
+        #df_del=df_del.drop(columns=columns_to_drop)
 
         df_del.to_csv(out_filename, index=False,float_format='%.0f')
 
@@ -166,9 +166,9 @@ def classify_deletions(file,inversion,deletion):
 
         out_filename= clone_name + "_inversion.csv"
         print(summary_dict)
-        columns_to_drop=["tag_1","tag_2","tag_3","tag_4"]
+        #columns_to_drop=["tag_1","tag_2","tag_3","tag_4"]
 
-        df_inv=df_inv.drop(columns=columns_to_drop)
+        #df_inv=df_inv.drop(columns=columns_to_drop)
 
         df_inv.to_csv(out_filename, index=False,float_format='%.0f')
 
