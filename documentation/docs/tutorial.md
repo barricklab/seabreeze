@@ -252,6 +252,7 @@ We should be able to see this table:
 | ancestor | ori                | dif                |
 | -------- | ------------------ | ------------------ |
 | REL606   | GGATCCTGGGTATTAAAA | TCTTCCTTGGTTTATATT |
+
 These sequences are the first few bases of the _oriC_ and _dif_ loci for _E. coli_. More information about what sequences are acceptable in this table are on the [usage](usage.md) page. 
 
 We can now run the command from the _seabreeze_ root directory:
@@ -273,11 +274,12 @@ For more information, about this table, please see the [output](output.md) page.
 
 Now, let's look at the classification of the inversions in the assemblies in `data/11_annotated_boundaries/inversion_replichores_long.csv`. This file contains a list of all of the inversions across all of the assemblies.
 
-|clone|classification|length|mechanism|symmetry_percent|
-|-----|---------------|-------|--------|--------------|
-|REL606_evolved_2|across_dif|1500794|other|75.52768734416581|
-|REL606_evolved_2|across_ori|1070041|between_IS|57.700686235387245|
-|REL606_evolved_1|across_dif|1400903|other|61.914707870566346|
+| clone            | classification | length  | mechanism  | symmetry_percent   |    
+| ---------------- | -------------- | ------- | ---------- | ------------------ | 
+| REL606_evolved_2 | across_dif     | 1500794 | other      | 75.52768734416581  | 
+| REL606_evolved_2 | across_ori     | 1070041 | between_IS | 57.700686235387245 |   
+| REL606_evolved_1 | across_dif     | 1400903 | other      | 61.914707870566346 |
+
 We can see that the assembly `REL606_evolved_2` had two inversions, one across the terminus and one across the origin, while `REL606_evolved_1` had only one inversion across the terminus. The symmetry of each of these inversions is described by the `symmetry_percent` field, which is the percent of the total length of the inversion that is in the longer arm of the inversion. This value is 50 for a perfectly symmetric inversion and becomes larger as the inversion becomes more asymmetric. 
 
 
