@@ -103,6 +103,10 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#predict-replichore-and-inversion-balance" class="nav-link">Predict replichore and inversion balance</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -114,12 +118,12 @@
 <h2 id="analyse-genome-sizes">Analyse genome sizes</h2>
 <p>This command generates <code>data/04_rename_genome/genome_size_stats.csv</code> as output. This csv file has the following fields:</p>
 <ul>
-<li>assembly: name of the assembly, as specified in <code>data/data.csv</code></li>
-<li>ancestor: name of the ancestor, as specified in <code>data/data.csv</code></li>
-<li>size_assembly: size of the assembly, in bp</li>
-<li>size_ancestor: size of the ancestor, in bp</li>
-<li>difference: size_assembly - size_ancestor. This value is negative when the ancestor is larger than the assembly</li>
-<li>percent_change: the difference in size, as a percent of the size of the assembly </li>
+<li><code>assembly</code>: name of the assembly, as specified in <code>data/data.csv</code></li>
+<li><code>ancestor</code>: name of the ancestor, as specified in <code>data/data.csv</code></li>
+<li><code>size_assembly</code>: size of the assembly, in bp</li>
+<li><code>size_ancestor</code>: size of the ancestor, in bp</li>
+<li><code>difference</code>: size_assembly - size_ancestor. This value is negative when the ancestor is larger than the assembly</li>
+<li><code>percent_change</code>: the difference in size, as a percent of the size of the assembly </li>
 </ul>
 <p>See a sample table in the <a href="../tutorial/">tutorial</a>.</p>
 <h2 id="predict-svs">Predict SVs</h2>
@@ -198,7 +202,53 @@
 <li><code>IS_mediated</code>: number of inversions or deletions that whose mechanism was 'IS_mediated'</li>
 <li><code>other</code>: number of inversions or deletions whose mechanism was through recombination between other repeats or illegitimate recombination</li>
 </ul>
-<p>For examples of all of these tables, please see the <a href="../tutorial/">tutorial</a>. </p></div>
+<p>For examples of all of these tables, please see the <a href="../tutorial/">tutorial</a>. </p>
+<h2 id="predict-replichore-and-inversion-balance">Predict replichore and inversion balance</h2>
+<p>This command analyses the length of the two replichores of each assembly, and classifies inversion as inter-replichore or intra-replichore. It produces the following output:</p>
+<ul>
+<li>
+<p><code>data/08_reindex_genome_oric/replichore_arms.csv</code>: a csv file that describes the length of the two replichores for all of the assemblies. It contains the following fields:</p>
+<ul>
+<li><code>clone</code>: Name of the assembly</li>
+<li><code>ori</code>: Location of the <em>oriC</em> sequence. You may notice that this is 0 for all of the assemblies. This is because the circular genomes have been rotated for this step to start at the <em>oriC</em> to normalise it.</li>
+<li><code>dif</code>: Location of the <em>dif</em> sequence. This coordinate represents the first base at which the supplied <em>dif</em> site starts.</li>
+<li><code>length</code>: Total length of the genome of the ancestor</li>
+<li><code>arm_1</code>: Length of one replichore (in this case, the distance in bp from the <em>oriC</em> to the <em>dif</em> site)</li>
+<li><code>arm_2</code>: Length of the other replichore (in this case, the distance in bp from the <em>dif</em> site to end of the genome)</li>
+<li><code>ratio</code>: The ratio of the longer arm to the shorter arm. This value should be &gt;=1 </li>
+<li><code>percent</code>: The percent of the total length of the genome contained in the longer arm. For a perfectly balanced genome, this value is 50 and gets larger as the genome gets more imbalanced. It is never less than 50.</li>
+</ul>
+</li>
+<li>
+<p><code>data/11_annotated_boundaries/inversion_replichores.csv</code>: a csv file that tallies the count of each type of inversion (inter-replichore vs intra-replichore) for all of the assemblies.</p>
+<ul>
+<li><code>clone</code>: Name of the assembly</li>
+<li><code>total_inversions</code>: Total number of inversions detected in that assembly. This is the sum of the <code>total_inter_replichore</code> and <code>total_intra_replichore</code>.</li>
+<li><code>across_ori</code>: Number of inversions that were across the <em>oriC</em> site</li>
+<li><code>across_dif</code>: Number of inversions that were across the <em>dif</em> site</li>
+<li><code>total_inter_replichore</code>: Total number of inter-replichore inversions. This is the sum of <code>across_ori</code> and <code>across_dif</code></li>
+<li><code>total_intra_replichore</code>: Total number of inter-replichore inversions.</li>
+</ul>
+</li>
+<li>
+<p><code>data/11_annotated_boundaries/&lt;assembly&gt;_inversion_classification.csv</code>: a csv file that has more detailed information about all of the inversions in a given assembly. It has the same fields as <code>data/11_annotated_boundaries/&lt;assembly&gt;_inversion.csv</code> (see <strong>Predict SV mechanism</strong>), with three additional fields:</p>
+<ul>
+<li><code>classification</code>: Describes the type of inversion, and takes on values 'across_ori', 'across_dif', 'intra_replichore'. </li>
+<li><code>length</code>: Length of the inversion in bp.</li>
+<li><code>symmetry_percent</code>: The percent of the total length of the inversion contained in the longer arm. For a perfectly symmetric inversion, this value is 50 and gets larger as the inversion gets more asymmetric. It is never less than 50.</li>
+</ul>
+</li>
+<li>
+<p><code>data/11_annotated_boundaries/inversion_replichores_long.csv</code>: a csv file that contains a list of all inversions across all assemblies. It contains the following fields:</p>
+<ul>
+<li><code>clone</code>: Name of the assembly</li>
+<li><code>classification</code>: Describes the type of inversion, and takes on values 'across_ori', 'across_dif', 'intra_replichore'. </li>
+<li><code>length</code>: Length of the inversion in bp.</li>
+<li><code>mechanism</code>: Putative mechanism of the inversion, and takes on values 'between_IS', 'IS_mediated' and 'other' See <strong>Predict SV mechanism</strong> above.</li>
+<li><code>symmetry_percent</code>: The percent of the total length of the inversion contained in the longer arm. For a perfectly symmetric inversion, this value is 50 and gets larger as the inversion gets more asymmetric. It is never less than 50.</li>
+</ul>
+</li>
+</ul></div>
             </div>
         </div>
 

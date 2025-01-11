@@ -242,12 +242,12 @@ For example, this is fine:</p>
 <p>The output file generated is <code>data/04_rename_genome/genome_size_stats.csv</code>. Please see <a href="../output/">output</a> for more information about the fields in this table, and the <a href="../tutorial/">tutorial</a> for a sample.</p>
 <h2 id="find-insertion-sequences">Find insertion sequences</h2>
 <p>This command uses <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md?plain=1">ISEscan</a> to annotate partial and full-length IS elements in the genomes. </p>
-<pre><code>snakemake --use-conda --cores 4 predict_IS_elements
+<pre><code>snakemake --use-conda --cores n predict_IS_elements
 </code></pre>
 <p>This command primarily generates a series of csv files<code>data/05_isescan_tables/&lt;assembly&gt;.csv</code>, with each csv file corresponding to an assembly in <code>data/data.csv</code>. ISEScan also generates additional output for each assembly, which is stored in their respective directories <code>data/05_iescan_tables/&lt;assembly&gt;/</code>.  For information about interpreting this csv file, we refer users to the official <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md">ISEScan documentation</a>. </p>
 <h2 id="predict-svs">Predict SVs</h2>
 <p>This command aligns the assembly-ancestor pairs, predicts structural variants and generates synteny plots. </p>
-<pre><code>snakemake --use-conda --cores 4 predict_structural_variants
+<pre><code>snakemake --use-conda --cores n predict_structural_variants
 </code></pre>
 <ul>
 <li><code>data/07_syri_output/&lt;assembly&gt;/&lt;assembly&gt;_clean.syri.out</code> is a tsv file that describes the location and type of SVs in the assembly, relative to its ancestor. We refer the user to the official <a href="https://schneebergerlab.github.io/syri/fileformat.html">SyRI documentation</a> for information on interpreting this table.</li>
@@ -261,12 +261,12 @@ For example, this is fine:</p>
 </code></pre>
 <h2 id="annotate-genes-in-svs">Annotate genes in SVs</h2>
 <p>This command uses <a href="https://github.com/tseemann/prokka">prokka</a> annotate the assemblies and <a href="https://github.com/barricklab/breseq">breseq</a> to annotate the genes present in the deletions, inversions and amplifications.</p>
-<pre><code>snakemake --use-conda --cores 4 annotate_SV_regions
+<pre><code>snakemake --use-conda --cores n annotate_SV_regions
 </code></pre>
 <p>For each assembly, an HTML table <code>data/12_genome_diff_tables/html/&lt;assembly&gt;.html</code> . Please see the <a href=""><em>breseq</em> manual</a> for information on interpreting this table. For a sample table, please see <a href="../tutorial/">the tutorial</a>. </p>
 <h2 id="predict-sv-mechanism">Predict SV mechanism</h2>
 <p>Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.</p>
-<pre><code>snakamake --use-conda --cores 4 predict_SV_mechanism
+<pre><code>snakamake --use-conda --cores n predict_SV_mechanism
 </code></pre>
 <ul>
 <li>This command generates two summary csv files: <code>data/11_annotated_boundaries/deletion_mechanism.csv</code> and <code>data/11_annotated_boundaries/inversion_mechanism.csv</code> that contain information about the mechanism of deletions and inversions respectively, for all of the assemblies.</li>
@@ -275,6 +275,68 @@ For example, this is fine:</p>
 </ul>
 <p>Information about these csv files can be found on the <a href="../output/">output</a> page and examples on the <a href="../tutorial/">tutorial</a> page.</p>
 <h2 id="predict-replichore-and-inversion-balance">Predict replichore and inversion balance</h2>
+<p>For bacterial genomes that have a single origin and terminus, the genome can be divided into two replichores (halves) demarcated by the origin-terminus axis. It can be useful to know how the lengths of these two replichores differ between the ancestor-assembly pairs. The origin-terminus axis can also be used to classify inversions as inter-replichore or intra-replichore, and the symmetry of inter-replichore inversions about the origin-terminus axis can be measured. For an illustration explaining this, please see the <a href="../tutorial/">tutorial</a>.</p>
+<p>This step requires user input (in addition to <code>data/data.csv</code>) to specify the sequences of the origin and terminus. For the origin, we recommend the <em>oriC</em> sequence, and for the terminus, we recommend the <em>dif</em> sequence. <em>seabreeze</em> looks for these sequences (or the reverse complement) in the genome for an exact and unique match, and will cause an error if an exact match is not found, or more than one exact match is found. There is no minimum/maximum length requirements for the supplied <em>oriC</em> and <em>dif</em> sequences as long as they meet the above criteria. <em>seabreeze</em> requires these two sequences for each ancestor, and assumes that the sequences have not mutated in the corresponding ancestor. This information is specified in a csv file in <code>data/ori_dif_sequences.csv</code>. This csv file has three columns: </p>
+<ul>
+<li><code>ancestor</code>: name of the ancestor, which matches the name in <code>data/data.csv</code>. It should not contain the <code>.fasta</code> extension.</li>
+<li><code>ori</code>: base sequence of the <em>oriC</em> locus, in upper case with only the standard bases (A,T,G,C). </li>
+<li><code>dif</code>: base sequence of the <em>dif</em> locus, in upper case with only the standard bases (A,T,G,C). </li>
+</ul>
+<p>For example, if this is the <code>data/data.csv</code>:</p>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome1</td>
+<td>genome2</td>
+</tr>
+<tr>
+<td>genome3</td>
+<td>genome4</td>
+</tr>
+</tbody>
+</table>
+<p>Then <code>data/ori_dif_sequence.csv</code> should look like this, with one entry per ancestor. The order of these rows does not matter, and each ancestor only requires one entry, even if it appears multiple times in <code>data/data.csv</code>. </p>
+<table>
+<thead>
+<tr>
+<th>ancestor</th>
+<th>ori</th>
+<th>dif</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome2</td>
+<td>GGATCCTGGGTATTAAAA</td>
+<td>TCTTCCTTGGTTTATATT</td>
+</tr>
+<tr>
+<td>genome4</td>
+<td>GTAGGATCCGTGATTAG</td>
+<td>AATCTGTCTCTGCACGTA</td>
+</tr>
+<tr>
+<td>With this csv file set up, this command can be run from the <em>seabreeze</em> root directory:</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code>snakemake --use-conda --cores n predict_replichore_balance
+</code></pre>
+<p>This command produces the following output:
+- <code>data/08_reindex_genome_oric/replichore_arms.csv</code>: a csv file that describes the length of the two replichores for all of the assemblies
+- <code>data/11_annotated_boundaries/inversion_replichores.csv</code>: a csv file that tallies the count of each type of inversion (inter-replichore vs intra-replichore) for all of the assemblies.
+- <code>data/11_annotated_boundaries/&lt;assembly&gt;_inversion_classification.csv</code>: a csv file that has more detailed information about all of the inversions in a given assembly
+- <code>data/11_annotated_boundaries/inversion_replichores_long.csv</code>: a csv file that contains a list of all inversions across all assemblies</p>
+<p>Please see the <a href="../output/">output</a> page for more information about these fields. </p>
+<hr />
 <h2 id="additional-snakemake-options">Additional Snakemake options</h2>
 <p>These are additional Snakemake options that can be included as follows. They work for all commands</p>
 <pre><code>snakemake --use-conda --cores n &lt;insert flag here&gt; &lt;command&gt;
