@@ -381,8 +381,8 @@ rule annotate_SV_mechanism:
         boundaries_csv = expand("data/11_annotated_boundaries/{sample}_boundaries.csv", sample=df['assembly'].tolist()),
         script = "bin/scripts/classify_deletions.py"
     output:
-        #inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
-        #deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        inversion = expand("data/11_annotated_boundaries/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        deletion = expand("data/11_annotated_boundaries/{sample}_deletion.csv",sample=df['assembly'].tolist()),
         inversion_table = "data/11_annotated_boundaries/inversion_mechanism.csv",
         deletion_table = "data/11_annotated_boundaries/deletion_mechanism.csv"
     params:

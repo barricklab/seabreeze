@@ -4,12 +4,12 @@
 
 This command generates `data/04_rename_genome/genome_size_stats.csv` as output. This csv file has the following fields:
 
-- assembly: name of the assembly, as specified in `data/data.csv`
-- ancestor: name of the ancestor, as specified in `data/data.csv`
-- size_assembly: size of the assembly, in bp
-- size_ancestor: size of the ancestor, in bp
-- difference: size_assembly - size_ancestor. This value is negative when the ancestor is larger than the assembly
-- percent_change: the difference in size, as a percent of the size of the assembly 
+- `assembly`: name of the assembly, as specified in `data/data.csv`
+- `ancestor`: name of the ancestor, as specified in `data/data.csv`
+- `size_assembly`: size of the assembly, in bp
+- `size_ancestor`: size of the ancestor, in bp
+- `difference`: size_assembly - size_ancestor. This value is negative when the ancestor is larger than the assembly
+- `percent_change`: the difference in size, as a percent of the size of the assembly 
 
 See a sample table in the [tutorial](tutorial.md).
 
@@ -96,3 +96,43 @@ Additionally, this command generates two summary files: `data/11_annotated_bound
 - `other`: number of inversions or deletions whose mechanism was through recombination between other repeats or illegitimate recombination
 
 For examples of all of these tables, please see the [tutorial](tutorial.md). 
+
+## Predict replichore and inversion balance
+
+This command analyses the length of the two replichores of each assembly, and classifies inversion as inter-replichore or intra-replichore. It produces the following output:
+
+- `data/08_reindex_genome_oric/replichore_arms.csv`: a csv file that describes the length of the two replichores for all of the assemblies. It contains the following fields:
+
+	- `clone`: Name of the assembly
+	- `ori`: Location of the _oriC_ sequence. You may notice that this is 0 for all of the assemblies. This is because the circular genomes have been rotated for this step to start at the _oriC_ to normalise it.
+	- `dif`: Location of the _dif_ sequence. This coordinate represents the first base at which the supplied _dif_ site starts.
+	- `length`: Total length of the genome of the ancestor
+	- `arm_1`: Length of one replichore (in this case, the distance in bp from the _oriC_ to the _dif_ site)
+	- `arm_2`: Length of the other replichore (in this case, the distance in bp from the _dif_ site to end of the genome)
+	- `ratio`: The ratio of the longer arm to the shorter arm. This value should be >=1 
+	- `percent`: The percent of the total length of the genome contained in the longer arm. For a perfectly balanced genome, this value is 50 and gets larger as the genome gets more imbalanced. It is never less than 50.
+
+- `data/11_annotated_boundaries/inversion_replichores.csv`: a csv file that tallies the count of each type of inversion (inter-replichore vs intra-replichore) for all of the assemblies.
+
+	- `clone`: Name of the assembly
+	- `total_inversions`: Total number of inversions detected in that assembly. This is the sum of the `total_inter_replichore` and `total_intra_replichore`.
+	- `across_ori`: Number of inversions that were across the _oriC_ site
+	- `across_dif`: Number of inversions that were across the _dif_ site
+	- `total_inter_replichore`: Total number of inter-replichore inversions. This is the sum of `across_ori` and `across_dif`
+	- `total_intra_replichore`: Total number of inter-replichore inversions.
+
+- `data/11_annotated_boundaries/<assembly>_inversion_classification.csv`: a csv file that has more detailed information about all of the inversions in a given assembly. It has the same fields as `data/11_annotated_boundaries/<assembly>_inversion.csv` (see **Predict SV mechanism**), with three additional fields:
+
+	- `classification`: Describes the type of inversion, and takes on values 'across_ori', 'across_dif', 'intra_replichore'. 
+	- `length`: Length of the inversion in bp.
+	- `symmetry_percent`: The percent of the total length of the inversion contained in the longer arm. For a perfectly symmetric inversion, this value is 50 and gets larger as the inversion gets more asymmetric. It is never less than 50.
+
+- `data/11_annotated_boundaries/inversion_replichores_long.csv`: a csv file that contains a list of all inversions across all assemblies. It contains the following fields:
+
+	- `clone`: Name of the assembly
+	- `classification`: Describes the type of inversion, and takes on values 'across_ori', 'across_dif', 'intra_replichore'. 
+	- `length`: Length of the inversion in bp.
+	- `mechanism`: Putative mechanism of the inversion, and takes on values 'between_IS', 'IS_mediated' and 'other' See **Predict SV mechanism** above.
+	- `symmetry_percent`: The percent of the total length of the inversion contained in the longer arm. For a perfectly symmetric inversion, this value is 50 and gets larger as the inversion gets more asymmetric. It is never less than 50.
+
+

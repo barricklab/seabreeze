@@ -156,8 +156,8 @@ def main(genomes, data, sequences, output, noarms):
             df.loc[row_idx,"arm_1"]=int(coord_dict["dif_start"])-int(coord_dict["oric_start"])
             df.loc[row_idx,"arm_2"]=int(coord_dict["length"])-int(coord_dict["dif_start"])
 
-            df.loc[row_idx,"ratio"]= (max(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"]))/(min(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"])) # ratio of long arm to short arm
-            df.loc[row_idx,"percent"]= ((max(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"]))/df.loc[row_idx,"length"])*100 # percent of the total length that the long arm is
+            df.loc[row_idx,"ratio"]= round((max(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"]))/(min(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"])),3) # ratio of long arm to short arm
+            df.loc[row_idx,"percent"]= round((((max(df.loc[row_idx,"arm_1"],df.loc[row_idx,"arm_2"]))/df.loc[row_idx,"length"])*100),3) # percent of the total length that the long arm is
             row_idx+=1
 
         print(df)

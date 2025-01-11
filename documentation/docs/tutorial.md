@@ -209,7 +209,7 @@ Now let us look at the output for the assembly `REL606_evolved_1_inversion.csv`,
 
 There was only a single inversion in this assembly, which occurred by an unknown mechanism _seabreeze_ could not predict.
 
-Looking at the summary file `deletion_mechniams.csv`, we can at a glance look at the mechanism for deletion in all of the assemblies:
+Looking at the summary file `deletion_mechniams.csv`, we can at a glance look at the mechanism for deletions in all of the assemblies:
 
 | clone                           | total | between_IS | IS_mediated | other |
 | ------------------------------- | ----- | ---------- | ----------- | ----- |
@@ -224,4 +224,62 @@ Similarly, for the inversions in `inversion_mechanism.csv`:
 |REL606|0|0|0|0|
 |REL606_evolved_2 |2|1|0|1|
 |REL606_evolved_1|1|0|0|1|
+
+## Predict replichore and inversion balance
+
+For bacterial genomes that have a single origin and terminus, the genome can be divided into two replichores (halves) demarcated by the origin-terminus axis. It can be useful to know how the lengths of these two replichores differ between the ancestor-assembly pairs. In this figure, the two replichores have been depicted in yellow and green.
+
+![inversion_replichore_1](inversion_replichore_1.png) 
+
+The origin-terminus axis can also be used to classify inversions as inter-replichore (if they occur across the axis) or intra-replichore if they are contained within a single replichore. This figure depicts an inter-replichore inversion across the origin, and an intra-replichore inversion within the green replichore.
+
+![inversion_replichore_2](inversion_replichore_2.png)
+
+For inter-replichore inversions, we can describe the symmetry of the inversion across the axis. Asymmetric inversions can cause the length of the two replichores to change.
+
+![inversion_replichore_3](inversion_replichore_3.png)
+
+This step requires user input (in addition to `data/data.csv`) to specify the sequences of the origin and terminus. For the origin, we recommend the *oriC* sequence, and for the terminus, we recommend the *dif* sequence. _seabreeze_ looks for these sequences (or the reverse complement) in the genome for an exact and unique match, and will cause an error if an exact match is not found, or more than one exact match is found. There is no minimum/maximum length requirements for the supplied _oriC_ and _dif_ sequences as long as they meet the above criteria. _seabreeze_ requires these two sequences for each ancestor, and assumes that the sequences have not mutated in the corresponding ancestor. This information is specified in a csv file in `data/ori_dif_sequences.csv`. 
+
+Let us view this file for our example:
+
+```
+cat data/ori_dif_sequences.csv
+```
+
+We should be able to see this table:
+
+| ancestor | ori                | dif                |
+| -------- | ------------------ | ------------------ |
+| REL606   | GGATCCTGGGTATTAAAA | TCTTCCTTGGTTTATATT |
+These sequences are the first few bases of the _oriC_ and _dif_ loci for _E. coli_. More information about what sequences are acceptable in this table are on the [usage](usage.md) page. 
+
+We can now run the command from the _seabreeze_ root directory:
+
+```
+snakemake --use-conda --cores 4 predict_replichore_balance
+```
+
+This step generates several output files. First, let us look at the file that describes the lengths of the replichores in the assemblies `data/08_reindex_genome_oric/replichore_arms.csv`.
+
+|clone|ori|dif|length|arm_1|arm_2|ratio|percent|
+|-----|----|---|---|---------|-----|----|--------|
+|REL606|0.0|2311092.0|4629812.0|2311092.0|2318720.0|1.003|50.082|
+|REL606_evolved_1|0.0|1972601.0|4617111.0|1972601.0|2644510.0|1.341|57.276|
+|REL606_evolved_2|0.0|1708781.0|4549910.0|1708781.0|2841129.0|1.663|62.444|
+
+
+For more information, about this table, please see the [output](output.md) page. `arm_1` and `arm_2` describe the length of the two replichores, and `percent` describes the percent of the total length of the genome that is in the longer replichore. This value is 50 for a perfectly balanced genome, and increases with increasing imbalance. We can see that both `REL606_evolved_1` and `REL606_evolved_2` are less balanced than `REL606`. 
+
+Now, let's look at the classification of the inversions in the assemblies in `data/11_annotated_boundaries/inversion_replichores_long.csv`. This file contains a list of all of the inversions across all of the assemblies.
+
+|clone|classification|length|mechanism|symmetry_percent|
+|-----|---------------|-------|--------|--------------|
+|REL606_evolved_2|across_dif|1500794|other|75.52768734416581|
+|REL606_evolved_2|across_ori|1070041|between_IS|57.700686235387245|
+|REL606_evolved_1|across_dif|1400903|other|61.914707870566346|
+We can see that the assembly `REL606_evolved_2` had two inversions, one across the terminus and one across the origin, while `REL606_evolved_1` had only one inversion across the terminus. The symmetry of each of these inversions is described by the `symmetry_percent` field, which is the percent of the total length of the inversion that is in the longer arm of the inversion. This value is 50 for a perfectly symmetric inversion and becomes larger as the inversion becomes more asymmetric. 
+
+
+
 
