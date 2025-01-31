@@ -89,7 +89,7 @@ snakemake --use-conda --cores n predict_structural_variants
 
 This command also generates other files. Please see the [output](output.md) page. 
 
->Tip: The 4th and 5th columns of the `<assembly>_clean.syri.out` file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running
+>Tip: The 4th and 5th columns of the `<assembly>_clean.syri.out` file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running this command. Note that older versions of the UNIX `cut` command may not support the `--complement` option, and you may need to either update `cut` or use other UNIX commands to hide the 4th and 5th columns. 
 
 ```
 cat <assembly>_clean.syri.out | cut --complement -f 4-5

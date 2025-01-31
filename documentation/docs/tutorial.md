@@ -37,7 +37,8 @@ It should look like this:
 
 We include a comparison of `REL606` to itself as a quality check step, as we do not expect any mutations when a genome is compared to itself.
 
-All of the following commands should be run from the _seabreeze_ root directory. Here, 4 cores have been allocated to run _seabreeze_ but this number can be higher on lower depending on your hardware.
+All of the following commands should be run from the _seabreeze_ root directory. Here, 4 cores have been allocated to run _seabreeze_ but this number can be higher on lower depending on your hardware. 
+
 ## Analyse genome sizes
 
 This command compares the sizes of the assemblies to their specified ancestors in a pairwise manner. 
@@ -110,7 +111,7 @@ cd data/07_syri_output/REL606_evolved_1
 cat REL606_evolved_1_clean.syri.out | cut --complement -f 4-5
 ```
 
-This command prints the tsv file `REL606_evolved_1_clean.syri.out` to the terminal, while hiding the 4th and 5th columns. These columns show the reference/query sequences for indels, and hence can be quite large.
+This command prints the tsv file `REL606_evolved_1_clean.syri.out` to the terminal, while hiding the 4th and 5th columns. These columns show the reference/query sequences for indels, and hence can be quite large. Note that older versions of the UNIX `cut` command may not support the `--complement` option, and you may need to either update `cut` or use other UNIX commands to hide the 4th and 5th columns. You can also view this file with a spreadsheet application, as it a tsv file. 
 
 ```
 genome	1	    590471	genome	1	    595344	SYN1	-	SYN	-
@@ -143,7 +144,7 @@ Two deletions (~0.5Mb and ~2.8Mb) were not correctly called. There also appear t
 
 ## Annotate genes in SVs
 
-To annotate the genes present in the deletions, inversions and amplifications, run this command:
+To annotate the genes present in the deletions, inversions and amplifications, run this command. Make sure you navigate back to the _seabreeze_ root directory before that.
 
 ```
 snakemake --use-conda --cores 4 annotate_SV_regions
@@ -164,12 +165,13 @@ Let us look at `REL606_evolved_1.html` as an example. This file can be opened by
  ![html_1](html_table_1.png)
 
 This table describes the mutations, their type, location and the genes present in them. For more information on this table, please see [breseq documentation](https://gensoft.pasteur.fr/docs/breseq/0.35.0/output.html#html-human-readable-output). 
+
 ## Predict SV mechanism
 
 Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.
 
 ```
-snakamake --use-conda --cores 4 predict_SV_mechanism
+snakemake --use-conda --cores 4 predict_SV_mechanism
 ```
 
 This command generates several files: two summary files `deletion_mechanism.csv` and `inversion_mechanism.csv`, and three files for each of the three assemblies:
@@ -209,7 +211,7 @@ Now let us look at the output for the assembly `REL606_evolved_1_inversion.csv`,
 
 There was only a single inversion in this assembly, which occurred by an unknown mechanism _seabreeze_ could not predict.
 
-Looking at the summary file `deletion_mechniams.csv`, we can at a glance look at the mechanism for deletions in all of the assemblies:
+Looking at the summary file `deletion_mechnism.csv`, we can at a glance look at the mechanism for deletions in all of the assemblies:
 
 | clone                           | total | between_IS | IS_mediated | other |
 | ------------------------------- | ----- | ---------- | ----------- | ----- |
