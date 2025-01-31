@@ -255,7 +255,7 @@ For example, this is fine:</p>
 </ul>
 <p>This command also generates other files. Please see the <a href="../output/">output</a> page. </p>
 <blockquote>
-<p>Tip: The 4th and 5th columns of the <code>&lt;assembly&gt;_clean.syri.out</code> file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running</p>
+<p>Tip: The 4th and 5th columns of the <code>&lt;assembly&gt;_clean.syri.out</code> file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running this command. Note that older versions of the UNIX <code>cut</code> command may not support the <code>--complement</code> option, and you may need to either update <code>cut</code> or use other UNIX commands to hide the 4th and 5th columns. </p>
 </blockquote>
 <pre><code>cat &lt;assembly&gt;_clean.syri.out | cut --complement -f 4-5
 </code></pre>
