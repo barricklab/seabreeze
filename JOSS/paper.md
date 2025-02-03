@@ -50,6 +50,6 @@ Overall, the growing use of long-read sequencing will increasingly make it possi
 
 # Acknowledgments 
 
-Development of was supported by the National Science Foundation (DEB-1951307). We acknowledge the Texas Advanced Computing Center (TACC) at the University of Texas at Austin for providing computing resources. Ira Zibbu acknowledges additional support from the Khorana Scholars Program and the DST INSPIRE Fellowship. We thank the developers of `plotsr` for making their code available under the MIT license.
+Development of *seabreeze* was supported by the National Science Foundation (DEB-1951307). We acknowledge the Texas Advanced Computing Center (TACC) at the University of Texas at Austin for providing computing resources. Ira Zibbu acknowledges additional support from the Khorana Scholars Program and the DST INSPIRE Fellowship. We thank the developers of `plotsr` for making their code available under the MIT license.
 
 # References
