@@ -3,13 +3,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/barricklab/seabreeze/releases)
 
-_seabreeze_ is a tool for the comprehensive analysis of structural variant (SVs) mutations in bacterial resequencing experiments. _seabreeze_ automates and unites several analyses into a single, easy-to-use pipeline. For specified pairs of bacterial genomes, it can:
+_seabreeze_ is a tool for comprehensively analyzing genetic variation among bacterial genomes caused by structural mutations. It manages a workflow that combines existing packages and custom scripts to automate and unite several analyses into a single, easy-to-use pipeline. For specified pairs of bacterial genomes, it can:
 
 - Compute size difference between genomes
 - Predict the location of insertion sequences
-- Predict SVs (inversions, deletions, translocations, duplications)
-- Generate intuitive synteny plots to visualise SVs
-- Analyse the effect of SVs on the balance of the two replichores
+- Predict structural mutations (inversions, deletions, translocations, duplications)
+- Generate intuitive synteny plots to visualise structural variation
+- Analyse the effect of structural mutations on the balance of the two replichores
 - Predict the putative mechanism of inversions and deletions
 - Annotate the genes contained in the mutated regions
 
