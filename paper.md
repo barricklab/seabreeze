@@ -1,28 +1,28 @@
 ---
 title: '*seabreeze*: A Pipeline for Analyzing Structural Variation Between Bacterial Genome Assemblies'
 tags:
-	- structural variation
-	- experimental evolution
-	- bacterial genomics
-	- Snakemake
+  - structural variation
+  - experimental evolution
+  - bacterial genomics
+  - Snakemake
 authors:
-	- name: Ira Zibbu
-	  orcid: 0009-0003-3930-5397
-	  affiliation: "1, 2"
-	- name: Claus O. Wilke
-	  orcid: 0000-0002-7470-9261
-	  affiliation: 3
-	- name: Jeffrey Barrick
-	  orcid: 0000-0003-0888-7358
-	  corresponding: true
-	  affiliation: 1
+  - name: Ira Zibbu
+    orcid: 0009-0003-3930-5397
+    affiliation: "1, 2"
+  - name: Claus O. Wilke
+    orcid: 0000-0002-7470-9261
+    affiliation: 3
+  - name: Jeffrey Barrick
+    orcid: 0000-0003-0888-7358
+    corresponding: true
+    affiliation: 1
 affiliations:
-	- name: Department of Molecular Biosciences, The University of Texas at Austin
-	  index: 1
-	- name: School of Biology, Indian Institute of Science Education and Research, Thiruvananthapuram
-	  index: 2
-	- name: Department of Integrative Biology, The University of Texas at Austin
-	  index: 3
+  - name: Department of Molecular Biosciences, The University of Texas at Austin
+    index: 1
+  - name: School of Biology, Indian Institute of Science Education and Research, Thiruvananthapuram
+    index: 2
+  - name: Department of Integrative Biology, The University of Texas at Austin
+    index: 3
 date: 31 January 2025
 bibliography: paper.bib
 ---
