@@ -19,7 +19,7 @@ authors:
 affiliations:
 	- name: Department of Molecular Biosciences, The University of Texas at Austin
 	  index: 1
-	- name:  School of Biology, Indian Institute of Science Education and Research, Thiruvananthapuram
+	- name: School of Biology, Indian Institute of Science Education and Research, Thiruvananthapuram
 	  index: 2
 	- name: Department of Integrative Biology, The University of Texas at Austin
 	  index: 3
