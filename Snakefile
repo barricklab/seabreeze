@@ -3,7 +3,18 @@ import pandas as pd
 path_to_data_csv="data/data.csv"
 df = pd.read_csv(path_to_data_csv)
 
-# TODO: run QC on the format of the data.csv
+# Check if the csv has exactly two columns
+if df.shape[1] != 2:
+    raise ValueError("data.csv must have exactly two columns.")
+
+# Check if the columns are named correctly
+expected_columns = ['assembly', 'ancestor']
+if list(df.columns) != expected_columns:
+    raise ValueError(f"The data.csv columns must be named {expected_columns}. Found: {list(df.columns)}")
+
+# Check if there are any duplicate entries for assemblies
+if df['assembly'].duplicated().any():
+    raise ValueError("There are duplicate entries in the assembly column.")
 
 # this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
@@ -434,8 +445,8 @@ rule annotate_genomes_prokka:
         "data/09_annotated_genomes/{sample}/{sample}.gff"
     params:
         prefix="{sample}",
-        outdir="09_annotated_genomes/{sample}",
-        prokka_annotation="09_annotated_genomes/{sample}/{sample}.gff"
+        outdir="data/09_annotated_genomes/{sample}",
+        prokka_annotation="data/09_annotated_genomes/{sample}/{sample}.gff"
     log:
         "data/logs/annotate_genomes_prokka/{sample}.log"
     shell:
@@ -459,7 +470,7 @@ rule generate_genome_diffs_tables:
         gd_folder = "data/12_genome_diff_tables/gd",
         html_folder = "data/12_genome_diff_tables/html"
     log:
-        "data/generate_genome_diffs_tables/{sample}.log"
+        "data/logs/generate_genome_diffs_tables/{sample}.log"
     shell:
         """
         mkdir -p {params.gd_folder}
