@@ -16,6 +16,14 @@ if list(df.columns) != expected_columns:
 if df['assembly'].duplicated().any():
     raise ValueError("There are duplicate entries in the assembly column.")
 
+list_of_ancestors = df['ancestor'].tolist()
+list_of_assemblies = df['assembly'].tolist()
+
+for ancestor in list_of_ancestors:
+    if not(ancestor in list_of_assemblies):
+        raise ValueError(f"Ancestor genome {ancestor} needs a self-to-self comparison. Please append this line to data.csv: {ancestor},{ancestor}")
+
+
 # this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 
