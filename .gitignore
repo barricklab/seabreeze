@@ -10,3 +10,4 @@ test/__pycache__/
 bin/scripts/__pycache__/*
 documentation/docs/.obsidian/
 JOSS/.obsidian
+tmp/
