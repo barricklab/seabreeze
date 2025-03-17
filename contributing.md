@@ -15,14 +15,10 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 ## Table of Contents
 
 - [I Have a Question](#i-have-a-question)
-  - [I Want To Contribute](#i-want-to-contribute)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Suggesting Enhancements](#suggesting-enhancements)
-  - [Your First Code Contribution](#your-first-code-contribution)
-  - [Improving The Documentation](#improving-the-documentation)
-- [Styleguides](#styleguides)
-  - [Commit Messages](#commit-messages)
-- [Join The Project Team](#join-the-project-team)
+- [I Want To Contribute](#i-want-to-contribute)
+- [Reporting Bugs](#reporting-bugs)
+- [Suggesting Enhancements](#suggesting-enhancements)
+- [Improving The Documentation](#improving-the-documentation)
 
 
 
@@ -36,7 +32,7 @@ If you then still feel the need to ask a question and need clarification, we rec
 
 - Open an [Issue](https://github.com/barricklab/seabreeze/issues/new).
 - Provide as much context as you can about what you're running into.
-- Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
+- Provide project and platform versions. In particular, the version of `conda` being used. 
 
 We will then take care of the issue as soon as possible.
 
@@ -45,6 +41,8 @@ We will then take care of the issue as soon as possible.
 
 > ### Legal Notice <!-- omit in toc -->
 > When contributing to this project, you must agree that you have authored 100% of the content, that you have the necessary rights to the content and that the content you contribute may be provided under the project licence.
+
+We love pull requests from everyone. To get started, first fork, then clone the repo. We use `pytest` to run our CI testing; however to save time during testing we only use unit tests for the individual scripts, and not for the snakemake pipeline as a whole. To test that your contribution is compatible with the snakemake pipeline, use the example data in the `example/` folder. Push to your fork and submit a pull request.
 
 ### Reporting Bugs
 
@@ -103,6 +101,9 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/barric
 - You may want to **include screenshots or screen recordings** which help you demonstrate the steps or point out the part which the suggestion is related to. You can use [LICEcap](https://www.cockos.com/licecap/) to record GIFs on macOS and Windows, and the built-in [screen recorder in GNOME](https://help.gnome.org/users/gnome-help/stable/screen-shot-record.html.en) or [SimpleScreenRecorder](https://github.com/MaartenBaert/ssr) on Linux. <!-- this should only be included if the project has a GUI -->
 - **Explain why this enhancement would be useful** to most seabreeze users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
 
+## Improving the Documentation
+
+If you believe the documentation is incomplete or could use additional information to guide other users, we highly welcome your contribution. seabreeze uses [Mkdocs](https://www.mkdocs.org/) to generate documentation from Markdown files that exist in the `documentation\` directory. To contribute, fork the repository, make the desired changes in the `documentation` directory and submit a pull request. 
 
 <!-- omit in toc -->
 ## Attribution
