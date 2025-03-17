@@ -15,3 +15,7 @@ _seabreeze_ is a tool for comprehensively analyzing genetic variation among bact
 
 Please refer to the [official documentation](https://barricklab.github.io/seabreeze) for information on installation and usage.
 
+_seabreeze_ was developed at the [Barrick Lab](https://barricklab.org/twiki/bin/view/Lab) at the University of Texas at Austin. 
+
+Have a question, issue to report, feature to request or code to contribute? Please see the [contributions](https://github.com/barricklab/seabreeze/blob/main/contributing.md).
+
