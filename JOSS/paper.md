@@ -12,7 +12,7 @@ authors:
   - name: Claus O. Wilke
     orcid: 0000-0002-7470-9261
     affiliation: 3
-  - name: Jeffrey Barrick
+  - name: Jeffrey E. Barrick
     orcid: 0000-0003-0888-7358
     corresponding: true
     affiliation: 1
@@ -33,7 +33,7 @@ Structural mutations—such as large insertions, deletions, duplications, invers
 
 # Statement of Need
 
-Evolution experiments are one of many approaches that are used to understand the processes that shape microbial genomes. In these experiments, populations of microbes are propagated under controlled conditions for a sufficient period of time to observe evolution in action. Then, evolved genomes are resequenced and compared to the ancestral genome. We created *seabreeze*, a Snakemake pipeline that automates comparing genome assemblies to predict and analyze structural variation that emerges in these experiments. *seabreeze* fulfills two core needs. First, although a wide range of software programs exist to identify structural variation from high-throughput sequencing data [@ahsan_survey_2023], they make assumptions that are only appropriate for eukaryotic genomes and/or are limited by how they compare reads to a reference genome. In contrast, *seabreeze* is explicitly tailored for bacterial genome analysis and takes advantage of the benefits of comparing genome assemblies. Second, *seabreeze* unites several standalone open-source tools and new custom scripts into a single easy-to-use pipeline for comprehensive bacterial genome analysis. Other notable tools for bacterial genome analysis such as like Artemis [@carver_act_2005] and Mauve [@darling_progressivemauve_2010] can detect and visualize rearrangements in bacterial genomes but lack other functionality, such as predicting the mechanisms of structural mutations and annotating what genes they affect.
+Evolution experiments are one of many approaches that are used to understand the processes that shape microbial genomes. In these experiments, populations of microbes are propagated under controlled conditions for a sufficient period of time to observe evolution in action. Then, evolved genomes are resequenced and compared to the ancestral genome. We created *seabreeze*, a Snakemake pipeline that automates comparing genome assemblies to predict and analyze structural variation that emerges in these experiments. *seabreeze* fulfills two core needs. First, although a wide range of software programs exist to identify structural variation from high-throughput sequencing data [@ahsan_survey_2023], they make assumptions that are only appropriate for eukaryotic genomes and/or are limited by how they compare reads to a reference genome. In contrast, *seabreeze* is explicitly tailored for bacterial genome analysis and takes advantage of the benefits of comparing genome assemblies. Second, *seabreeze* unites several standalone open-source tools and new custom scripts into a single easy-to-use pipeline for comprehensive bacterial genome analysis. Other notable tools for bacterial genome analysis such as Artemis [@carver_act_2005] and Mauve [@darling_progressivemauve_2010] can detect and visualize rearrangements in bacterial genomes but lack other functionality, such as predicting the mechanisms of structural mutations and annotating what genes they affect.
 
 # Implementation
 
