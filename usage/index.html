@@ -234,7 +234,7 @@ For example, this is fine:</p>
 <p>All of the <em>seabreeze</em> commands take the following format and should be executed from the <em>seabreeze</em> root directory:</p>
 <pre><code>snakemake --use-conda --cores n &lt;command&gt;
 </code></pre>
-<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to commands and are detailed in 'Additional Options'.</p>
+<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to commands for useful functionality or to circumvent exceptions. They are detailed in 'Additional Options'.</p>
 <h2 id="analyse-genome-sizes">Analyse genome sizes</h2>
 <p>This command compares the sizes of the assemblies to their specified ancestors in a pairwise manner. </p>
 <pre><code>snakemake --use-conda --cores n analyse_genome_sizes
@@ -348,7 +348,11 @@ For example, this is fine:</p>
 <ul>
 <li><code>--unlock</code>:  Snakemake will "lock" a directory if all of the output files were not completed before the processes were terminated. Use this flag to unlock the directory.</li>
 <li><code>--rerun-incomplete</code>:  To allow Snakemake to remake any output files that were not completed in the prior run.</li>
-</ul></div>
+<li><code>--conda-frontend conda</code>: Some users have reported a <code>CreatedCondaEnvironmentException</code> that arises when trying to run any of the Snakemake workflows (see below). Appending this flag should address this issue. </li>
+</ul>
+<pre><code>CreateCondaEnvironmentException:
+The 'mamba' command is not available in the shell /usr/bin/bash that will be used by Snakemake. You have to ensure that it is in your PATH, e.g., first activating the conda base environment with `conda activate base`.The mamba package manager (https://github.com/mamba-org/mamba) is a fast and robust conda replacement. It is the recommended way of using Snakemake's conda integration. It can be installed with `conda install -n base -c conda-forge mamba`. If you still prefer to use conda, you can enforce that by setting `--conda-frontend conda`.
+</code></pre></div>
             </div>
         </div>
 
