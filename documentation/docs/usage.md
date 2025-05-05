@@ -58,7 +58,7 @@ All of the _seabreeze_ commands take the following format and should be executed
 ```
 snakemake --use-conda --cores n <command>
 ```
-Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to commands and are detailed in 'Additional Options'.
+Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to commands for useful functionality or to circumvent exceptions. They are detailed in 'Additional Options'.
 
 ## Analyse genome sizes
 
@@ -172,3 +172,10 @@ If a command was terminated before it was completed, Snakemake may prompt you to
 
 - `--unlock`:  Snakemake will "lock" a directory if all of the output files were not completed before the processes were terminated. Use this flag to unlock the directory.
 - `--rerun-incomplete`:  To allow Snakemake to remake any output files that were not completed in the prior run.
+- `--conda-frontend conda`: Some users have reported a `CreatedCondaEnvironmentException` that arises when trying to run any of the Snakemake workflows (see below). Appending this flag should address this issue. 
+
+```
+CreateCondaEnvironmentException:
+The 'mamba' command is not available in the shell /usr/bin/bash that will be used by Snakemake. You have to ensure that it is in your PATH, e.g., first activating the conda base environment with `conda activate base`.The mamba package manager (https://github.com/mamba-org/mamba) is a fast and robust conda replacement. It is the recommended way of using Snakemake's conda integration. It can be installed with `conda install -n base -c conda-forge mamba`. If you still prefer to use conda, you can enforce that by setting `--conda-frontend conda`.
+```
+
