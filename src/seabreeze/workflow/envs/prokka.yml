@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - prokka=1.14.6
+  - breseq=0.38.1
+  - pandas=2.0.3
+  - numpy=1.25.0

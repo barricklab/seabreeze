@@ -1,0 +1,8 @@
+name: pandas
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pandas=2.0.3
+  - numpy=1.25.0
