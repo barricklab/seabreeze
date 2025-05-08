@@ -46,6 +46,42 @@ rule predict_structural_variants_masked:
     input:
     	clean_synteny_plots = expand("07_syri_output/masked/{sample}/{sample}_clean.plot.pdf", sample=df['assembly'].tolist()),
 
+rule predict_replichore_balance_unmasked:
+    input:
+        ori_dif_coords = "04_rename_genome/ori_dif_coords.csv",
+        ori_dif_coords_reindexed = "08_reindex_genome_oric/ori_dif_coords.csv",
+        replichore_arms = "08_reindex_genome_oric/replichore_arms.csv",
+        inversion_replichores = expand("11_annotated_boundaries/unmasked/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+
+rule predict_replichore_balance_masked:
+    input:
+    	ori_dif_coords = "04_rename_genome/ori_dif_coords.csv",
+        ori_dif_coords_reindexed = "08_reindex_genome_oric/ori_dif_coords.csv",
+        replichore_arms = "08_reindex_genome_oric/replichore_arms.csv",
+        inversion_replichores = expand("11_annotated_boundaries/masked/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+
+rule predict_SV_mechanism_unmasked:
+    input:
+    	inversion_table = "11_annotated_boundaries/unmasked/inversion_mechanism.csv",
+        deletion_table = "11_annotated_boundaries/unmasked/deletion_mechanism.csv",
+
+rule predict_SV_mechanism_masked:
+    input:
+    	inversion_table = "11_annotated_boundaries/masked/inversion_mechanism.csv",
+        deletion_table = "11_annotated_boundaries/masked/deletion_mechanism.csv",
+
+
+rule annotate_SV_regions_unmasked:
+    input:
+        gd = expand("12_genome_diff_tables/gd/unmasked/{sample}.gd",sample=df['assembly'].tolist()),
+        html = expand("12_genome_diff_tables/html/unmasked/{sample}.html",sample=df['assembly'].tolist())
+
+
+rule annotate_SV_regions_masked:
+    input:
+        gd = expand("12_genome_diff_tables/gd/masked/{sample}.gd",sample=df['assembly'].tolist()),
+        html = expand("12_genome_diff_tables/html/masked/{sample}.html",sample=df['assembly'].tolist())
+
 
 # ---- INDIVIDUAL RULES ----
 
@@ -258,7 +294,7 @@ rule call_variants_syri_masked:
        	done = "07_syri_output/masked/{sample}/{sample}.done",
         syri = "07_syri_output/masked/{sample}/{sample}.syri.out"
     params:
-       	output_dir = "data/07_syri_output/masked/{sample}", # each assembly gets its own directory with the same name which stores the output of nucmer
+       	output_dir = "07_syri_output/masked/{sample}", # each assembly gets its own directory with the same name which stores the output of nucmer
     log:
         "logs/call_variants_syri_masked/{sample}.log"
     shell:
@@ -266,7 +302,7 @@ rule call_variants_syri_masked:
        	mkdir -p {params.output_dir}
         cd {params.output_dir}
         touch ../../../{log}
-        syri --nosnp -c ../../../{input.coords} -d ../../../{input.filtered} -r ../../../{input.subject_path} -q ../../../{input.query_path} --prefix {wildcards.sample} > > ../../../{log} 2>&1
+        syri --nosnp -c ../../../{input.coords} -d ../../../{input.filtered} -r ../../../{input.subject_path} -q ../../../{input.query_path} --prefix {wildcards.sample} > ../../../{log} 2>&1
         mv {wildcards.sample}syri.out {wildcards.sample}.syri.out
         touch {wildcards.sample}.done
         rm {wildcards.sample}syri.log {wildcards.sample}syri.summary
@@ -419,6 +455,301 @@ rule generate_synteny_plot_clean_masked:
         """
        	cd {params.input_dir}
         {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}_clean.plot.pdf --lf {wildcards.sample}_clean.log
-        mv {wildcards.sample}.2.log ../../../{log}
+        mv {wildcards.sample}_clean.log ../../../{log}
         cd ../../..
+        """
+
+# generate a csv file with the ori and dif coords of the genomes in their original index
+rule annotate_ori_dif_locations:
+    conda:
+        "{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+        genomes = expand("04_rename_genome/unmasked/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+        script = "{}/replichore_arms_analyse.py".format(workflow.basedir)
+    output:
+        ori_dif_coords = "04_rename_genome/ori_dif_coords.csv"
+    params:
+        data=config['data'],
+        sequences=config['oridif'],
+        folder = "04_rename_genome/unmasked/"
+    log:
+        "logs/annotate_ori_dif_locations/annotate_ori_dif_locations.log"
+    shell:
+        """
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output} --noarms > {log}  2>&1
+        """
+
+rule reindex_contigs_oric_unmasked:
+    conda:
+        "{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+       	genomes = expand("04_rename_genome/unmasked/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+        script = "{}/reindex_assembly_batch.py".format(workflow.basedir)
+    output:
+       	expand("08_reindex_genome_oric/unmasked/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+    params:
+       	folder = "04_rename_genome/unmasked/",
+        data = config['data'],
+        sequences=config['oridif'],
+        output = "08_reindex_genome_oric/unmasked"
+    log:
+        "logs/reindex_contigs_oric/unmasked/reindex_contigs_oric.log"
+    shell:
+       	"""
+       	{input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output} > {log} 2>&1
+        """
+
+rule reindex_contigs_oric_masked:
+    conda:
+       	"{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+       	genomes = expand("04_rename_genome/masked/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+        script = "{}/reindex_assembly_batch.py".format(workflow.basedir)
+    output:
+       	expand("08_reindex_genome_oric/masked/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+    params:
+       	folder = "04_rename_genome/masked/",
+        data = config['data'],
+        sequences= config['oridif'],
+        output = "08_reindex_genome_oric/masked"
+    log:
+        "logs/reindex_contigs_oric/masked/reindex_contigs_oric.log"
+    shell:
+       	"""
+       	{input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output} > {log} 2>&1
+        """
+
+# generate a csv file with the oric and dif of the genomens reindexed to the ori and a csv file with lenths of the replichore arms of each clone
+
+rule analyse_replichore_arms:
+    conda:
+        "{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+       	genomes = expand("08_reindex_genome_oric/unmasked/{sample}.fasta", sample=df['assembly'].tolist()), # you can't use wildcards here but you can use this expand functionality
+        script = "{}/replichore_arms_analyse.py".format(workflow.basedir)
+    output:
+       	ori_dif_coords = "08_reindex_genome_oric/ori_dif_coords.csv",
+        replichore_balance = "08_reindex_genome_oric/replichore_arms.csv"
+    params:
+       	folder = "08_reindex_genome_oric/unmasked",
+        data = config['data'],
+        sequences= config['oridif']
+    log:
+        "logs/analyse_replichore_arms/analyse_replichore_arms.log"
+    shell:
+       	"""
+       	{input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.ori_dif_coords} --noarms > {log} 2>&1
+        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}  >> {log} 2>&1
+        """
+
+# generate csv files which annotate the boundaries of the SVs
+rule annotate_SV_boundaries_IS_unmasked:
+    conda:
+       	"{}/workflow/envs/pandas.yml".format(workflow.basedir)
+    input:
+        syri = "07_syri_output/unmasked/{sample}/{sample}_clean.syri.out",
+        assembly_IS_csv = "05_isescan_tables/{sample}.csv",
+        ancestor_IS_csv = lambda wildcards: "05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the csv file of the ancestor
+        script = "{}/IS_SV_border.py".format(workflow.basedir)
+    output:
+       	"11_annotated_boundaries/unmasked/{sample}_boundaries.csv"
+    log:
+        "logs/annotate_SV_boundaries_IS_unmasked/{sample}.log"
+    shell:
+       	"""
+       	mkdir -p 11_annotated_boundaries/unmasked
+        cd 11_annotated_boundaries/unmasked
+        {input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.csv > ../../{log} 2>&1
+        cd ../../
+        """
+
+rule annotate_SV_boundaries_IS_masked:
+    conda:
+       	"{}/workflow/envs/pandas.yml".format(workflow.basedir)
+    input:
+       	syri = "07_syri_output/masked/{sample}/{sample}_clean.syri.out",
+        assembly_IS_csv = "05_isescan_tables/{sample}.csv",
+        ancestor_IS_csv = lambda wildcards: "05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the csv file of the ancestor
+        script = "{}/IS_SV_border.py".format(workflow.basedir)
+    output:
+        "11_annotated_boundaries/masked/{sample}_boundaries.csv"
+    log:
+        "logs/annotate_SV_boundaries_IS_masked/{sample}.log"
+    shell:
+        """
+       	mkdir -p 11_annotated_boundaries/masked
+        cd 11_annotated_boundaries/masked
+        {input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.csv > ../../{log} 2>&1
+        cd ../../
+        """
+
+# annotate the mechanism of deletions and inversions
+# i think you can expand and not wildcards here since the script does not have to be repeated each you run this..
+
+rule annotate_SV_mechanism_unmasked:
+    conda:
+       	"{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+       	boundaries_csv = expand("11_annotated_boundaries/unmasked/{sample}_boundaries.csv", sample=df['assembly'].tolist()),
+        script = "{}/classify_deletions.py".format(workflow.basedir)
+    output:
+       	inversion = expand("11_annotated_boundaries/unmasked/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        deletion = expand("11_annotated_boundaries/unmasked/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        inversion_table = "11_annotated_boundaries/unmasked/inversion_mechanism.csv",
+        deletion_table = "11_annotated_boundaries/unmasked/deletion_mechanism.csv"
+    params:
+       	input_dir = "11_annotated_boundaries/unmasked",
+        output_deletion = "deletion_mechanism.csv",
+        output_inversion = "inversion_mechanism.csv"
+    log:
+        "logs/annotate_SV_mechanism_unmasked/annotate_SV_mechanism.log"
+    shell:
+       	"""
+       	{input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion > {log} 2>&1
+        {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion >> {log} 2>&1
+        cd ..
+       	"""
+
+rule annotate_SV_mechanism_masked:
+    conda:
+       	"{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+       	boundaries_csv = expand("11_annotated_boundaries/masked/{sample}_boundaries.csv", sample=df['assembly'].tolist()),
+        script = "{}/classify_deletions.py".format(workflow.basedir)
+    output:
+       	inversion = expand("11_annotated_boundaries/masked/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        deletion = expand("11_annotated_boundaries/masked/{sample}_deletion.csv",sample=df['assembly'].tolist()),
+        inversion_table = "11_annotated_boundaries/masked/inversion_mechanism.csv",
+        deletion_table = "11_annotated_boundaries/masked/deletion_mechanism.csv"
+    params:
+       	input_dir = "11_annotated_boundaries/masked",
+        output_deletion = "deletion_mechanism.csv",
+        output_inversion = "inversion_mechanism.csv"
+    log:
+        "logs/annotate_SV_mechanism_masked/annotate_SV_mechanism.log"
+    shell:
+       	"""
+       	{input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion > {log} 2>&1
+        {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion >> {log} 2>&1
+        cd ..
+        """
+
+
+# classify inversions as inter_replichore or intra-replichore
+
+rule classify_inversion_replichore_unmasked:
+    conda:
+       	"{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+       	ori_dif_coords = "04_rename_genome/ori_dif_coords.csv",
+        inversion = expand("11_annotated_boundaries/unmasked/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        #inversion = "11_annotated_boundaries/{sample}_inversion.csv",
+        script = "{}/inversion_replichore_classify.py".format(workflow.basedir)
+    output:
+        expand("11_annotated_boundaries/unmasked/{sample}_inversion_classification.csv",sample=df['assembly'].tolist())
+    params:
+        input_dir = "11_annotated_boundaries/unmasked/",
+        output_table = "inversion_replichores.csv",
+        data=config['data']
+    log:
+        "logs/classify_inversion_replichore_unmasked/classify_inversion_replichore.log"
+    shell:
+        """
+       	{input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1
+        """
+
+rule classify_inversion_replichore_masked:
+    conda:
+        "{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+       	ori_dif_coords = "04_rename_genome/ori_dif_coords.csv",
+        inversion = expand("11_annotated_boundaries/masked/{sample}_inversion.csv",sample=df['assembly'].tolist()),
+        script = "{}/inversion_replichore_classify.py".format(workflow.basedir)
+    output:
+        expand("11_annotated_boundaries/masked/{sample}_inversion_classification.csv",sample=df['assembly'].tolist())
+    params:
+       	input_dir = "11_annotated_boundaries/masked/",
+        output_table = "inversion_replichores.csv",
+        data=config['data']
+    log:
+        "logs/classify_inversion_replichore_unmasked/classify_inversion_replichore.log"
+    shell:
+       	"""
+       	{input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1
+        """
+
+# generate annotations for genomes using prokka and with the IS elements reported by ISEscan
+
+rule annotate_genomes_prokka:
+    conda:
+        "{}/workflow/envs/prokka.yml".format(workflow.basedir)
+    input:
+        genome="04_rename_genome/unmasked/{sample}.fasta",
+        is_table="05_isescan_tables/{sample}.csv"
+    output:
+        "09_annotated_genomes/{sample}/{sample}.gff"
+    params:
+        prefix="{sample}",
+        outdir="09_annotated_genomes/{sample}",
+        prokka_annotation="09_annotated_genomes/{sample}/{sample}.gff"
+    log:
+        "logs/annotate_genomes_prokka/{sample}.log"
+    shell:
+        """
+    	prokka --force --prefix {params.prefix} --outdir {params.outdir} {input.genome} > {log} 2>&1
+        breseq CONVERT-REFERENCE -f GFF3 -s {input.is_table} -o {output} {params.prokka_annotation} >> {log} 2>&1
+        """
+
+# Use the clean_syri.out files to make the HTML tables from breseq
+rule generate_genome_diffs_tables_unmasked:
+    conda:
+    	"{}/workflow/envs/breseq.yml".format(workflow.basedir)
+    input:
+        syri = "07_syri_output/unmasked/{sample}/{sample}_clean.syri.out",
+        script = "{}/syri2gd.py".format(workflow.basedir),
+        reference = "09_annotated_genomes/{sample}/{sample}.gff"
+    output:
+    	gd = "12_genome_diff_tables/gd/unmasked/{sample}.gd",
+        html = "12_genome_diff_tables/html/unmasked/{sample}.html"
+    params:
+        gd_folder = "12_genome_diff_tables/gd/unmasked",
+        html_folder = "12_genome_diff_tables/html/unmasked"
+    log:
+        "logs/generate_genome_diffs_tables_unmasked/{sample}.log"
+    shell:
+	    """
+        mkdir -p {params.gd_folder}
+        mkdir -p {params.html_folder}
+        cd {params.gd_folder}
+        {input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > ../../../{log} 2>&1
+        cd ../../../{params.html_folder}
+        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd} >> ../../../{log} 2>&1
+        cd ../../../
+        """
+
+# Use the clean_syri.out files to make the HTML tables from breseq
+rule generate_genome_diffs_tables_masked:
+    conda:
+        "{}/workflow/envs/breseq.yml".format(workflow.basedir)
+    input:
+        syri = "07_syri_output/masked/{sample}/{sample}_clean.syri.out",
+        script = "{}/syri2gd.py".format(workflow.basedir),
+        reference = "09_annotated_genomes/{sample}/{sample}.gff"
+    output:
+        gd = "12_genome_diff_tables/gd/masked/{sample}.gd",
+        html = "12_genome_diff_tables/html/masked/{sample}.html"
+    params:
+        gd_folder = "12_genome_diff_tables/gd/masked",
+        html_folder = "12_genome_diff_tables/html/masked"
+    log:
+        "logs/generate_genome_diffs_tables_masked/{sample}.log"
+    shell:
+        """
+    	mkdir -p {params.gd_folder}
+        mkdir -p {params.html_folder}
+        cd {params.gd_folder}
+        {input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > ../../../{log} 2>&1
+        cd ../../../{params.html_folder}
+        gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd} >> ../../../{log} 2>&1
+        cd ../../../
         """
