@@ -11,10 +11,11 @@ import importlib.resources
 import subprocess
 import os
 import logging
+import coloredlogs
 from seabreeze import __version__
 
 # set up logger
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+coloredlogs.install(level='DEBUG')
 logger = logging.getLogger('seabreeze')
 
 
@@ -27,23 +28,27 @@ def get_snakefile():
     """
 
     seabreeze_package_path = importlib.resources.files(seabreeze)
-    snakefile_path = os.path.join(seabreeze_package_path, "workflow/Snakefile")
+    snakefile_path = os.path.join(seabreeze_package_path, "Snakefile")
     return snakefile_path
-
-
 
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
 @click.version_option(__version__)
 
 def cli():
     """
-    This is information about seabreeze
+    seabreeze is a tool for comprehensively analyzing genetic variation among bacterial genomes caused by structural mutations.
+    To get help, run `seabreeze --help`
+
+    Please see documentation at https://barrick.github.io/seabreeze
+    Report bugs, errors and request features at https://github.com/barricklab/seabreeze
+
+    seabreeze was developed at the Barrick Lab at UT Austin
     """
 
 @cli.command(
-    "run",
+    "batch",
     context_settings=dict(ignore_unknown_options=True),
-    short_help="Run seabreeze",
+    short_help="Run seabreeze in batch mode to process multiple samples at once",
 )
 @click.argument(
     "workflow",
@@ -51,9 +56,7 @@ def cli():
         [
             "analyse_genome_sizes",
             "predict_IS_elements",
-            "predict_structural_variants",
-            "copy_fasta_files",
-            "all"
+            "predict_structural_variants"
         ]
     ),
 )
@@ -80,62 +83,65 @@ def cli():
     default="./ori_dif_coords.csv",
 )
 
-@click.option(
-    "--ancestor",
-    type=click.Path(dir_okay=True, writable=True, resolve_path=True),
-    help="Path to FASTA file of the ancestor or reference sequence",
-)
+# @click.option(
+#     "--ancestor",
+#     type=click.Path(dir_okay=True, writable=True, resolve_path=True),
+#     help="Path to FASTA file of the ancestor or reference sequence",
+# )
 
-@click.option(
-    "--assembly",
-    type=click.Path(dir_okay=True, writable=True, resolve_path=True),
-    help="Path to FASTA file of the assembly or query sequence",
-)
+# @click.option(
+#     "--assembly",
+#     type=click.Path(dir_okay=True, writable=True, resolve_path=True),
+#     help="Path to FASTA file of the assembly or query sequence",
+# )
 
 @click.option(
     "--threads",
     type=int,
     default=4,
     show_default=True,
-    help="Resources to be used. Default = 4. `all` is a valid option",
+    help="Resources to be used.",
 )
 
 @click.option("--masked", is_flag=True, help="Mask insertion sequences")
-@click.option("--batch", is_flag=True, help="Enable batch mode. Requires --data argument to be supplied")
 
 @click.argument("snakemake_args", nargs=-1, type=click.UNPROCESSED)
 
-def run_smk_workflow(workflow,dir,data,oridif, ancestor,assembly,masked,batch,threads,snakemake_args):
+def run_smk_workflow(workflow,dir,data,oridif,masked,threads,snakemake_args):
+
+    """ Determine snakemake command to run based on supplied args """
 
     os.chdir(dir)
+    logger.info(f"Switch working directory to {os.getcwd()}")
     logger.info(f"seabrezee version: {__version__}")
 
     masked_workflows=["predict_structural_variants","predict_replichore_balance","predict_SV_mechanism","annotate_SV_regions"]
     if workflow in masked_workflows and masked:
         workflow=f"{workflow}_masked"
 
+    elif workflow in masked_workflows and not(masked):
+        workflow=f"{workflow}_unmasked"
+
     seabreeze_package_path = importlib.resources.files(seabreeze)
 
-    config_options=f"data={data}"
+    config_options=f"data={data} threads={threads}"
     cmd=()
 
-    if batch:
-        cmd = (
-            "snakemake --snakefile {snakefile} --use-conda --cores {cores} {workflow} --config {config}"
-            " {args} "
-        ).format(
-            snakefile=get_snakefile(),
-            cores=threads,
-            workflow=workflow,
-            args=" ".join(snakemake_args),
-            config=config_options
-        )
-        logger.debug("Executing: %s" % cmd)
+    cmd = (
+        "snakemake --snakefile {snakefile} --use-conda --cores {cores} {workflow} --config {config}"
+        " {args} "
+    ).format(
+        snakefile=get_snakefile(),
+        cores=threads,
+        workflow=workflow,
+        args=" ".join(snakemake_args),
+        config=config_options
+    )
+    logger.debug("Executing: %s" % cmd)
 
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        # removes the traceback
         logger.critical(e)
         exit(1)
 

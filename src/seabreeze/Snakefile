@@ -1,0 +1,424 @@
+import pandas as pd
+
+path_to_data_csv=config["data"]
+df = pd.read_csv(path_to_data_csv)
+
+# Check if the csv has exactly two columns
+if df.shape[1] != 2:
+    raise ValueError("data.csv must have exactly two columns.")
+
+# Check if the columns are named correctly
+expected_columns = ['assembly', 'ancestor']
+if list(df.columns) != expected_columns:
+    raise ValueError(f"The data.csv columns must be named {expected_columns}. Found: {list(df.columns)}")
+
+# Check if there are any duplicate entries for assemblies
+if df['assembly'].duplicated().any():
+    raise ValueError("There are duplicate entries in the assembly column.")
+
+list_of_ancestors = df['ancestor'].tolist()
+list_of_assemblies = df['assembly'].tolist()
+
+for ancestor in list_of_ancestors:
+    if not(ancestor in list_of_assemblies):
+        raise ValueError(f"Ancestor genome {ancestor} needs a self-to-self comparison. Please append this line to data.csv: {ancestor},{ancestor}")
+
+# this dictionary maps the subject to its query
+assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
+
+
+# ---- TARGET RULES ----
+
+rule analyse_genome_sizes:
+    input:
+	    genome_sizes = "04_rename_genome/genome_size_stats.csv"
+
+
+rule predict_IS_elements:
+    input:
+    	is_csv_files = expand("05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()) # we only want the csv file, so that's the target of this rule is that.
+
+rule predict_structural_variants_unmasked:
+    input:
+    	clean_synteny_plots = expand("07_syri_output/unmasked/{sample}/{sample}_clean.plot.pdf", sample=df['assembly'].tolist()),
+
+rule predict_structural_variants_masked:
+    input:
+    	clean_synteny_plots = expand("07_syri_output/masked/{sample}/{sample}_clean.plot.pdf", sample=df['assembly'].tolist()),
+
+
+# ---- INDIVIDUAL RULES ----
+
+# find unique bases at the start of the subject sequence to reindex the query sequence to
+
+rule find_reindex_bases:
+    conda:
+	    "{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+        query_path = "02_genomes/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "02_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly its being compared to
+        script = "{}/find_reindex_bases.py".format(workflow.basedir)
+    output:
+	    "03_reindex_genomes/reindex_bases_{sample}.txt"
+    log:
+        "logs/find_reindex_bases/{sample}.log"
+    shell:
+	    '''
+	    {input.script} --subject {input.subject_path} --query {input.query_path} --output {output} > {log} 2>&1
+        '''
+
+#reindex the fasta files to a common sequence to make comparison easier
+
+rule reindex_contigs:
+    conda:
+    	"{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+    	fasta = "02_genomes/{sample}.fasta",
+        bases = "03_reindex_genomes/reindex_bases_{sample}.txt",
+        script = "{}/reindex_assembly.py".format(workflow.basedir)
+    output:
+       "03_reindex_genomes/{sample}.fasta"
+    log:
+        "logs/reindex_contigs/{sample}.log"
+    shell:
+       "{input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"
+
+# rename all the FASTA headers to "genome"
+# this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
+
+rule rename_contigs:
+    conda:
+        "{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+        data = "03_reindex_genomes/{sample}.fasta",
+        script = "{}/rename_contigs.py".format(workflow.basedir)
+    params:
+    	new_FASTA_header = "genome"
+    output:
+    	"04_rename_genome/unmasked/{sample}.fasta"
+    log:
+        "logs/rename_contigs/{sample}.log"
+    shell:
+    	"{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
+
+
+rule compute_genome_stats:
+    conda:
+    	"{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+    	data =  expand("04_rename_genome/unmasked/{sample}.fasta", sample=df['assembly'].tolist()),
+        script = "{}/fasta_stats.py".format(workflow.basedir),
+        csv_file = config['data']
+    params:
+    	folder = "04_rename_genome/unmasked/"
+    output:
+    	genome_sizes = "04_rename_genome/genome_size_stats.csv"
+    log:
+        "logs/compute_genome_stats/compute_genome_stats.log"
+    shell:
+    	"{input.script} --folder {params.folder} --data {input.csv_file} --output {output.genome_sizes} > {log} 2>&1"
+
+# ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
+
+rule find_IS_elements:
+    conda:
+    	"{}/workflow/envs/isescan.yml".format(workflow.basedir)
+    input:
+    	"04_rename_genome/unmasked/{sample}.fasta"
+    output:
+    	csv_files = "05_isescan_tables/{sample}.csv"
+    threads:
+        config['threads']
+    log:
+        "logs/find_IS_elements/{sample}.log"
+    shell:
+	    """
+	    cp {input} ./{wildcards.sample}.fasta
+        isescan.py --seqfile {wildcards.sample}.fasta --output 05_isescan_tables/{wildcards.sample} --nthread {threads} >> {log} 2>&1
+        mv 05_isescan_tables/{wildcards.sample}/{wildcards.sample}.fasta.csv 05_isescan_tables/{wildcards.sample}.csv
+        rm {wildcards.sample}.fasta
+        """
+
+rule mask_IS_elements:
+    conda:
+    	"{}/workflow/envs/biopython.yml".format(workflow.basedir)
+    input:
+        genome = "04_rename_genome/unmasked/{sample}.fasta",
+        is_table = "05_isescan_tables/{sample}.csv",
+        script = "{}/mask_IS_elements.py".format(workflow.basedir)
+    output:
+	    masked_genome = "04_rename_genome/masked/{sample}.fasta"
+    log:
+        "logs/mask_IS_elements/{sample}.log"
+    shell:
+    	"""
+    	{input.script} --genome {input.genome} --is_table {input.is_table} --output {output.masked_genome}  >> {log} 2>&1
+        """
+
+# align each assembly to its ancestor, then filter the alignments and convert from .delta to coords
+
+rule align_genomes_nucmer_unmasked:
+    conda:
+    	"{}/workflow/envs/mummer4.yml".format(workflow.basedir)
+    input:
+        query_path = "04_rename_genome/unmasked/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "04_rename_genome/unmasked/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being >
+    output:
+        done = "06_nucmer_alignment/unmasked/{sample}/{sample}.done",
+        delta = "06_nucmer_alignment/unmasked/{sample}/{sample}.delta",
+        filtered = "06_nucmer_alignment/unmasked/{sample}/{sample}.filtered.delta",
+        coords = "06_nucmer_alignment/unmasked/{sample}/{sample}.filtered.coords"
+    params:
+    	seq_id_cutoff = "95",
+        subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # just the name of the ancestor (does not include the .fasta extension)
+        output_dir = "06_nucmer_alignment/unmasked/{sample}" # each assembly gets its own directory with the same name which stores the output of nucmer
+    log:
+        "logs/align_genomes_nucmer_unmasked/{sample}.log"
+
+    shell:
+    	"""
+    	mkdir -p {params.output_dir}
+        cd {params.output_dir}
+        touch ../../../{log}
+        nucmer --maxmatch -c 100 -b 500 -l 50 -p {wildcards.sample} ../../../{input.subject_path} ../../../{input.query_path} > ../../../{log} 2>&1
+        delta-filter -i {params.seq_id_cutoff} -l 100 {wildcards.sample}.delta > {wildcards.sample}.filtered.delta
+        show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
+        touch {wildcards.sample}.done
+        cd ../../../
+        """
+
+rule align_genomes_nucmer_masked:
+    conda:
+        "{}/workflow/envs/mummer4.yml".format(workflow.basedir)
+    input:
+        query_path = "04_rename_genome/masked/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "04_rename_genome/masked/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being co>
+    output:
+        done = "06_nucmer_alignment/masked/{sample}/{sample}.done",
+        delta = "06_nucmer_alignment/masked/{sample}/{sample}.delta",
+        filtered = "06_nucmer_alignment/masked/{sample}/{sample}.filtered.delta",
+        coords = "06_nucmer_alignment/masked/{sample}/{sample}.filtered.coords"
+    params:
+        seq_id_cutoff = "95",
+        subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # just the name of the ancestor (does not include the .fasta extension)
+        output_dir = "06_nucmer_alignment/masked/{sample}" # each assembly gets its own directory with the same name which stores the output of nucmer
+    log:
+        "logs/align_genomes_nucmer_masked/{sample}.log"
+    # temporarily move both fasta files here because it's easier. delete when done. NO DO NOT DO THIS! CAUSES A BUG WHEN COMPARING A SEQUENCE TO ITSELF
+    shell:
+        """
+        mkdir -p {params.output_dir}
+        cd {params.output_dir}
+        touch ../../../{log}
+        nucmer --maxmatch -c 100 -b 500 -l 50 -p {wildcards.sample} ../../../{input.subject_path} ../../../{input.query_path} > ../../../{log} 2>&1
+        delta-filter -i {params.seq_id_cutoff} -l 100 {wildcards.sample}.delta > {wildcards.sample}.filtered.delta
+        show-coords -THrd {wildcards.sample}.filtered.delta > {wildcards.sample}.filtered.coords
+        touch {wildcards.sample}.done
+        cd ../../../
+        """
+
+# now call structural variants from the alignments
+
+rule call_variants_syri_unmasked:
+    conda:
+        "{}/workflow/envs/syri.yml".format(workflow.basedir)
+    input:
+       	filtered = "06_nucmer_alignment/unmasked/{sample}/{sample}.filtered.delta",
+        query_path = "04_rename_genome/unmasked/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "04_rename_genome/unmasked/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being>
+        coords = "06_nucmer_alignment/unmasked/{sample}/{sample}.filtered.coords"
+    output:
+        done = "07_syri_output/unmasked/{sample}/{sample}.done",
+        syri = "07_syri_output/unmasked/{sample}/{sample}.syri.out"
+    params:
+       	output_dir = "07_syri_output/unmasked/{sample}", # each assembly gets its own directory with the same name which stores the output of nucmer
+    log:
+        "logs/call_variants_syri_unmasked/{sample}.log"
+    shell:
+       	"""
+       	mkdir -p {params.output_dir}
+        cd {params.output_dir}
+        touch ../../../{log}
+        syri --nosnp -c ../../../{input.coords} -d ../../../{input.filtered} -r ../../../{input.subject_path} -q ../../../{input.query_path} --prefix {wildcards.sample} > ../../../{log} 2>&1
+        mv {wildcards.sample}syri.out {wildcards.sample}.syri.out
+        touch {wildcards.sample}.done
+        rm {wildcards.sample}syri.log {wildcards.sample}syri.summary
+        cd ../../../
+        """
+
+rule call_variants_syri_masked:
+    conda:
+       	"{}/workflow/envs/syri.yml".format(workflow.basedir)
+    input:
+       	filtered = "06_nucmer_alignment/masked/{sample}/{sample}.filtered.delta",
+        query_path = "04_rename_genome/masked/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "04_rename_genome/masked/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being c>
+        coords = "06_nucmer_alignment/masked/{sample}/{sample}.filtered.coords"
+    output:
+       	done = "07_syri_output/masked/{sample}/{sample}.done",
+        syri = "07_syri_output/masked/{sample}/{sample}.syri.out"
+    params:
+       	output_dir = "data/07_syri_output/masked/{sample}", # each assembly gets its own directory with the same name which stores the output of nucmer
+    log:
+        "logs/call_variants_syri_masked/{sample}.log"
+    shell:
+       	"""
+       	mkdir -p {params.output_dir}
+        cd {params.output_dir}
+        touch ../../../{log}
+        syri --nosnp -c ../../../{input.coords} -d ../../../{input.filtered} -r ../../../{input.subject_path} -q ../../../{input.query_path} --prefix {wildcards.sample} > > ../../../{log} 2>&1
+        mv {wildcards.sample}syri.out {wildcards.sample}.syri.out
+        touch {wildcards.sample}.done
+        rm {wildcards.sample}syri.log {wildcards.sample}syri.summary
+        cd ../../../
+        """
+
+rule generate_synteny_plot_unmasked:
+    conda:
+       	"{}/workflow/envs/plotsr.yml".format(workflow.basedir)
+    input:
+       	query_path = "04_rename_genome/unmasked/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "04_rename_genome/unmasked/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being>
+        syri = "07_syri_output/unmasked/{sample}/{sample}.syri.out",
+        script = "{}/plotsr/plotsr-bin".format(workflow.basedir)
+    output:
+       	genome_table = "07_syri_output/unmasked/{sample}/{sample}.genomes.tsv",
+        plot = "07_syri_output/unmasked/{sample}/{sample}.plot.pdf"
+    params:
+       	input_dir = "07_syri_output/unmasked/{sample}", #store the synteny plot in the same place as the syri files
+        subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # just the name of the ancestor (does not include the .fasta extension)
+    log:
+        "logs/generate_synteny_plots_unmasked/{sample}.log"
+    shell:
+       	"""
+       	cd {params.input_dir}
+        printf "#file\tname\ttags\n" > {wildcards.sample}.genomes.tsv
+        printf "../../../{input.subject_path}\t{params.subject_name}\tlw:1.5\n" >> {wildcards.sample}.genomes.tsv
+        printf "../../../{input.query_path}\t{wildcards.sample}\tlw:1.5" >>  {wildcards.sample}.genomes.tsv
+        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}.syri.out -H 5 -W 10 -o {wildcards.sample}.plot.pdf --lf {wildcards.sample}.log
+        mv {wildcards.sample}.log ../../../{log}
+        cd ../../..
+        """
+
+
+rule generate_synteny_plot_masked:
+    conda:
+       	"{}/workflow/envs/plotsr.yml".format(workflow.basedir)
+    input:
+       	query_path = "04_rename_genome/masked/{sample}.fasta", # path to the assembly
+        subject_path = lambda wildcards: "04_rename_genome/masked/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being c>
+        syri = "07_syri_output/masked/{sample}/{sample}.syri.out",
+        script = "{}/plotsr/plotsr-bin".format(workflow.basedir)
+    output:
+       	genome_table = "07_syri_output/masked/{sample}/{sample}.genomes.tsv",
+        plot = "07_syri_output/masked/{sample}/{sample}.plot.pdf"
+    params:
+       	input_dir = "07_syri_output/masked/{sample}", #store the synteny plot in the same place as the syri files
+        subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # just the name of the ancestor (does not include the .fasta extension)
+    log:
+        "logs/generate_synteny_plots_masked/{sample}.log"
+    shell:
+        """
+        cd {params.input_dir}
+        printf "#file\tname\ttags\n" > {wildcards.sample}.genomes.tsv
+        printf "../../../{input.subject_path}\t{params.subject_name}\tlw:1.5\n" >> {wildcards.sample}.genomes.tsv
+        printf "../../../{input.query_path}\t{wildcards.sample}\tlw:1.5" >>  {wildcards.sample}.genomes.tsv
+        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}.syri.out -H 5 -W 10 -o {wildcards.sample}.plot.pdf --lf {wildcards.sample}.log
+        mv {wildcards.sample}.log ../../../{log}
+        cd ../../..
+        """
+
+# now clean up the syri files to predict a minimal set of structural variants
+rule clean_syri_output_unmasked:
+    conda:
+       	"{}/workflow/envs/pandas.yml".format(workflow.basedir)
+    input:
+       	syri = "07_syri_output/unmasked/{sample}/{sample}.syri.out",
+        query_path = "05_isescan_tables/{sample}.csv", # path to the isescan file of the
+        subject_path = lambda wildcards: "05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
+    output:
+       	"07_syri_output/unmasked/{sample}/{sample}_clean.syri.out"
+    params:
+        # isescan_subject_path = expand("data/05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()), # listing this as an input triggers an InputExceptionError idk why
+        # isescan_query = lambda wildcards: "{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # just the name of the ancestor (does not include the .fasta extension)
+        isescan_dir = "05_isescan_tables",
+        input_dir = "07_syri_output/unmasked/{sample}",
+        script = "{}/clean_syri.py".format(workflow.basedir)
+    log:
+        "logs/clean_syri_output_unmasked/{sample}.log"
+    shell:
+        """
+       	cd {params.input_dir}
+        {params.script} --syri {wildcards.sample}.syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} > ../../../{log} 2>&1
+        cd ../../../
+        """
+
+# now clean up the syri files to predict a minimal set of structural variants
+rule clean_syri_output_masked:
+    conda:
+       	"{}/workflow/envs/pandas.yml".format(workflow.basedir)
+    input:
+       	syri = "07_syri_output/masked/{sample}/{sample}.syri.out",
+        query_path = "05_isescan_tables/{sample}.csv", # path to the isescan file of the
+        subject_path = lambda wildcards: "05_isescan_tables/{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]) # path to the assembly of the ancestor its being compared to
+    output:
+        "07_syri_output/masked/{sample}/{sample}_clean.syri.out"
+    params:
+        # isescan_subject_path = expand("05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()), # listing this as an input triggers an InputExceptionError idk why
+        # isescan_query = lambda wildcards: "{}.csv".format(assembly_to_ancestor_dict[wildcards.sample]), # just the name of the ancestor (does not include the .fasta extension)
+        isescan_dir = "05_isescan_tables",
+        input_dir = "07_syri_output/masked/{sample}",
+        script = "{}/clean_syri.py".format(workflow.basedir)
+    log:
+        "logs/clean_syri_output_masked/{sample}.log"
+    shell:
+       	"""
+       	cd {params.input_dir}
+        {params.script} --syri {wildcards.sample}.syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} >  ../../../{log} 2>&1
+        cd ../../../
+        """
+
+# with the new clean syri file, generate a new plot
+rule generate_synteny_plot_clean_unmasked:
+    conda:
+       	"{}/workflow/envs/plotsr.yml".format(workflow.basedir)
+    input:
+       	syri = "07_syri_output/unmasked/{sample}/{sample}_clean.syri.out",
+        script = "{}/plotsr/plotsr-bin".format(workflow.basedir),
+        genome_table = "07_syri_output/unmasked/{sample}/{sample}.genomes.tsv",
+    output:
+       	"07_syri_output/unmasked/{sample}/{sample}_clean.plot.pdf"
+    params:
+       	input_dir = "07_syri_output/unmasked/{sample}", #store the synteny plot in the same place as the syri files
+        subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # just the name of the ancestor (does not include the .fasta extension)
+    log:
+        "logs/generate_synteny_plots_unmasked/{sample}_clean.log"
+    shell:
+       	"""
+       	cd {params.input_dir}
+        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}_clean.plot.pdf --lf {wildcards.sample}_clean.log
+        mv {wildcards.sample}_clean.log ../../../{log}
+        cd ../../../
+       	"""
+
+rule generate_synteny_plot_clean_masked:
+    conda:
+       	"{}/workflow/envs/plotsr.yml".format(workflow.basedir)
+    input:
+       	syri = "07_syri_output/masked/{sample}/{sample}_clean.syri.out",
+        script = "{}/plotsr/plotsr-bin".format(workflow.basedir),
+        genome_table = "07_syri_output/masked/{sample}/{sample}.genomes.tsv",
+    output:
+       	"07_syri_output/masked/{sample}/{sample}_clean.plot.pdf"
+    params:
+       	input_dir = "07_syri_output/masked/{sample}", #store the synteny plot in the same place as the syri files
+        subject_name = lambda wildcards: "{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]) # just the name of the ancestor (does not include the .fasta extension)
+    log:
+        "logs/generate_synteny_plots_masked/{sample}_clean.log"
+    shell:
+        """
+       	cd {params.input_dir}
+        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}_clean.plot.pdf --lf {wildcards.sample}_clean.log
+        mv {wildcards.sample}.2.log ../../../{log}
+        cd ../../..
+        """

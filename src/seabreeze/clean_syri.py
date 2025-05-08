@@ -767,7 +767,7 @@ def main(syri, verbose, isescan_subject, isescan_query):
 
 	print("rename_missing_chrid", df_syri)
 
-	output_filename=syri.replace("syri.out", "_clean.syri.out")
+	output_filename=syri.replace(".syri.out", "_clean.syri.out")
 	columns_to_write=["ref_ID", "ref_start", "ref_stop", "seq_deleted", "seq_inserted", "query_ID", "query_start", "query_stop", "tag_1", "tag_2", "tag_3", "tag_4"]
 	df_syri=df_syri[columns_to_write]
 
