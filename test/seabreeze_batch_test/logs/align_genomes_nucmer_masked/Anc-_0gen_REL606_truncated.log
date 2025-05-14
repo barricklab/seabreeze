@@ -1,0 +1,13 @@
+1: PREPARING DATA
+2,3: RUNNING mummer AND CREATING CLUSTERS
+# reading input file "Anc-_0gen_REL606_truncated.ntref" of length 59942
+# construct suffix tree for sequence of length 59942
+# (maximum reference length is 2305843009213693948)
+# (maximum query length is 18446744073709551615)
+# CONSTRUCTIONTIME /home/ira/snakemake_conda_envs/3dd5b3698d4e4794a1c44cd41f257fbc_/opt/mummer-3.23/mummer Anc-_0gen_REL606_truncated.ntref 0.01
+# reading input file "/home/ira/Desktop/seabreeze/test/seabreeze_test/06_nucmer_alignment/masked/Anc-_0gen_REL606_truncated/../../../04_rename_genome/masked/Anc-_0gen_REL606_truncated.fasta" of length 59941
+# matching query-file "/home/ira/Desktop/seabreeze/test/seabreeze_test/06_nucmer_alignment/masked/Anc-_0gen_REL606_truncated/../../../04_rename_genome/masked/Anc-_0gen_REL606_truncated.fasta"
+# against subject-file "Anc-_0gen_REL606_truncated.ntref"
+# COMPLETETIME /home/ira/snakemake_conda_envs/3dd5b3698d4e4794a1c44cd41f257fbc_/opt/mummer-3.23/mummer Anc-_0gen_REL606_truncated.ntref 0.02
+# SPACE /home/ira/snakemake_conda_envs/3dd5b3698d4e4794a1c44cd41f257fbc_/opt/mummer-3.23/mummer Anc-_0gen_REL606_truncated.ntref 0.12
+4: FINISHING DATA

@@ -1,0 +1,32 @@
+removed duplicate lines:         0  1      2  3  4       5  6      7     8  9    10 11
+0  genome  1  59940  -  -  genome  1  59940  SYN1  -  SYN  -
+PROGRESS: Annotated IS elements of ref
+syri_annotate_iselements_isescan subject     ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0
+PROGRESS: Annotated IS elements of query
+syri_annotate_iselements_isescan:     ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0                 0
+rename_deletions    ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0                 0
+deleted IS reassign    ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0                 0
+SV_IS_reassign    ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0                 0
+rename_cpl    ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0                 0
+PROGRESS: Dropped IS elements
+remove_IS_matches    ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0                 0
+syn_IS_reassign    ref_ID ref_start ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome         1    59940           -            -   genome           1      59940  SYN1     -   SYN     -               0                 0
+PROGRESS: Merged adjacent deletions
+merge_del_linesn    ref_ID  ref_start  ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome        1.0   59940.0           -            -   genome           1      59940  SYN1     -   SYN     -             0.0               0.0
+PROGRESS: Merged adjacent synteni regions
+erge_syn_lines    ref_ID  ref_start  ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome        1.0   59940.0           -            -   genome           1      59940  SYN1     -   SYN     -             0.0               0.0
+PROGRESS: Added query coords for deletions
+add_deletion_coords    ref_ID  ref_start  ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome        1.0   59940.0           -            -   genome           1      59940  SYN1     -   SYN     -             0.0               0.0
+rename_missing_chrid    ref_ID  ref_start  ref_stop seq_deleted seq_inserted query_ID query_start query_stop tag_1 tag_2 tag_3 tag_4  annotation_ref  annotation_query
+0  genome        1.0   59940.0           -            -   genome           1      59940  SYN1     -   SYN     -             0.0               0.0

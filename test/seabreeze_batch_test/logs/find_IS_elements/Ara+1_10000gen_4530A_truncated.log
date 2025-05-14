@@ -1,0 +1,42 @@
+/home/ira/snakemake_conda_envs/2b63123923c72f6ba09713d8947e084b_/bin/FragGeneScan -s Ara+1_10000gen_4530A_truncated.fasta -o 05_isescan_tables/Ara+1_10000gen_4530A_truncated/proteome/Ara+1_10000gen_4530A_truncated.fasta -w 0 -t illumina_5 -p 4
+Using 4 threads.
+no. of seqs: 1
+Clock time used (by 4 threads) = 0.1 sec
+Time elapsed: 0 hours 0 minutes and 1 seconds.
+ISEScan starts at Mon May 12 17:04:27 2025
+predict and translate genes from genome sequence into protein database using FragGeneScan program
+
+Begin to translate genome into proteome.
+Translating genome into proteome for Ara+1_10000gen_4530A_truncated.fasta , return  0
+
+Finish translating genome into proteome. Mon May 12 17:04:28 2025
+
+Begin to phmmer search against proteome database. Mon May 12 17:04:28 2025
+Finish phmmer searching /home/ira/snakemake_conda_envs/2b63123923c72f6ba09713d8947e084b_/bin/pHMMs/clusters.single.faa  against 05_isescan_tables/Ara+1_10000gen_4530A_truncated/proteome/Ara+1_10000gen_4530A_truncated.fasta.faa , output 05_isescan_tables/Ara+1_10000gen_4530A_truncated/hmm/clusters.single.faa.Ara+1_10000gen_4530A_truncated.fasta.faa
+
+Finish phmmer searching against proteome database. Mon May 12 17:04:45 2025
+
+Begin to profile HMM search against proteome database. Mon May 12 17:04:45 2025
+Finish Profile HMM searching /home/ira/snakemake_conda_envs/2b63123923c72f6ba09713d8947e084b_/bin/pHMMs/clusters.faa.hmm  against 05_isescan_tables/Ara+1_10000gen_4530A_truncated/proteome/Ara+1_10000gen_4530A_truncated.fasta.faa , output 05_isescan_tables/Ara+1_10000gen_4530A_truncated/hmm/clusters.faa.hmm.Ara+1_10000gen_4530A_truncated.fasta.faa
+
+Finish profile HMM searching against proteome database. Mon May 12 17:04:55 2025
+pred begins at Mon May 12 17:04:55 2025
+Begin addNonORFcopy at Mon May 12 17:04:55 2025
+Finish addNonORFcopy at Mon May 12 17:04:55 2025
+Begin addNonORFcopy1 at Mon May 12 17:04:56 2025
+Finish addNonORFcopy1 at Mon May 12 17:04:56 2025
+getFullIS() begins at Mon May 12 17:04:56 2025
+Start typing IS elements
+The single-copy partial IS element with evalue > 1e-50: isLen=1367 IS4 bd=[15362, 16728] orf('genome', 15432, 16542, '+') evalue=1.9e-30
+Finish typing partial IS elements
+Begin removeOverlappedHits at Mon May 12 17:04:56 2025
+genome: no intersected hits found
+Finish removeOverlappedHits at Mon May 12 17:04:56 2025
+Begin reading protein database at Mon May 12 17:04:56 2025
+Finish reading protein database at Mon May 12 17:04:56 2025
+Write IS elements from all sequences in Ara+1_10000gen_4530A_truncated.fasta into one result file under 05_isescan_tables/Ara+1_10000gen_4530A_truncated
+Write 2 IS copies to 05_isescan_tables/Ara+1_10000gen_4530A_truncated/Ara+1_10000gen_4530A_truncated.fasta.csv and 05_isescan_tables/Ara+1_10000gen_4530A_truncated/Ara+1_10000gen_4530A_truncated.fasta.tsv and 05_isescan_tables/Ara+1_10000gen_4530A_truncated/Ara+1_10000gen_4530A_truncated.fasta.raw
+Write summarized result to 05_isescan_tables/Ara+1_10000gen_4530A_truncated/Ara+1_10000gen_4530A_truncated.fasta.sum
+End in pred Mon May 12 17:04:56 2025
+Both complete and partial IS elements are reported.
+ISEScan ends at Mon May 12 17:04:56 2025

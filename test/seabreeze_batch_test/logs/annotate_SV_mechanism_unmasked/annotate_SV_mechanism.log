@@ -1,0 +1,26 @@
+['Ara+1_10000gen_4530A_truncated_boundaries.csv', 'Anc-_0gen_REL606_truncated_boundaries.csv']
+test
+Ara+1_10000gen_4530A_truncated_boundaries.csv
+   ref_start  ref_stop  query_start  query_stop tag_3  L_ref  L_ref_distance  R_ref  R_ref_distance  L_query  L_query_distance  R_query  R_query_distance
+0          1     58531            1       59940   SYN    NaN               0    NaN               0      NaN                 0      NaN                 0
+1      58532     59940            0           0   DEL    NaN               0    NaN               0      NaN                 0      NaN                 0
+Counting inversions
+{'clone': 'Ara+1_10000gen_4530A_truncated', 'total': 0, 'between_IS': 0, 'IS_mediated': 0, 'other': 0}
+Anc-_0gen_REL606_truncated_boundaries.csv
+   ref_start  ref_stop  query_start  query_stop tag_3  L_ref  L_ref_distance  R_ref  R_ref_distance  L_query  L_query_distance  R_query  R_query_distance
+0          1     59940            1       59940   SYN    NaN               0    NaN               0      NaN                 0      NaN                 0
+Counting inversions
+{'clone': 'Anc-_0gen_REL606_truncated', 'total': 0, 'between_IS': 0, 'IS_mediated': 0, 'other': 0}
+['Ara+1_10000gen_4530A_truncated_boundaries.csv', 'Anc-_0gen_REL606_truncated_boundaries.csv']
+test
+Ara+1_10000gen_4530A_truncated_boundaries.csv
+   ref_start  ref_stop  query_start  query_stop tag_3  L_ref  L_ref_distance  R_ref  R_ref_distance  L_query  L_query_distance  R_query  R_query_distance
+0          1     58531            1       59940   SYN    NaN               0    NaN               0      NaN                 0      NaN                 0
+1      58532     59940            0           0   DEL    NaN               0    NaN               0      NaN                 0      NaN                 0
+Counting deletions
+{'clone': 'Ara+1_10000gen_4530A_truncated', 'total': 1, 'between_IS': 0, 'IS_mediated': 0, 'other': 1}
+Anc-_0gen_REL606_truncated_boundaries.csv
+   ref_start  ref_stop  query_start  query_stop tag_3  L_ref  L_ref_distance  R_ref  R_ref_distance  L_query  L_query_distance  R_query  R_query_distance
+0          1     59940            1       59940   SYN    NaN               0    NaN               0      NaN                 0      NaN                 0
+Counting deletions
+{'clone': 'Anc-_0gen_REL606_truncated', 'total': 0, 'between_IS': 0, 'IS_mediated': 0, 'other': 0}

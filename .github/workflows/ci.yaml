@@ -14,7 +14,7 @@ jobs:
       - name: create environment with conda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: pytest_env
+          activate-environment: seabreeze
           environment-file: environment.yml
           auto-activate-base: false
 
@@ -25,3 +25,18 @@ jobs:
       - name: list all conda envs
         run: |
           conda env list
+
+      - name: Install pip in environment (if not present)
+        run: |
+          conda install pip
+        shell: bash -l {0}
+
+      - name: Build project from pyproject.toml
+        run: |
+          pip install .
+        shell: bash -l {0}
+
+      - name: Run specific tests with pytest
+        run: |
+          pytest test/seabreeze_*.py
+        shell: bash -l {0}

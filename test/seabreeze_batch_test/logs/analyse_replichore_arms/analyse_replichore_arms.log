@@ -1,0 +1,8 @@
+Ara+1_10000gen_4530A_truncated
+Anc-_0gen_REL606_truncated
+                            clone  ori      dif   length
+0  Ara+1_10000gen_4530A_truncated  0.0  59131.0  59940.0
+1      Anc-_0gen_REL606_truncated  0.0  57721.0  59940.0
+                            clone  ori      dif   length    arm_1   arm_2   ratio  percent
+0  Ara+1_10000gen_4530A_truncated  0.0  59131.0  59940.0  59131.0   809.0  73.091   98.650
+1      Anc-_0gen_REL606_truncated  0.0  57721.0  59940.0  57721.0  2219.0  26.012   96.298
