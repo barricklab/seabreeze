@@ -13,7 +13,7 @@ where = ["src"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-"*" = ["*.smk", "*.yml"]
+"seabreeze" = ["Snakefile", "*.smk", "*.yml"]
 
 [project.scripts]
 seabreeze = "seabreeze.seabreeze:main"
