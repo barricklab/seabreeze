@@ -9,7 +9,7 @@ import shutil
 
 def test_batch_run_all_masked():
 
-    command = ["seabreeze", "run", "run_all","--masked","--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv"]
+    command = ["seabreeze", "batch", "run_all","--masked","--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv"]
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 
