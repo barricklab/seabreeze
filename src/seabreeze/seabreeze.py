@@ -170,7 +170,7 @@ def run_smk_batch_workflow(workflow,dir,data,oridif,masked,threads,snakemake_arg
 
     seabreeze_package_path = importlib.resources.files(seabreeze)
 
-    config_options=f"data={data} oridif={oridif}"
+    config_options=f"data={data} oridif={oridif} threads={threads}"
     cmd=()
 
     cmd = (
@@ -360,7 +360,7 @@ def run_smk_single_workflow(workflow,dir,assembly,ancestor,ori,dif,masked,thread
 
     seabreeze_package_path = importlib.resources.files(seabreeze)
 
-    config_options=f"data=data.csv oridif=ori_dif_sequences.csv"
+    config_options=f"data=data.csv oridif=ori_dif_sequences.csv threads={threads}"
     cmd=()
 
     cmd = (
