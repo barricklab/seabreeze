@@ -21,6 +21,10 @@ import pandas as pd
 coloredlogs.install(level='DEBUG')
 logger = logging.getLogger('seabreeze')
 
+def list_files_walk(start_path='.'):
+    for root, dirs, files in os.walk(start_path):
+        for file in files:
+            print(os.path.join(root, file))
 
 def get_snakefile():
 
@@ -32,7 +36,8 @@ def get_snakefile():
 
     seabreeze_package_path = importlib.resources.files(seabreeze)
     print(f"seabreeze package path is {seabreeze_package_path}")
-    print(os.listdir(seabreeze_package_path))
+
+    list_files_walk(seabreeze_package_path)
     snakefile_path = os.path.join(seabreeze_package_path, "Snakefile")
     return snakefile_path
 
