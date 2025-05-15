@@ -24,7 +24,7 @@ rule run_all_masked:
         ori_dif_coords_reindexed = "08_reindex_genome_oric/ori_dif_coords.csv",
         replichore_arms = "08_reindex_genome_oric/replichore_arms.csv",
         inversion_replichores = expand("11_annotated_boundaries/masked/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
-    	inversion_table = "11_annotated_boundaries/masked/inversion_mechanism.csv",
+        inversion_table = "11_annotated_boundaries/masked/inversion_mechanism.csv",
         deletion_table = "11_annotated_boundaries/masked/deletion_mechanism.csv",
         gd = expand("12_genome_diff_tables/gd/masked/{sample}.gd",sample=df['assembly'].tolist()),
         html = expand("12_genome_diff_tables/html/masked/{sample}.html",sample=df['assembly'].tolist())
