@@ -1,7 +1,0 @@
-name: seabreeze
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - snakemake=7.32.4
