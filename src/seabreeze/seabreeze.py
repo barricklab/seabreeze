@@ -31,6 +31,8 @@ def get_snakefile():
     """
 
     seabreeze_package_path = importlib.resources.files(seabreeze)
+    print(f"seabreeze package path is {seabreeze_package_path}")
+    print(os.listdir(seabreeze_package_path))
     snakefile_path = os.path.join(seabreeze_package_path, "Snakefile")
     return snakefile_path
 
