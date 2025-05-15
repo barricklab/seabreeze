@@ -9,7 +9,7 @@ import shutil
 
 def test_batch_run_all_masked():
 
-    command = ["seabreeze", "batch", "run_all","--masked","--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv"]
+    command = ["seabreeze", "batch", "run_all","--masked","--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "--conda-frontend", "conda"]
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 
@@ -20,7 +20,7 @@ def test_batch_run_all_masked():
 
 def test_batch_run_all_unmasked():
 
-    command = ["seabreeze", "batch", "run_all", "--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv"]
+    command = ["seabreeze", "batch", "run_all", "--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "--conda-frontend", "conda"]
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 

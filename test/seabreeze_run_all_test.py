@@ -9,7 +9,7 @@ import shutil
 
 def test_run_run_all_masked():
 
-    command = ["seabreeze", "run", "run_all", "--dir","test/seabreeze_run_test","--masked","--assembly", "test/seabreeze_run_test/test_genomes/Ara+1_10000gen_4530A_truncated.fasta", "--ancestor", "test/seabreeze_run_test/test_genomes/Anc-_0gen_REL606_truncated.fasta", "--ori","AGGATGCTTTACCCAATATCAGCGAT","--dif","CTGGTCGGCAGAATGAGCAATCGCCA"]
+    command = ["seabreeze", "run", "run_all", "--dir","test/seabreeze_run_test","--masked","--assembly", "test/seabreeze_run_test/test_genomes/Ara+1_10000gen_4530A_truncated.fasta", "--ancestor", "test/seabreeze_run_test/test_genomes/Anc-_0gen_REL606_truncated.fasta", "--ori","AGGATGCTTTACCCAATATCAGCGAT","--dif","CTGGTCGGCAGAATGAGCAATCGCCA", "--conda-frontend", "conda"]
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 
@@ -20,7 +20,7 @@ def test_run_run_all_masked():
 
 def test_run_run_all_unmasked():
 
-    command = ["seabreeze", "run", "run_all","--dir","test/seabreeze_run_test", "--masked","--assembly", "test/seabreeze_run_test/test_genomes/Ara+1_10000gen_4530A_truncated.fasta", "--ancestor", "test/seabreeze_run_test/test_genomes/Anc-_0gen_REL606_truncated.fasta", "--ori","AGGATGCTTTACCCAATATCAGCGAT","--dif","CTGGTCGGCAGAATGAGCAATCGCCA"]
+    command = ["seabreeze", "run", "run_all","--dir","test/seabreeze_run_test", "--masked","--assembly", "test/seabreeze_run_test/test_genomes/Ara+1_10000gen_4530A_truncated.fasta", "--ancestor", "test/seabreeze_run_test/test_genomes/Anc-_0gen_REL606_truncated.fasta", "--ori","AGGATGCTTTACCCAATATCAGCGAT","--dif","CTGGTCGGCAGAATGAGCAATCGCCA", "--conda-frontend", "conda"]
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 

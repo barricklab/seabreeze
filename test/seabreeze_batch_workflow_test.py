@@ -14,7 +14,7 @@ def read_csv_as_dicts(path):
 
 def test_batch_analyse_genome_sizes():
 
-    command = ["seabreeze", "batch", "analyse_genome_sizes", "--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/"]
+    command = ["seabreeze", "batch", "analyse_genome_sizes", "--data", "test/seabreeze_batch_test/data.csv", "--dir", "test/seabreeze_batch_test/", "--conda-frontend", "conda"]
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 
@@ -28,7 +28,7 @@ def test_batch_analyse_genome_sizes():
 
 def test_batch_predict_IS_elements():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "predict_IS_elements"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "predict_IS_elements", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
@@ -43,7 +43,7 @@ def test_batch_predict_IS_elements():
 
 def test_batch_predict_structural_variants_unmasked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "predict_structural_variants"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "predict_structural_variants", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
@@ -58,7 +58,7 @@ def test_batch_predict_structural_variants_unmasked():
 
 def test_batch_predict_structural_variants_masked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--masked", "predict_structural_variants"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--masked", "predict_structural_variants", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
@@ -73,7 +73,7 @@ def test_batch_predict_structural_variants_masked():
 
 def test_batch_predict_replichore_balance_unmasked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_replichore_balance"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_replichore_balance", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
@@ -88,7 +88,7 @@ def test_batch_predict_replichore_balance_unmasked():
 
 def test_batch_predict_replichore_balance_unmasked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--masked", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_replichore_balance"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--masked", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_replichore_balance", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
@@ -104,7 +104,7 @@ def test_batch_predict_replichore_balance_unmasked():
 
 def test_batch_predict_SV_mechanism_unmasked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_SV_mechanism"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_SV_mechanism", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
@@ -112,21 +112,21 @@ def test_batch_predict_SV_mechanism_unmasked():
 
 def test_batch_predict_SV_mechanism_masked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--masked","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_SV_mechanism"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--masked","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "predict_SV_mechanism", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 
 def test_batch_annotate_SV_regions_unmasked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "annotate_SV_regions"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv", "annotate_SV_regions", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
 
 def test_batch_annotate_SV_regions_unmasked():
 
-    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv","--masked", "annotate_SV_regions"]
+    command = ["seabreeze", "batch", "--dir","test/seabreeze_batch_test/","--data", "test/seabreeze_batch_test/data.csv", "--oridif", "test/seabreeze_batch_test/ori_dif_sequences.csv","--masked", "annotate_SV_regions", "--conda-frontend", "conda"]
 
     result = subprocess.run(command)
     assert result.returncode == 0, f"Command failed with error: {result.stderr}"
