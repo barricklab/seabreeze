@@ -3,19 +3,6 @@ import pandas as pd
 path_to_data_csv=config["data"]
 df = pd.read_csv(path_to_data_csv)
 
-# Check if the csv has exactly two columns
-if df.shape[1] != 2:
-    raise ValueError("data.csv must have exactly two columns.")
-
-# Check if the columns are named correctly
-expected_columns = ['assembly', 'ancestor']
-if list(df.columns) != expected_columns:
-    raise ValueError(f"The data.csv columns must be named {expected_columns}. Found: {list(df.columns)}")
-
-# Check if there are any duplicate entries for assemblies
-if df['assembly'].duplicated().any():
-    raise ValueError("There are duplicate entries in the assembly column.")
-
 list_of_ancestors = df['ancestor'].tolist()
 list_of_assemblies = df['assembly'].tolist()
 
@@ -26,13 +13,41 @@ for ancestor in list_of_ancestors:
 # this dictionary maps the subject to its query
 assembly_to_ancestor_dict = dict(zip(df['assembly'], df['ancestor']))
 
+# ---- ONE (TWO, TECHNICALLY) RULE TO RULE THEM ALL .. ----
+
+rule run_all_masked:
+    input:
+        genome_sizes = "04_rename_genome/genome_size_stats.csv",
+        is_csv_files = expand("05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()), # we only want the csv file, so that's the target of this rule is that.
+        clean_synteny_plots = expand("07_syri_output/masked/{sample}/{sample}_clean.plot.pdf", sample=df['assembly'].tolist()),
+        ori_dif_coords = "04_rename_genome/ori_dif_coords.csv",
+        ori_dif_coords_reindexed = "08_reindex_genome_oric/ori_dif_coords.csv",
+        replichore_arms = "08_reindex_genome_oric/replichore_arms.csv",
+        inversion_replichores = expand("11_annotated_boundaries/masked/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+    	inversion_table = "11_annotated_boundaries/masked/inversion_mechanism.csv",
+        deletion_table = "11_annotated_boundaries/masked/deletion_mechanism.csv",
+        gd = expand("12_genome_diff_tables/gd/masked/{sample}.gd",sample=df['assembly'].tolist()),
+        html = expand("12_genome_diff_tables/html/masked/{sample}.html",sample=df['assembly'].tolist())
+
+rule run_all_unmasked:
+    input:
+        genome_sizes = "04_rename_genome/genome_size_stats.csv",
+        is_csv_files = expand("05_isescan_tables/{sample}.csv", sample=df['assembly'].tolist()), # we only want the csv file, so that's the target of this rule is that.
+    	clean_synteny_plots = expand("07_syri_output/unmasked/{sample}/{sample}_clean.plot.pdf", sample=df['assembly'].tolist()),
+        ori_dif_coords = "04_rename_genome/ori_dif_coords.csv",
+        ori_dif_coords_reindexed = "08_reindex_genome_oric/ori_dif_coords.csv",
+        replichore_arms = "08_reindex_genome_oric/replichore_arms.csv",
+        inversion_replichores = expand("11_annotated_boundaries/unmasked/{sample}_inversion_classification.csv", sample=df['assembly'].tolist()),
+        inversion_table = "11_annotated_boundaries/unmasked/inversion_mechanism.csv",
+        deletion_table = "11_annotated_boundaries/unmasked/deletion_mechanism.csv",
+        gd = expand("12_genome_diff_tables/gd/unmasked/{sample}.gd",sample=df['assembly'].tolist()),
+        html = expand("12_genome_diff_tables/html/unmasked/{sample}.html",sample=df['assembly'].tolist())
 
 # ---- TARGET RULES ----
 
 rule analyse_genome_sizes:
     input:
 	    genome_sizes = "04_rename_genome/genome_size_stats.csv"
-
 
 rule predict_IS_elements:
     input:
