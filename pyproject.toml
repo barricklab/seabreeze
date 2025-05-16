@@ -15,9 +15,6 @@ include-package-data = true
 [tool.setuptools.package-data]
 "seabreeze" = ["Snakefile", "*.smk", "*.yml"]
 "seabreeze.plotsr" = ["plotsr-bin"]
-[tool.setuptools.package-data]
-"seabreeze" = ["Snakefile", "*.smk", "*.yml"]
-"seabreeze.plotsr" = ["plotsr-bin"]
 "seabreeze.workflow.envs" = ["*.yml", "*.yaml"]
 
 [project.scripts]
