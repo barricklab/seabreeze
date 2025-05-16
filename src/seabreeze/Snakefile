@@ -115,7 +115,7 @@ rule find_reindex_bases:
         "logs/find_reindex_bases/{sample}.log"
     shell:
         '''
-        {input.script} --subject {input.subject_path} --query {input.query_path} --output {output} > {log} 2>&1
+        {input.script} --subject {input.subject_path} --query {input.query_path} --output {output}
         '''
 
 #reindex the fasta files to a common sequence to make comparison easier
