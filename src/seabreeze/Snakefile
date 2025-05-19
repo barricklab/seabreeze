@@ -132,7 +132,7 @@ rule reindex_contigs:
     log:
         "logs/reindex_contigs/{sample}.log"
     shell:
-       "{input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"
+       "python {input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"
 
 # rename all the FASTA headers to "genome"
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header
@@ -150,7 +150,7 @@ rule rename_contigs:
     log:
         "logs/rename_contigs/{sample}.log"
     shell:
-        "{input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
+        "python {input.script} --file {input.data}  --name {params.new_FASTA_header} --output {output} > {log} 2>&1"
 
 
 rule compute_genome_stats:
@@ -167,7 +167,7 @@ rule compute_genome_stats:
     log:
         "logs/compute_genome_stats/compute_genome_stats.log"
     shell:
-        "{input.script} --folder {params.folder} --data {input.csv_file} --output {output.genome_sizes} > {log} 2>&1"
+        "python {input.script} --folder {params.folder} --data {input.csv_file} --output {output.genome_sizes} > {log} 2>&1"
 
 # ISEScan takes the genome assemblies and returns several files. We only need to the csv file it generates
 
@@ -203,7 +203,7 @@ rule mask_IS_elements:
         "logs/mask_IS_elements/{sample}.log"
     shell:
         """
-        {input.script} --genome {input.genome} --is_table {input.is_table} --output {output.masked_genome}  >> {log} 2>&1
+        python {input.script} --genome {input.genome} --is_table {input.is_table} --output {output.masked_genome}  >> {log} 2>&1
         """
 
 # align each assembly to its ancestor, then filter the alignments and convert from .delta to coords
@@ -346,7 +346,7 @@ rule generate_synteny_plot_unmasked:
         printf "#file\tname\ttags\n" > {wildcards.sample}.genomes.tsv
         printf "../../../{input.subject_path}\t{params.subject_name}\tlw:1.5\n" >> {wildcards.sample}.genomes.tsv
         printf "../../../{input.query_path}\t{wildcards.sample}\tlw:1.5" >>  {wildcards.sample}.genomes.tsv
-        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}.syri.out -H 5 -W 10 -o {wildcards.sample}.plot.pdf --lf {wildcards.sample}.log
+        python {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}.syri.out -H 5 -W 10 -o {wildcards.sample}.plot.pdf --lf {wildcards.sample}.log
         mv {wildcards.sample}.log ../../../{log}
         cd ../../..
         """
@@ -374,7 +374,7 @@ rule generate_synteny_plot_masked:
         printf "#file\tname\ttags\n" > {wildcards.sample}.genomes.tsv
         printf "../../../{input.subject_path}\t{params.subject_name}\tlw:1.5\n" >> {wildcards.sample}.genomes.tsv
         printf "../../../{input.query_path}\t{wildcards.sample}\tlw:1.5" >>  {wildcards.sample}.genomes.tsv
-        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}.syri.out -H 5 -W 10 -o {wildcards.sample}.plot.pdf --lf {wildcards.sample}.log
+        python {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}.syri.out -H 5 -W 10 -o {wildcards.sample}.plot.pdf --lf {wildcards.sample}.log
         mv {wildcards.sample}.log ../../../{log}
         cd ../../..
         """
@@ -400,7 +400,7 @@ rule clean_syri_output_unmasked:
     shell:
         """
         cd {params.input_dir}
-        {params.script} --syri {wildcards.sample}.syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} > ../../../{log} 2>&1
+        python {params.script} --syri {wildcards.sample}.syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} > ../../../{log} 2>&1
         cd ../../../
         """
 
@@ -425,7 +425,7 @@ rule clean_syri_output_masked:
     shell:
         """
         cd {params.input_dir}
-        {params.script} --syri {wildcards.sample}.syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} >  ../../../{log} 2>&1
+        python {params.script} --syri {wildcards.sample}.syri.out --isescan_query ../../../{input.query_path} --isescan_subject ../../../{input.subject_path} >  ../../../{log} 2>&1
         cd ../../../
         """
 
@@ -447,7 +447,7 @@ rule generate_synteny_plot_clean_unmasked:
     shell:
         """
         cd {params.input_dir}
-        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}_clean.plot.pdf --lf {wildcards.sample}_clean.log
+        python {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}_clean.plot.pdf --lf {wildcards.sample}_clean.log
         mv {wildcards.sample}_clean.log ../../../{log}
         cd ../../../
         """
@@ -469,7 +469,7 @@ rule generate_synteny_plot_clean_masked:
     shell:
         """
         cd {params.input_dir}
-        {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}_clean.plot.pdf --lf {wildcards.sample}_clean.log
+        python {input.script} -s 500 --genomes {wildcards.sample}.genomes.tsv --sr {wildcards.sample}_clean.syri.out -H 5 -W 10 -o {wildcards.sample}_clean.plot.pdf --lf {wildcards.sample}_clean.log
         mv {wildcards.sample}_clean.log ../../../{log}
         cd ../../..
         """
@@ -491,7 +491,7 @@ rule annotate_ori_dif_locations:
         "logs/annotate_ori_dif_locations/annotate_ori_dif_locations.log"
     shell:
         """
-        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output} --noarms > {log}  2>&1
+        python {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output} --noarms > {log}  2>&1
         """
 
 rule reindex_contigs_oric_unmasked:
@@ -511,7 +511,7 @@ rule reindex_contigs_oric_unmasked:
         "logs/reindex_contigs_oric/unmasked/reindex_contigs_oric.log"
     shell:
         """
-        {input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output} > {log} 2>&1
+        python {input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output} > {log} 2>&1
         """
 
 rule reindex_contigs_oric_masked:
@@ -531,7 +531,7 @@ rule reindex_contigs_oric_masked:
         "logs/reindex_contigs_oric/masked/reindex_contigs_oric.log"
     shell:
         """
-        {input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output} > {log} 2>&1
+        python {input.script} --folder {params.folder} --data {params.data} --sequences {params.sequences} --output {params.output} > {log} 2>&1
         """
 
 # generate a csv file with the oric and dif of the genomens reindexed to the ori and a csv file with lenths of the replichore arms of each clone
@@ -553,8 +553,8 @@ rule analyse_replichore_arms:
         "logs/analyse_replichore_arms/analyse_replichore_arms.log"
     shell:
         """
-        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.ori_dif_coords} --noarms > {log} 2>&1
-        {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}  >> {log} 2>&1
+        python {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.ori_dif_coords} --noarms > {log} 2>&1
+        python {input.script} --genomes {params.folder} --data {params.data} --sequences {params.sequences} --output {output.replichore_balance}  >> {log} 2>&1
         """
 
 # generate csv files which annotate the boundaries of the SVs
@@ -574,7 +574,7 @@ rule annotate_SV_boundaries_IS_unmasked:
         """
         mkdir -p 11_annotated_boundaries/unmasked
         cd 11_annotated_boundaries/unmasked
-        {input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.csv > ../../{log} 2>&1
+        python {input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.csv > ../../{log} 2>&1
         cd ../../
         """
 
@@ -594,7 +594,7 @@ rule annotate_SV_boundaries_IS_masked:
         """
         mkdir -p 11_annotated_boundaries/masked
         cd 11_annotated_boundaries/masked
-        {input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.csv > ../../{log} 2>&1
+        python {input.script} --ancestor ../../{input.ancestor_IS_csv} --evolved ../../{input.assembly_IS_csv} --syri ../../{input.syri} --output {wildcards.sample}_boundaries.csv > ../../{log} 2>&1
         cd ../../
         """
 
@@ -620,8 +620,8 @@ rule annotate_SV_mechanism_unmasked:
         "logs/annotate_SV_mechanism_unmasked/annotate_SV_mechanism.log"
     shell:
         """
-        {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion > {log} 2>&1
-        {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion >> {log} 2>&1
+        python {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion > {log} 2>&1
+        python {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion >> {log} 2>&1
         cd ..
         """
 
@@ -644,8 +644,8 @@ rule annotate_SV_mechanism_masked:
         "logs/annotate_SV_mechanism_masked/annotate_SV_mechanism.log"
     shell:
         """
-        {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion > {log} 2>&1
-        {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion >> {log} 2>&1
+        python {input.script} --folder {params.input_dir} --output {params.output_inversion} --inversion > {log} 2>&1
+        python {input.script} --folder {params.input_dir} --output {params.output_deletion} --deletion >> {log} 2>&1
         cd ..
         """
 
@@ -670,7 +670,7 @@ rule classify_inversion_replichore_unmasked:
         "logs/classify_inversion_replichore_unmasked/classify_inversion_replichore.log"
     shell:
         """
-        {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1
+        python {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1
         """
 
 rule classify_inversion_replichore_masked:
@@ -690,7 +690,7 @@ rule classify_inversion_replichore_masked:
         "logs/classify_inversion_replichore_unmasked/classify_inversion_replichore.log"
     shell:
         """
-        {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1
+        python {input.script} --folder {params.input_dir} --oridif {input.ori_dif_coords} --output {params.output_table} --data {params.data} > {log} 2>&1
         """
 
 # generate annotations for genomes using prokka and with the IS elements reported by ISEscan
@@ -736,7 +736,7 @@ rule generate_genome_diffs_tables_unmasked:
         mkdir -p {params.gd_folder}
         mkdir -p {params.html_folder}
         cd {params.gd_folder}
-        {input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > ../../../{log} 2>&1
+        python {input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > ../../../{log} 2>&1
         cd ../../../{params.html_folder}
         gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd} >> ../../../{log} 2>&1
         cd ../../../
@@ -763,7 +763,7 @@ rule generate_genome_diffs_tables_masked:
         mkdir -p {params.gd_folder}
         mkdir -p {params.html_folder}
         cd {params.gd_folder}
-        {input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > ../../../{log} 2>&1
+        python {input.script} --syri ../../../{input.syri} --output {wildcards.sample}.gd --deletion --inversion --amplification > ../../../{log} 2>&1
         cd ../../../{params.html_folder}
         gdtools ANNOTATE -o {wildcards.sample}.html -r ../../../{input.reference} -f HTML ../../../{output.gd} >> ../../../{log} 2>&1
         cd ../../../
