@@ -2,7 +2,7 @@
 # This script accepts a query and a subject sequence, and finds the first k-mer from the subject to reindex the query sequence to. The query sequence is rotated by a separate script
 
 __author__ = "Ira Zibbu"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 ''' imports '''
 import os
@@ -82,4 +82,7 @@ def main(subject_path, query_path,output):
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    # query = snakemake.input[0]
+    # subject = snakemake.input[1]
+    # output = snakemake.output
     main(args.subject, args.query,args.output)
