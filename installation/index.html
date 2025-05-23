@@ -49,6 +49,9 @@
                             <li class="nav-item">
                                 <a href="../tutorial/" class="nav-link">Tutorial</a>
                             </li>
+                            <li class="nav-item">
+                                <a href="../workflows/" class="nav-link">Workflows</a>
+                            </li>
                         </ul>
 
                     <ul class="nav navbar-nav ms-md-auto">
@@ -114,20 +117,24 @@
 <h2 id="requirements">Requirements</h2>
 <ul>
 <li>A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. </li>
-<li><em>seabreeze</em> requires conda &gt;= 24.3.0 to install python packages and manage environments. We recommend <a href="https://github.com/conda-forge/miniforge">Miniforge</a>, a minimal conda installer that is similar to <a href="https://docs.anaconda.com/miniconda/">Miniconda</a>. </li>
+<li><em>seabreeze</em> requires conda &gt;= 23.3.1 to install python packages and manage environments. We recommend <a href="https://github.com/conda-forge/miniforge">Miniforge</a>, a minimal conda installer that is similar to <a href="https://docs.anaconda.com/miniconda/">Miniconda</a>. </li>
 </ul>
 <h2 id="installation_1">Installation</h2>
-<p><em>seabreeze</em> is a Snakemake workflow with associated Python scripts. Download the latest release of <em>seabreeze</em> from the <a href="https://github.com/barricklab/seabreeze/releases">Github Repository</a>.</p>
+<p><em>seabreeze</em> is a wrapper script for a Snakemake workflow with associated Python scripts. Download the latest release of <em>seabreeze</em> from the <a href="https://github.com/barricklab/seabreeze/releases">Github Repository</a>.</p>
+<h3 id="coming-soon-install-via-bioconda">Coming soon: Install via bioconda</h3>
 <h2 id="set-up">Set up</h2>
 <p><em>seabreeze</em> only requires an intial conda environment to be set up. Navigate to the <em>seabreeze</em> diectory and run the following command:</p>
-<pre><code> conda env create --name seabreeze --file bin/workflow/envs/seabreeze.yml
+<pre><code> conda env create --name seabreeze --file environment.yml
 </code></pre>
-<p>Activate the conda environment before running the commands</p>
+<p>Activate the conda environment before running the commands.</p>
 <pre><code>conda activate seabreeze
+</code></pre>
+<p>Finally,</p>
+<pre><code>pip install .
 </code></pre>
 <p>You're all set! See <a href="../usage/">Usage</a> to get started.</p>
 <h2 id="optional">Optional</h2>
-<p>By default, <em>seabreeze</em> creates conda environments and installs packages in the <em>seabreeze</em> working directory. However, if you plan to use <em>seabreeze</em> multiple times, or with different directories for different samples, then it can be helpful to have a common location on your system to store environments. This can save disk space and time. </p>
+<p>By default, <em>seabreeze</em> creates conda environments and installs packages in the <em>seabreeze</em>  directory. However, if you plan to use <em>seabreeze</em> multiple times, or with different directories for different samples, then it can be helpful to have a common location on your system to store environments. This can save disk space and time by avoiding repeated installation of environments. </p>
 <p>Create a folder for Snakemake to store conda environments. We recommend a directory in $HOME, but it could be anywhere.</p>
 <pre><code>mkdir $HOME/snakemake_conda_envs
 </code></pre>

@@ -49,6 +49,9 @@
                             <li class="nav-item">
                                 <a href="../tutorial/" class="nav-link">Tutorial</a>
                             </li>
+                            <li class="nav-item">
+                                <a href="../workflows/" class="nav-link">Workflows</a>
+                            </li>
                         </ul>
 
                     <ul class="nav navbar-nav ms-md-auto">
@@ -87,36 +90,23 @@
             
             <li class="nav-item" data-bs-level="1"><a href="#preparing-input" class="nav-link">Preparing input</a>
               <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-bs-level="1"><a href="#commands" class="nav-link">Commands</a>
-              <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#analyse-genome-sizes" class="nav-link">Analyse genome sizes</a>
+            <li class="nav-item" data-bs-level="2"><a href="#run-analyzing-one-ancestor-assembly-pair" class="nav-link">run: Analyzing one ancestor-assembly pair</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#find-insertion-sequences" class="nav-link">Find insertion sequences</a>
+            <li class="nav-item" data-bs-level="2"><a href="#batch-analyzing-multiple-samples-at-once" class="nav-link">batch: Analyzing multiple samples at once</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#predict-svs" class="nav-link">Predict SVs</a>
+            <li class="nav-item" data-bs-level="2"><a href="#valid-workflows" class="nav-link">Valid workflows</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#annotate-genes-in-svs" class="nav-link">Annotate genes in SVs</a>
+            <li class="nav-item" data-bs-level="2"><a href="#options" class="nav-link">Options</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#predict-sv-mechanism" class="nav-link">Predict SV mechanism</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#predict-replichore-and-inversion-balance" class="nav-link">Predict replichore and inversion balance</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#additional-snakemake-options" class="nav-link">Additional Snakemake options</a>
+            <li class="nav-item" data-bs-level="2"><a href="#additional-snakemake-argument" class="nav-link">Additional Snakemake argument</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -128,9 +118,54 @@
                     <div class="col-md-9" role="main">
 
 <h1 id="preparing-input">Preparing input</h1>
-<p>Assuming you have <a href="../installation/">completed installation</a>, you can now prepare input files for analysis. At its core, <em>seabreeze</em> is designed for bacterial resequencing experiments, and therefore predicts mutations between reference-query pairs, where the reference sequence is referred to as an <em>ancestor</em> and the query sequence being compared to is called the <em>assembly</em>. This nomenclature is use throughout the documentation and the software.
+<p>Assuming you have <a href="../installation/">completed installation</a>, you can now prepare input files for analysis. At its core, <em>seabreeze</em> is designed for bacterial resequencing experiments, and therefore predicts mutations between reference-query pairs, where the reference sequence is referred to as the <em>ancestor</em> and the query sequence being compared to is called the <em>assembly</em>. This nomenclature is use throughout the documentation and the software.
 <em>seabreeze</em> requires FASTA files for all of the bacterial genomes being analysed. These FASTA files should only contain a single contig for the full-length genome. It should not contain additional entries for plasmids. <em>seabreeze</em> works best with genome assemblies generated from long-read sequencing as these can capture structural variants that occur between repeat sequences. It also does not work well for comparing genomes with high sequence/ phylogenetic divergence (for example between different bacterial species).</p>
-<p>All of the input/output of the analysis is stored in the <code>data/</code> directory in the <em>seabreeze</em> folder. The pairwise comparisons to be performed are specified in a csv file called <code>data.csv</code> in the <code>data/</code> directory. This file has only two columns <code>ancestor</code> and <code>assembly</code>, in a standard csv format. Populate the csv file with the ancestor-assembly pairs you wish to analyse. For example:</p>
+<p><em>seabreeze</em> has two modes: 
+- <code>run</code>:  Analyzing one ancestor-assembly pair
+- <code>batch</code>: Analyzing multiple samples at once</p>
+<p>Both modes run the same workflows, but require input to be supplied differently. </p>
+<h2 id="run-analyzing-one-ancestor-assembly-pair"><code>run</code>: Analyzing one ancestor-assembly pair</h2>
+<pre><code>Usage: seabreeze run [OPTIONS] [WORKFLOW] [SNAKEMAKE_ARGS]...
+
+Options:
+  -d, --dir PATH     Set working directory. Default is current working
+                     directory
+  --ancestor PATH    Path to FASTA file of the ancestor or reference sequence
+  --assembly PATH    Path to FASTA file of the assembly or query sequence
+  --threads INTEGER  Resources to be used.  [default: 4]
+  --ori TEXT         Sequence of the origin. Must use IUPAC bases, and be
+                     unique in both the ancestor and assembly.  Required for predict_replichore_balance or run_all workflows
+  --dif TEXT         Sequence of the terminus. Must use standard IUPAC bases,
+                     and be unique in both the ancestor and assembly. Required for predict_replichore_balance or run_all workflows
+  --masked           Mask insertion sequences
+  -h, --help         Show this message and exit.
+
+</code></pre>
+<ul>
+<li>All input is directly supplied via the command line. No set up required.</li>
+</ul>
+<h2 id="batch-analyzing-multiple-samples-at-once"><code>batch</code>: Analyzing multiple samples at once</h2>
+<pre><code>Usage: seabreeze batch [OPTIONS] [WORKFLOW] [SNAKEMAKE_ARGS]...
+
+  Determine snakemake command to run based on supplied args
+
+Options:
+  -d, --dir PATH     Set working directory. Default is current working
+                     directory
+  -b, --data PATH    Path to data.csv file. Default is data.csv in current
+                     working dir
+  --oridif PATH      Path to csv file with sequences for the origin and
+                     terminus. Default is ori_dif_coords.csv in the current dir.
+                     Required for predict_replichore_balance or run_all workflows
+  --threads INTEGER  Resources to be used.  [default: 4]
+  --masked           Mask insertion sequences
+  -h, --help         Show this message and exit.
+
+</code></pre>
+<p><code>batch</code> mode requires the following set up:</p>
+<ul>
+<li><code>data.csv</code>: The pairwise comparisons to be performed are specified in a csv file called <code>data.csv</code> , whose path is supplied via the <code>--data</code> option. This file has only two columns <code>ancestor</code> and <code>assembly</code>, in a standard csv format. Populate the csv file with the ancestor-assembly pairs you wish to analyse. For example:</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -149,18 +184,17 @@
 </tr>
 </tbody>
 </table>
-<p>Place the corresponding FASTA files for these genomes in <code>02_genomes</code>. <em>seabreeze</em> expects that these file names to match, and contain the extension <code>.fasta</code>. Therefore, for this example, the <code>data/</code> directory should look like this:</p>
-<pre><code>seabreeze
+<ul>
+<li><code>02_genomes</code>: A subdirectory of the specified working directory in the <code>--dir</code> option. Place the corresponding FASTA files for these genomes in <code>02_genomes</code>. <em>seabreeze</em> expects that these file names to match, and contain the extension <code>.fasta</code>. For example the corresponding working directory should look like this</li>
+</ul>
+<pre><code>&lt;my_working_dir&gt;
 |
-|---data/
+|---02_genomes/
 |   |
-|   |---data.csv
-|   |---02_genomes/
-|   |   |
-|   |   |---genome1.fasta
-|   |   |---genome2.fasta
-|   |   |---genome3.fasta
-|   |   |---genome4.fasta
+|   |---genome1.fasta
+|   |---genome2.fasta
+|   |---genome3.fasta
+|   |---genome4.fasta
 </code></pre>
 <p>Note that many assemblies can use the same ancestor, but the same assembly cannot use many ancestors:
 For example, this is fine:</p>
@@ -228,127 +262,39 @@ For example, this is fine:</p>
 </tr>
 </tbody>
 </table>
-<p>Some commands ahead may require additional input, and will be specified in respective sections.</p>
 <hr />
-<h1 id="commands">Commands</h1>
-<p>All of the <em>seabreeze</em> commands take the following format and should be executed from the <em>seabreeze</em> root directory:</p>
-<pre><code>snakemake --use-conda --cores n &lt;command&gt;
-</code></pre>
-<p>Where n is the number of cores to be used to execute the command. Following sections describe commands that can be used. Additional flags can be added to commands for useful functionality or to circumvent exceptions. They are detailed in 'Additional Options'.</p>
-<h2 id="analyse-genome-sizes">Analyse genome sizes</h2>
-<p>This command compares the sizes of the assemblies to their specified ancestors in a pairwise manner. </p>
-<pre><code>snakemake --use-conda --cores n analyse_genome_sizes
-</code></pre>
-<p>The output file generated is <code>data/04_rename_genome/genome_size_stats.csv</code>. Please see <a href="../output/">output</a> for more information about the fields in this table, and the <a href="../tutorial/">tutorial</a> for a sample.</p>
-<h2 id="find-insertion-sequences">Find insertion sequences</h2>
-<p>This command uses <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md?plain=1">ISEscan</a> to annotate partial and full-length IS elements in the genomes. </p>
-<pre><code>snakemake --use-conda --cores n predict_IS_elements
-</code></pre>
-<p>This command primarily generates a series of csv files<code>data/05_isescan_tables/&lt;assembly&gt;.csv</code>, with each csv file corresponding to an assembly in <code>data/data.csv</code>. ISEScan also generates additional output for each assembly, which is stored in their respective directories <code>data/05_iescan_tables/&lt;assembly&gt;/</code>.  For information about interpreting this csv file, we refer users to the official <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md">ISEScan documentation</a>. </p>
-<h2 id="predict-svs">Predict SVs</h2>
-<p>This command aligns the assembly-ancestor pairs, predicts structural variants and generates synteny plots. </p>
-<pre><code>snakemake --use-conda --cores n predict_structural_variants
-</code></pre>
+<h2 id="valid-workflows">Valid workflows</h2>
 <ul>
-<li><code>data/07_syri_output/&lt;assembly&gt;/&lt;assembly&gt;_clean.syri.out</code> is a tsv file that describes the location and type of SVs in the assembly, relative to its ancestor. We refer the user to the official <a href="https://schneebergerlab.github.io/syri/fileformat.html">SyRI documentation</a> for information on interpreting this table.</li>
-<li><code>data/07_syri_output/&lt;assembly&gt;/&lt;assembly&gt;.plot.2.pdf</code> is a synteny plot of the rearrangements in the above tsv file. </li>
+<li><code>analyse_genome_sizes</code></li>
+<li><code>predict_IS_elements</code></li>
+<li><code>predict_structural_variants</code></li>
+<li><code>predict_replichore_balance</code></li>
+<li><code>predict_SV_mechanism</code></li>
+<li><code>annotate_SV_regions</code></li>
+<li><code>run_all</code></li>
 </ul>
-<p>This command also generates other files. Please see the <a href="../output/">output</a> page. </p>
-<blockquote>
-<p>Tip: The 4th and 5th columns of the <code>&lt;assembly&gt;_clean.syri.out</code> file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running this command. Note that older versions of the UNIX <code>cut</code> command may not support the <code>--complement</code> option, and you may need to either update <code>cut</code> or use other UNIX commands to hide the 4th and 5th columns. </p>
-</blockquote>
-<pre><code>cat &lt;assembly&gt;_clean.syri.out | cut --complement -f 4-5
-</code></pre>
-<h2 id="annotate-genes-in-svs">Annotate genes in SVs</h2>
-<p>This command uses <a href="https://github.com/tseemann/prokka">prokka</a> annotate the assemblies and <a href="https://github.com/barricklab/breseq">breseq</a> to annotate the genes present in the deletions, inversions and amplifications.</p>
-<pre><code>snakemake --use-conda --cores n annotate_SV_regions
-</code></pre>
-<p>For each assembly, an HTML table <code>data/12_genome_diff_tables/html/&lt;assembly&gt;.html</code> . Please see the <a href=""><em>breseq</em> manual</a> for information on interpreting this table. For a sample table, please see <a href="../tutorial/">the tutorial</a>. </p>
-<h2 id="predict-sv-mechanism">Predict SV mechanism</h2>
-<p>Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.</p>
-<pre><code>snakamake --use-conda --cores n predict_SV_mechanism
-</code></pre>
-<ul>
-<li>This command generates two summary csv files: <code>data/11_annotated_boundaries/deletion_mechanism.csv</code> and <code>data/11_annotated_boundaries/inversion_mechanism.csv</code> that contain information about the mechanism of deletions and inversions respectively, for all of the assemblies.</li>
-<li>Detailed information about the mechanism of each deletion for every assembly is in the csv files <code>data/11_annotated_boundaries/&lt;assembly&gt;_deletion.csv</code></li>
-<li>Detailed information about the mechanism of each inversion for every assembly is in the csv files <code>data/11_annotated_boundaries/&lt;assembly&gt;_inversion.csv</code></li>
-</ul>
-<p>Information about these csv files can be found on the <a href="../output/">output</a> page and examples on the <a href="../tutorial/">tutorial</a> page.</p>
-<h2 id="predict-replichore-and-inversion-balance">Predict replichore and inversion balance</h2>
-<p>For bacterial genomes that have a single origin and terminus, the genome can be divided into two replichores (halves) demarcated by the origin-terminus axis. It can be useful to know how the lengths of these two replichores differ between the ancestor-assembly pairs. The origin-terminus axis can also be used to classify inversions as inter-replichore or intra-replichore, and the symmetry of inter-replichore inversions about the origin-terminus axis can be measured. For an illustration explaining this, please see the <a href="../tutorial/">tutorial</a>.</p>
-<p>This step requires user input (in addition to <code>data/data.csv</code>) to specify the sequences of the origin and terminus. For the origin, we recommend the <em>oriC</em> sequence, and for the terminus, we recommend the <em>dif</em> sequence. <em>seabreeze</em> looks for these sequences (or the reverse complement) in the genome for an exact and unique match, and will cause an error if an exact match is not found, or more than one exact match is found. There is no minimum/maximum length requirements for the supplied <em>oriC</em> and <em>dif</em> sequences as long as they meet the above criteria. <em>seabreeze</em> requires these two sequences for each ancestor, and assumes that the sequences have not mutated in the corresponding ancestor. This information is specified in a csv file in <code>data/ori_dif_sequences.csv</code>. This csv file has three columns: </p>
-<ul>
-<li><code>ancestor</code>: name of the ancestor, which matches the name in <code>data/data.csv</code>. It should not contain the <code>.fasta</code> extension.</li>
-<li><code>ori</code>: base sequence of the <em>oriC</em> locus, in upper case with only the standard bases (A,T,G,C). </li>
-<li><code>dif</code>: base sequence of the <em>dif</em> locus, in upper case with only the standard bases (A,T,G,C). </li>
-</ul>
-<p>For example, if this is the <code>data/data.csv</code>:</p>
-<table>
-<thead>
-<tr>
-<th>assembly</th>
-<th>ancestor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>genome1</td>
-<td>genome2</td>
-</tr>
-<tr>
-<td>genome3</td>
-<td>genome4</td>
-</tr>
-</tbody>
-</table>
-<p>Then <code>data/ori_dif_sequence.csv</code> should look like this, with one entry per ancestor. The order of these rows does not matter, and each ancestor only requires one entry, even if it appears multiple times in <code>data/data.csv</code>. </p>
-<table>
-<thead>
-<tr>
-<th>ancestor</th>
-<th>ori</th>
-<th>dif</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>genome2</td>
-<td>GGATCCTGGGTATTAAAA</td>
-<td>TCTTCCTTGGTTTATATT</td>
-</tr>
-<tr>
-<td>genome4</td>
-<td>GTAGGATCCGTGATTAG</td>
-<td>AATCTGTCTCTGCACGTA</td>
-</tr>
-<tr>
-<td>With this csv file set up, this command can be run from the <em>seabreeze</em> root directory:</td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<pre><code>snakemake --use-conda --cores n predict_replichore_balance
-</code></pre>
-<p>This command produces the following output:
-- <code>data/08_reindex_genome_oric/replichore_arms.csv</code>: a csv file that describes the length of the two replichores for all of the assemblies
-- <code>data/11_annotated_boundaries/inversion_replichores.csv</code>: a csv file that tallies the count of each type of inversion (inter-replichore vs intra-replichore) for all of the assemblies.
-- <code>data/11_annotated_boundaries/&lt;assembly&gt;_inversion_classification.csv</code>: a csv file that has more detailed information about all of the inversions in a given assembly
-- <code>data/11_annotated_boundaries/inversion_replichores_long.csv</code>: a csv file that contains a list of all inversions across all assemblies</p>
-<p>Please see the <a href="../output/">output</a> page for more information about these fields. </p>
+<p>For detailed information on each workflow, please see <a href="../workflows/">the workflows page</a></p>
 <hr />
-<h2 id="additional-snakemake-options">Additional Snakemake options</h2>
-<p>These are additional Snakemake options that can be included as follows. They work for all commands</p>
-<pre><code>snakemake --use-conda --cores n &lt;insert flag here&gt; &lt;command&gt;
-</code></pre>
+<h2 id="options">Options</h2>
+<p>These options can be </p>
+<ul>
+<li><code>--masked</code>: Mask insertion sequences with NNNs. Masking repeats can help detect structural mutations.</li>
+</ul>
+<hr />
+<h2 id="additional-snakemake-argument">Additional Snakemake argument</h2>
+<p>Any valid Snakemake argument can be passed at the end of the command, but the following are the most commonly used options</p>
 <ul>
 <li><code>-np</code>: This flag performs a 'dry-run' of the command i.e. it checks to see that all of the input files necessary for that command are present, or can be generated by <em>seabreeze</em>. It can helpful to run this before a computationally expensive step such as predicting IS elements, or predicting SVs.</li>
 </ul>
 <p>If a command was terminated before it was completed, Snakemake may prompt you to use these flags when you run the same command again:</p>
 <ul>
 <li><code>--unlock</code>:  Snakemake will "lock" a directory if all of the output files were not completed before the processes were terminated. Use this flag to unlock the directory.</li>
-<li><code>--rerun-incomplete</code>:  To allow Snakemake to remake any output files that were not completed in the prior run.</li>
-<li><code>--conda-frontend conda</code>: Some users have reported a <code>CreatedCondaEnvironmentException</code> that arises when trying to run any of the Snakemake workflows (see below). Appending this flag should address this issue. </li>
+<li>
+<p><code>--rerun-incomplete</code>:  To allow Snakemake to remake any output files that were not completed in the prior run.</p>
+</li>
+<li>
+<p><code>--conda-frontend conda</code>: Some users have reported a <code>CreatedCondaEnvironmentException</code> that arises when trying to run any of the Snakemake workflows (see below). Appending this flag should address this issue. </p>
+</li>
 </ul>
 <pre><code>CreateCondaEnvironmentException:
 The 'mamba' command is not available in the shell /usr/bin/bash that will be used by Snakemake. You have to ensure that it is in your PATH, e.g., first activating the conda base environment with `conda activate base`.The mamba package manager (https://github.com/mamba-org/mamba) is a fast and robust conda replacement. It is the recommended way of using Snakemake's conda integration. It can be installed with `conda install -n base -c conda-forge mamba`. If you still prefer to use conda, you can enforce that by setting `--conda-frontend conda`.

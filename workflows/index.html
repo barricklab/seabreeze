@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Workflows - seabreeze</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">seabreeze</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../installation/" class="nav-link">Installation</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../usage/" class="nav-link">Usage</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../output/" class="nav-link">Output</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../tutorial/" class="nav-link">Tutorial</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./" class="nav-link active" aria-current="page">Workflows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../tutorial/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="2"><a href="#run-all" class="nav-link">Run all</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#analyse-genome-sizes" class="nav-link">Analyse genome sizes</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#find-insertion-sequences" class="nav-link">Find insertion sequences</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#predict-svs" class="nav-link">Predict SVs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#annotate-genes-in-svs" class="nav-link">Annotate genes in SVs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#predict-sv-mechanism" class="nav-link">Predict SV mechanism</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#predict-replichore-and-inversion-balance" class="nav-link">Predict replichore and inversion balance</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<p>General usage for a <em>seabreeze</em> command can be found on <a href="../usage/">usage</a>. All output files and folder and generated in the specified working directory. Depending on if the <code>--mask</code> option was enabled, output will be stored in subdirectories called <code>masked</code> or <code>unmasked</code>. For clarity, this part of the output file path has been omitted in this documentation, but the users should find navigating the output intuitive nonetheless.</p>
+<h2 id="run-all">Run all</h2>
+<p>Runs all of the following workflows in a single command.</p>
+<h2 id="analyse-genome-sizes">Analyse genome sizes</h2>
+<p>This workflow compares the sizes of the assemblies to their specified ancestors in a pairwise manner. </p>
+<p>The output file generated is <code>04_rename_genome/genome_size_stats.csv</code>. Please see <a href="../output/">output</a> for more information about the fields in this table, and the <a href="../tutorial/">tutorial</a> for a sample.</p>
+<h2 id="find-insertion-sequences">Find insertion sequences</h2>
+<p>This workflow uses <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md?plain=1">ISEscan</a> to annotate partial and full-length IS elements in the genomes. It primarily generates a series of csv files<code>05_isescan_tables/&lt;assembly&gt;.csv</code>, with each csv file corresponding to an assembly in <code>data.csv</code> (if running in batch mode). ISEScan also generates additional output for each assembly, which is stored in their respective directories <code>05_iescan_tables/&lt;assembly&gt;/</code>.  For information about interpreting this csv file, we refer users to the official <a href="https://github.com/xiezhq/ISEScan/blob/master/README.md">ISEScan documentation</a>. </p>
+<h2 id="predict-svs">Predict SVs</h2>
+<p>This command aligns the assembly-ancestor pairs, predicts structural variants and generates synteny plots. 
+- <code>07_syri_output/&lt;assembly&gt;/&lt;assembly&gt;_clean.syri.out</code> is a tsv file that describes the location and type of SVs in the assembly, relative to its ancestor. We refer the user to the official <a href="https://schneebergerlab.github.io/syri/fileformat.html">SyRI documentation</a> for information on interpreting this table.
+- <code>07_syri_output/&lt;assembly&gt;/&lt;assembly&gt;_clean.plot.pdf</code> is a synteny plot of the rearrangements in the above tsv file. </p>
+<p>This command also generates other files. Please see the <a href="../output/">output</a> page. </p>
+<blockquote>
+<p>Tip: The 4th and 5th columns of the <code>&lt;assembly&gt;_clean.syri.out</code> file have the reference/query sequences for indels. For large deletions, these field can have thousands of bases. To view this tsv file in the terminal without these columns, try running this command. Note that older versions of the UNIX <code>cut</code> command may not support the <code>--complement</code> option, and you may need to either update <code>cut</code> or use other UNIX commands to hide the 4th and 5th columns. </p>
+</blockquote>
+<pre><code>cat &lt;assembly&gt;_clean.syri.out | cut --complement -f 4-5
+</code></pre>
+<h2 id="annotate-genes-in-svs">Annotate genes in SVs</h2>
+<p>This command uses <a href="https://github.com/tseemann/prokka">prokka</a> annotate the assemblies and <a href="https://github.com/barricklab/breseq">breseq</a> to annotate the genes present in the deletions, inversions and amplifications.</p>
+<p>For each assembly, an HTML table <code>12_genome_diff_tables/html/&lt;assembly&gt;.html</code> . Please see the <a href=""><em>breseq</em> manual</a> for information on interpreting this table. For a sample table, please see <a href="../tutorial/">the tutorial</a>. </p>
+<h2 id="predict-sv-mechanism">Predict SV mechanism</h2>
+<p>Most structural variant mutations occur through recombination between homologous sites and insertion sequences in particular are often involved. This command annotates the insertion sequences at the boundaries of structural variants (for deletions and inversions only) and predicts putative mechanisms.</p>
+<ul>
+<li>This command generates two summary csv files: <code>11_annotated_boundaries/deletion_mechanism.csv</code> and <code>11_annotated_boundaries/inversion_mechanism.csv</code> that contain information about the mechanism of deletions and inversions respectively, for all of the assemblies.</li>
+<li>Detailed information about the mechanism of each deletion for every assembly is in the csv files <code>11_annotated_boundaries/&lt;assembly&gt;_deletion.csv</code></li>
+<li>Detailed information about the mechanism of each inversion for every assembly is in the csv files <code>11_annotated_boundaries/&lt;assembly&gt;_inversion.csv</code></li>
+</ul>
+<p>Information about these csv files can be found on the <a href="../output/">output</a> page and examples on the <a href="../tutorial/">tutorial</a> page.</p>
+<h2 id="predict-replichore-and-inversion-balance">Predict replichore and inversion balance</h2>
+<p>For bacterial genomes that have a single origin and terminus, the genome can be divided into two replichores (halves) demarcated by the origin-terminus axis. It can be useful to know how the lengths of these two replichores differ between the ancestor-assembly pairs. The origin-terminus axis can also be used to classify inversions as inter-replichore or intra-replichore, and the symmetry of inter-replichore inversions about the origin-terminus axis can be measured. For an illustration explaining this, please see the <a href="../tutorial/">tutorial</a>.</p>
+<p>This step requires user input (in addition to <code>data.csv</code>) to specify the sequences of the origin and terminus. For the origin, we recommend the <em>oriC</em> sequence, and for the terminus, we recommend the <em>dif</em> sequence. <em>seabreeze</em> looks for these sequences (or the reverse complement) in the genome for an exact and unique match, and will cause an error if an exact match is not found, or more than one exact match is found. There is no minimum/maximum length requirements for the supplied <em>oriC</em> and <em>dif</em> sequences as long as they meet the above criteria. It also assumes that the sequences have not mutated in the corresponding assembly.</p>
+<p>If using the <code>seabreeze run</code> command, these are supplied with the <code>--ori</code> and <code>--dif</code> options.</p>
+<p>If using the <code>seabreeze batch</code> command, it needs these two sequences for each ancestor. This information is specified in a csv file in <code>data/ori_dif_sequences.csv</code>. This csv file has three columns: </p>
+<ul>
+<li><code>ancestor</code>: name of the ancestor, which matches the name in <code>data.csv</code>. It should not contain the <code>.fasta</code> extension.</li>
+<li><code>ori</code>: base sequence of the <em>oriC</em> locus,</li>
+<li><code>dif</code>: base sequence of the <em>dif</em> locus</li>
+</ul>
+<p>For example, if this is the <code>data.csv</code>:</p>
+<table>
+<thead>
+<tr>
+<th>assembly</th>
+<th>ancestor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome1</td>
+<td>genome2</td>
+</tr>
+<tr>
+<td>genome3</td>
+<td>genome4</td>
+</tr>
+</tbody>
+</table>
+<p>Then <code>ori_dif_sequence.csv</code> should look like this, with one entry per ancestor. The order of these rows does not matter, and each ancestor only requires one entry, even if it appears multiple times in <code>data.csv</code>. </p>
+<table>
+<thead>
+<tr>
+<th>ancestor</th>
+<th>ori</th>
+<th>dif</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genome2</td>
+<td>GGATCCTGGGTATTAAAA</td>
+<td>TCTTCCTTGGTTTATATT</td>
+</tr>
+<tr>
+<td>genome4</td>
+<td>GTAGGATCCGTGATTAG</td>
+<td>AATCTGTCTCTGCACGTA</td>
+</tr>
+</tbody>
+</table>
+<p>This command produces the following output:
+- <code>08_reindex_genome_oric/replichore_arms.csv</code>: a csv file that describes the length of the two replichores for all of the assemblies
+- <code>11_annotated_boundaries/inversion_replichores.csv</code>: a csv file that tallies the count of each type of inversion (inter-replichore vs intra-replichore) for all of the assemblies.
+- <code>11_annotated_boundaries/&lt;assembly&gt;_inversion_classification.csv</code>: a csv file that has more detailed information about all of the inversions in a given assembly
+- <code>11_annotated_boundaries/inversion_replichores_long.csv</code>: a csv file that contains a list of all inversions across all assemblies</p>
+<p>Please see the <a href="../output/">output</a> page for more information about these fields. </p>
+<hr /></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
