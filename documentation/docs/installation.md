@@ -2,27 +2,35 @@
 
 ## Requirements
 - A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. 
-- _seabreeze_ requires conda >= 24.3.0 to install python packages and manage environments. We recommend [Miniforge](https://github.com/conda-forge/miniforge), a minimal conda installer that is similar to [Miniconda](https://docs.anaconda.com/miniconda/). 
+- _seabreeze_ requires conda >= 23.3.1 to install python packages and manage environments. We recommend [Miniforge](https://github.com/conda-forge/miniforge), a minimal conda installer that is similar to [Miniconda](https://docs.anaconda.com/miniconda/). 
 
 ## Installation
-_seabreeze_ is a Snakemake workflow with associated Python scripts. Download the latest release of _seabreeze_ from the [Github Repository](https://github.com/barricklab/seabreeze/releases).
+_seabreeze_ is a wrapper script for a Snakemake workflow with associated Python scripts. Download the latest release of _seabreeze_ from the [Github Repository](https://github.com/barricklab/seabreeze/releases).
+
+### Coming soon: Install via bioconda
 
 ## Set up
 _seabreeze_ only requires an intial conda environment to be set up. Navigate to the _seabreeze_ diectory and run the following command:
 ```
- conda env create --name seabreeze --file bin/workflow/envs/seabreeze.yml
+ conda env create --name seabreeze --file environment.yml
 ```
 
-Activate the conda environment before running the commands
+Activate the conda environment before running the commands.
 
 ```
 conda activate seabreeze
 ```
 
+Finally,
+
+```
+pip install .
+```
+
 You're all set! See [Usage](usage.md) to get started.
 
 ## Optional
-By default, _seabreeze_ creates conda environments and installs packages in the _seabreeze_ working directory. However, if you plan to use _seabreeze_ multiple times, or with different directories for different samples, then it can be helpful to have a common location on your system to store environments. This can save disk space and time. 
+By default, _seabreeze_ creates conda environments and installs packages in the _seabreeze_  directory. However, if you plan to use _seabreeze_ multiple times, or with different directories for different samples, then it can be helpful to have a common location on your system to store environments. This can save disk space and time by avoiding repeated installation of environments. 
 
 Create a folder for Snakemake to store conda environments. We recommend a directory in $HOME, but it could be anywhere.
 ```

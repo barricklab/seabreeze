@@ -79,7 +79,7 @@ def cli():
     "-d",
     "--dir",
     type=click.Path(dir_okay=True, writable=True, resolve_path=True),
-    help="Set working directory. Default is current working directory",
+    help="Set working directory where output will be created. Default is current working directory",
     default=".",
 )
 
@@ -94,7 +94,7 @@ def cli():
 @click.option(
     "--oridif",
     type=click.Path(dir_okay=True, writable=True, resolve_path=True),
-    help="Path to csv file with sequences for the origin and terminus. Default = ori_dif_coords.csv",
+    help="Path to csv file with sequences for the origin and terminus. Default is ori_dif_coords.csv in the current working dir. Required for predict_replichore_balance or run_all workflows",
     default="./ori_dif_coords.csv",
 )
 
@@ -112,7 +112,7 @@ def cli():
 
 def run_smk_batch_workflow(workflow,dir,data,oridif,masked,threads,snakemake_args):
 
-    """ Determine snakemake command to run based on supplied args """
+    """ Execute given workflow for batch processing """
 
     logger.debug(f"==================================")
     logger.debug(f"seabrezee version: {__version__}")
@@ -249,13 +249,13 @@ def run_smk_batch_workflow(workflow,dir,data,oridif,masked,threads,snakemake_arg
 @click.option(
     "--ori",
     required=False,
-    help="Sequence of the origin. Must use IUPAC bases, and be unique in both the ancestor and assembly",
+    help="Sequence of the origin. Must use IUPAC bases, and be unique in both the ancestor and assembly. Required for predict_replichore_balance or run_all workflows",
 )
 
 @click.option(
     "--dif",
     required=False,
-    help="Sequence of the origin. Must use standard IUPAC bases, and be unique in both the ancestor and assembly",
+    help="Sequence of the terminus. Must use standard IUPAC bases, and be unique in both the ancestor and assembly.  Required for predict_replichore_balance or run_all workflows",
 )
 
 @click.option("--masked", is_flag=True, help="Mask insertion sequences")
@@ -264,7 +264,7 @@ def run_smk_batch_workflow(workflow,dir,data,oridif,masked,threads,snakemake_arg
 
 def run_smk_single_workflow(workflow,dir,assembly,ancestor,ori,dif,masked,threads,snakemake_args):
 
-    """ Determine snakemake command to run based on supplied args """
+    """ Execute given workflow for single sample """
 
     logger.debug(f"==================================")
     logger.debug(f"seabrezee version: {__version__}")
