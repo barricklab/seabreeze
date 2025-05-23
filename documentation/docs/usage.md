@@ -20,9 +20,9 @@ Options:
   --assembly PATH    Path to FASTA file of the assembly or query sequence
   --threads INTEGER  Resources to be used.  [default: 4]
   --ori TEXT         Sequence of the origin. Must use IUPAC bases, and be
-		             unique in both the ancestor and assembly.  Required for                          predict_replichore_balance or run_all workflows
+		             unique in both the ancestor and assembly.  Required for predict_replichore_balance or run_all workflows
   --dif TEXT         Sequence of the terminus. Must use standard IUPAC bases,
-                     and be unique in both the ancestor and assembly. Required                        for predict_replichore_balance or run_all workflows
+                     and be unique in both the ancestor and assembly. Required for predict_replichore_balance or run_all workflows
   --masked           Mask insertion sequences
   -h, --help         Show this message and exit.
 
