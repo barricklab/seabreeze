@@ -3,4 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - isescan
+  - isescan=1.7.3

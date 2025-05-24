@@ -42,7 +42,29 @@ We will then take care of the issue as soon as possible.
 > ### Legal Notice <!-- omit in toc -->
 > When contributing to this project, you must agree that you have authored 100% of the content, that you have the necessary rights to the content and that the content you contribute may be provided under the project licence.
 
-We love pull requests from everyone. To get started, first fork, then clone the repo. We use `pytest` to run our CI testing; however to save time during testing we only use unit tests for the individual scripts, and not for the snakemake pipeline as a whole. To test that your contribution is compatible with the snakemake pipeline, use the example data in the `example/` folder. Push to your fork and submit a pull request.
+We love pull requests from everyone. To get started, first fork, then clone the repo. After introducing any changes, please run the workflow test. We use `pytest` for testing, have implemented two types of tests:
+
+- unit tests: These are for individual scripts. Build the test environment first
+
+```
+conda env create --file test/unit_tests/environment.yml  --name seabreeze_test
+```
+
+Then activate the environment, and run the unit tests
+
+```
+pytest test/unit_tests/*.py
+```
+
+- workflow tests: These test the CLi itself, and ensures that it correctly calls and executes snakemake workflows. These tests can be run from the seabreeze execution environment itself.
+
+```
+pytest test/*.py
+```
+
+
+
+ To test that your contribution is compatible with the snakemake pipeline, use the example data in the `example/` folder. Push to your fork and submit a pull request.
 
 ### Reporting Bugs
 
