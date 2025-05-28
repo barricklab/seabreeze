@@ -4,13 +4,40 @@
 - A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. 
 - _seabreeze_ requires conda >= 23.3.1 to install python packages and manage environments. We recommend [Miniforge](https://github.com/conda-forge/miniforge), a minimal conda installer that is similar to [Miniconda](https://docs.anaconda.com/miniconda/). 
 
-## Installation
-_seabreeze_ is a wrapper script for a Snakemake workflow with associated Python scripts. Download the latest release of _seabreeze_ from the [Github Repository](https://github.com/barricklab/seabreeze/releases).
+## Recommended: Install via bioconda
 
-### Coming soon: Install via bioconda
+We recommend creating a dedicated conda environment for seabreeze, to avoid package conflicts. 
 
-## Set up
+```
+conda env create --name seabreeze
+```
+
+Once built, activate the environment:
+
+```
+conda activate seabreeze
+```
+
+Finally, install the package from bioconda.
+
+```
+conda install seabreeze-genomics -c bioconda
+```
+
+In case this does not work, try specifying:
+
+```
+conda install seabreeze-genomics -c conda-forge -c bioconda
+```
+
+
+## Install from GitHub
+
+
+Download the latest release of _seabreeze_ from the [Github Repository](https://github.com/barr>
+
 _seabreeze_ only requires an intial conda environment to be set up. Navigate to the _seabreeze_ diectory and run the following command:
+
 ```
  conda env create --name seabreeze --file environment.yml
 ```
