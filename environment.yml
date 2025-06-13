@@ -2,7 +2,6 @@ name: seabreeze
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - snakemake-minimal=7.32.4
   - numpy=2.2.5
