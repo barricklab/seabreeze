@@ -40,3 +40,19 @@ jobs:
         run: |
           pytest test/seabreeze_*.py
         shell: bash -l {0}
+
+      - name: create test environment with conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: seabreeze_tes
+          environment-file: test/unit_tests/environment.yml
+          auto-activate-base: false
+
+      - name: check solution
+        run: |
+          conda env export
+
+      - name: Run unit tests with pytest
+        run: |
+          pytest test/unit_tests/*.py
+        shell: bash -l {0}
