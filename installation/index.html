@@ -94,11 +94,11 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#installation_1" class="nav-link">Installation</a>
+            <li class="nav-item" data-bs-level="2"><a href="#recommended-install-via-bioconda" class="nav-link">Recommended: Install via bioconda</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#set-up" class="nav-link">Set up</a>
+            <li class="nav-item" data-bs-level="2"><a href="#install-from-github" class="nav-link">Install from GitHub</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -119,10 +119,21 @@
 <li>A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. </li>
 <li><em>seabreeze</em> requires conda &gt;= 23.3.1 to install python packages and manage environments. We recommend <a href="https://github.com/conda-forge/miniforge">Miniforge</a>, a minimal conda installer that is similar to <a href="https://docs.anaconda.com/miniconda/">Miniconda</a>. </li>
 </ul>
-<h2 id="installation_1">Installation</h2>
-<p><em>seabreeze</em> is a wrapper script for a Snakemake workflow with associated Python scripts. Download the latest release of <em>seabreeze</em> from the <a href="https://github.com/barricklab/seabreeze/releases">Github Repository</a>.</p>
-<h3 id="coming-soon-install-via-bioconda">Coming soon: Install via bioconda</h3>
-<h2 id="set-up">Set up</h2>
+<h2 id="recommended-install-via-bioconda">Recommended: Install via bioconda</h2>
+<p>We recommend creating a dedicated conda environment for seabreeze, to avoid package conflicts. </p>
+<pre><code>conda env create --name seabreeze
+</code></pre>
+<p>Once built, activate the environment:</p>
+<pre><code>conda activate seabreeze
+</code></pre>
+<p>Finally, install the package from bioconda.</p>
+<pre><code>conda install seabreeze-genomics -c bioconda
+</code></pre>
+<p>In case this does not work, try specifying:</p>
+<pre><code>conda install seabreeze-genomics -c conda-forge -c bioconda
+</code></pre>
+<h2 id="install-from-github">Install from GitHub</h2>
+<p>Download the latest release of <em>seabreeze</em> from the [Github Repository](https://github.com/barr&gt;</p>
 <p><em>seabreeze</em> only requires an intial conda environment to be set up. Navigate to the <em>seabreeze</em> diectory and run the following command:</p>
 <pre><code> conda env create --name seabreeze --file environment.yml
 </code></pre>
