@@ -50,15 +50,19 @@ We love pull requests from everyone. To get started, first fork, then clone the 
 conda env create --file test/unit_tests/environment.yml  --name seabreeze_test
 ```
 
-Then activate the environment, and run the unit tests
+Then activate the environment, and run the unit tests. Note that the unit tests should be run from the seabreeze root directory. 
 
 ```
+conda activate seabreeze_test
 pytest test/unit_tests/*.py
 ```
 
-- workflow tests: These test the CLi itself, and ensures that it correctly calls and executes snakemake workflows. These tests can be run from the seabreeze execution environment itself.
+`ISEScan`, one of the dependencies, is not compatible with some ARM-based systems. 
+
+- workflow tests: These test the CLI itself, and ensures that it correctly calls and executes snakemake workflows. These tests can be run from the seabreeze execution environment itself.
 
 ```
+conda activate seabreeze
 pytest test/*.py
 ```
 
