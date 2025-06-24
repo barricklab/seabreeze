@@ -6,7 +6,7 @@ dependencies:
   - biopython=1.84
   - blast=2.16.0
   - isescan=1.7.3
-  - matplotlib-base=3.3.4
+  - matplotlib
   - mummer=3.23
   - numpy=1.26.4
   - pandas=2.0.3
