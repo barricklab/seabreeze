@@ -136,3 +136,9 @@ CreateCondaEnvironmentException:
 The 'mamba' command is not available in the shell /usr/bin/bash that will be used by Snakemake. You have to ensure that it is in your PATH, e.g., first activating the conda base environment with `conda activate base`.The mamba package manager (https://github.com/mamba-org/mamba) is a fast and robust conda replacement. It is the recommended way of using Snakemake's conda integration. It can be installed with `conda install -n base -c conda-forge mamba`. If you still prefer to use conda, you can enforce that by setting `--conda-frontend conda`.
 ```
 
+Another similar conda exception has also been reported, and appending this flag resolves the issue.
+
+```
+error    libmamba Non-conda folder exists at prefix
+critical libmamba Aborting
+```

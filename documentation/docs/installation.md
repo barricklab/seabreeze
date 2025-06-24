@@ -3,6 +3,8 @@
 ## Requirements
 - A UNIX-based operating system (like Linux or MacOS) with bash is recommended. This software has not been tested with the Windows shell. 
 - _seabreeze_ requires conda >= 23.3.1 to install python packages and manage environments. We recommend [Miniforge](https://github.com/conda-forge/miniforge), a minimal conda installer that is similar to [Miniconda](https://docs.anaconda.com/miniconda/). 
+- `ISEScan`, one of the dependencies, is not compatible with some ARM-based systems, and users may face issues.
+
 
 ## Recommended: Install via bioconda
 
