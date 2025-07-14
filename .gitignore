@@ -1,13 +1,8 @@
-bin/scripts/__pycache__
 .snakemake/
 aux/
-bin/__pycache__/
-bin/scripts/plotsr/test/__pycache__/
 data/
 documentation/site/
 sandbox/
-test/__pycache__/
-bin/scripts/__pycache__/*
 documentation/docs/.obsidian/
 JOSS/.obsidian
 tmp/
@@ -17,7 +12,4 @@ test/seabreeze_run_test/data.csv
 test/seabreeze_run_test/logs/
 test/seabreeze_run_test/ori_dif_sequences.csv
 src/seabreeze.egg-info/
-src/seabreeze/__pycache__/
-src/seabreeze/plotsr/__pycache__
-src/__pycache__/
-src/seabreeze/plotsr/plotsr/scripts/__pycache__
+__pycache__
