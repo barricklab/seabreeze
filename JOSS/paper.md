@@ -17,11 +17,11 @@ authors:
     corresponding: true
     affiliation: 1
 affiliations:
-  - name: Department of Molecular Biosciences, The University of Texas at Austin
+  - name: Department of Molecular Biosciences, The University of Texas at Austin, Austin, Texas, United States of America
     index: 1
-  - name: School of Biology, Indian Institute of Science Education and Research, Thiruvananthapuram
+  - name: School of Biology, Indian Institute of Science Education and Research, Thiruvananthapuram, Kerala, India
     index: 2
-  - name: Department of Integrative Biology, The University of Texas at Austin
+  - name: Department of Integrative Biology, The University of Texas at Austin, Austin, Texas, United States of America
     index: 3
 date: 31 January 2025
 bibliography: paper.bib
