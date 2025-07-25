@@ -1,5 +1,5 @@
 ---
-title: '*seabreeze*: A Pipeline for Analyzing Structural Variation Between Bacterial Genome Assemblies'
+title: 'seabreeze: A Pipeline for Analyzing Structural Variation Between Bacterial Genome Assemblies'
 tags:
   - structural variation
   - experimental evolution

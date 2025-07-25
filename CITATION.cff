@@ -1,0 +1,44 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Zibbu
+  given-names: Ira
+  orcid: "https://orcid.org/0009-0003-3930-5397"
+- family-names: Wilke
+  given-names: Claus O.
+  orcid: "https://orcid.org/0000-0002-7470-9261"
+- family-names: Barrick
+  given-names: Jeffrey E.
+  orcid: "https://orcid.org/0000-0003-0888-7358"
+contact:
+- family-names: Barrick
+  given-names: Jeffrey E.
+  orcid: "https://orcid.org/0000-0003-0888-7358"
+doi: 10.5281/zenodo.15994089
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Zibbu
+    given-names: Ira
+    orcid: "https://orcid.org/0009-0003-3930-5397"
+  - family-names: Wilke
+    given-names: Claus O.
+    orcid: "https://orcid.org/0000-0002-7470-9261"
+  - family-names: Barrick
+    given-names: Jeffrey E.
+    orcid: "https://orcid.org/0000-0003-0888-7358"
+  date-published: 2025-07-24
+  doi: 10.21105/joss.08065
+  issn: 2475-9066
+  issue: 111
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 8065
+  title: "seabreeze: A Pipeline for Analyzing Structural Variation
+    Between Bacterial Genome Assemblies"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.08065"
+  volume: 10
+title: "seabreeze: A Pipeline for Analyzing Structural Variation
+  Between Bacterial Genome Assemblies"
