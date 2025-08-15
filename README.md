@@ -15,6 +15,10 @@ _seabreeze_ is a tool for comprehensively analyzing genetic variation among bact
 
 Please refer to the [official documentation](https://barricklab.github.io/seabreeze) for information on installation and usage.
 
+If you use _seabreeze_, please cite 
+
+> Zibbu et al., (2025). seabreeze: A Pipeline for Analyzing Structural Variation Between Bacterial Genome Assemblies. Journal of Open Source Software, 10(111), 8065, https://doi.org/10.21105/joss.08065
+ 
 _seabreeze_ was developed at the [Barrick Lab](https://barricklab.org/twiki/bin/view/Lab) at the University of Texas at Austin. 
 
 Have a question, issue to report, feature to request or code to contribute? Please see the [contributions](https://github.com/barricklab/seabreeze/blob/main/contributing.md).
