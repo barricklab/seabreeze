@@ -2,6 +2,8 @@
 ![workflow](https://github.com/barricklab/seabreeze/actions/workflows/ci.yaml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Latest release](https://badgen.net/github/release/Naereen/Strapdown.js)](https://github.com/barricklab/seabreeze/releases)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/seabreeze-genomics/badges/platforms.svg)](https://anaconda.org/bioconda/seabreeze-genomics)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/seabreeze-genomics/badges/version.svg)](https://anaconda.org/bioconda/seabreeze-genomics)
 
 _seabreeze_ is a tool for comprehensively analyzing genetic variation among bacterial genomes caused by structural mutations. It manages a workflow that combines existing packages and custom scripts to automate and unite several analyses into a single, easy-to-use pipeline. For specified pairs of bacterial genomes, it can:
 
