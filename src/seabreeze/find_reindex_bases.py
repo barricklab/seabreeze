@@ -60,7 +60,7 @@ def find_smallest_unique_k_mer(fasta):
     ''' Finds the smallest k-mer starting at from the 1st base of the sequence that is unique '''
 
     min_k_value = 10 # this value is arbitrary but comes from my experience with E. coli genomes
-    max_k_value = 100 # see above comment
+    max_k_value = 5000 # see above comment
 
     k_mer_found = False
     for n in range(min_k_value,max_k_value):
