@@ -23,7 +23,7 @@ from Bio import SeqIO
 from src.seabreeze.reindex_assembly import reindex_circular_sequence
 
 ltee_test_data = "test/data/Ara-5_75000gen_A_ori.1.fasta"
-reindex_bases = "AGCTTTTCATTC"
+reindex_bases = "TATTTATTTAGAGATCTGTTCTATTGTGAT"
 
 
 def test_reindexing_ltee_genome():
