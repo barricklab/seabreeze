@@ -32,10 +32,11 @@ def test_reindexing_ltee_genome():
     so that it starts at the requested conserved sequence.
     """
     record = SeqIO.read(ltee_test_data, "fasta")
+    input = "/path/to/myfile"
 
     reindexed_record = reindex_circular_sequence(
         record,
-        reindex_bases,
+        reindex_bases,input
     )
 
     # Sequence now starts at the requested motif
