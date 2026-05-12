@@ -62,20 +62,23 @@ def check_k_mer_unique(fasta, k_mer):
         return True
 
 
-def find_smallest_unique_k_mer(fasta):
+def find_smallest_unique_k_mer(subject,query):
     """Finds the smallest k-mer starting at from the 1st base of the sequence that is unique"""
 
     min_k_value = (
         10  # this value is arbitrary but comes from my experience with E. coli genomes
     )
-    max_k_value = 5000  # see above comment
+    max_k_value = 10000  # see above comment
 
     k_mer_found = False
     for n in range(min_k_value, max_k_value):
-        k_mer = fasta[0:n].seq
-        if check_k_mer_unique(fasta, k_mer):
+        k_mer = subject[0:n].seq
+        print(f"Testing {k_mer}...")
+        if check_k_mer_unique(query, k_mer):
             k_mer_found = True
+            print(f"Unique k_mer found!")
             return k_mer
+        print(f"Not unique!")
 
     if not (k_mer_found):
         raise Exception("No unique k-mer found. Please manually specify a sequence")
@@ -83,10 +86,10 @@ def find_smallest_unique_k_mer(fasta):
 
 def main(subject_path, query_path, output):
     subject, query = load_test_fasta_files(subject_path, query_path)
-    k_mer = find_smallest_unique_k_mer(subject)
+    k_mer = find_smallest_unique_k_mer(subject,query)
     if check_k_mer_unique(query, k_mer):
         print(
-            f"The smallest k-mer unique in both subject and query is {len(k_mer)} with sequence {k_mer}"
+            f"The smallest k-mer unique in {subject_path} and {query_path} is {len(k_mer)} with sequence {k_mer}"
         )
     with open(output, "w") as file:
         file.write(str(k_mer))

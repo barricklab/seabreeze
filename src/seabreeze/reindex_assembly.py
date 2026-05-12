@@ -35,7 +35,7 @@ def verify_unique_reindex_bases(sequence, reindex_bases, record_id):
     return True
 
 
-def reindex_circular_sequence(record, reindex_bases):
+def reindex_circular_sequence(record, reindex_bases, input):
     """
     Rotate a circular sequence so it starts at reindex_bases.
 
@@ -49,6 +49,14 @@ def reindex_circular_sequence(record, reindex_bases):
     verify_unique_reindex_bases(seq_str, query, record.id)
 
     start_pos = seq_str.find(query)
+
+    print(f"Sequence {query} found in {input} at location {start_pos}")
+
+    # skip reindexing if the sequence starts at 0
+
+    if start_pos==0:
+        print(f"Sequence already starts at specified bases. Skipping. No change required")
+        return record
 
     # Circular rotation
     rotated_seq = seq_str[start_pos:] + seq_str[:start_pos]
@@ -92,7 +100,7 @@ def main():
     for record in SeqIO.parse(args.input, args.filetype):
         rotated_record = reindex_circular_sequence(
             record,
-            args.reindex_bases,
+            args.reindex_bases, args.input
         )
         modified_records.append(rotated_record)
 

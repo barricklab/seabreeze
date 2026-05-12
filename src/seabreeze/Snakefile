@@ -101,38 +101,21 @@ rule annotate_SV_regions_masked:
 # ---- INDIVIDUAL RULES ----
 
 # find unique bases at the start of the subject sequence to reindex the query sequence to
+# This new combined rule finds reindex bases and reindexes the FASTA files
 
-rule find_reindex_bases:
+rule auto_rotate_assembly:
     conda:
         "{}/workflow/envs/biopython.yml".format(workflow.basedir)
     input:
-        query_path = "02_genomes/{sample}.fasta", # path to the assembly
-        subject_path = lambda wildcards: "02_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly its being compared to
-        script = "{}/find_reindex_bases.py".format(workflow.basedir)
-    output:
-        "03_reindex_genomes/reindex_bases_{sample}.txt"
-    log:
-        "logs/find_reindex_bases/{sample}.log"
-    shell:
-        '''
-        python {input.script} --subject {input.subject_path} --query {input.query_path} --output {output} > {log} 2>&1
-        '''
-
-#reindex the fasta files to a common sequence to make comparison easier
-
-rule reindex_contigs:
-    conda:
-        "{}/workflow/envs/biopython.yml".format(workflow.basedir)
-    input:
-        fasta = "02_genomes/{sample}.fasta",
-        bases = "03_reindex_genomes/reindex_bases_{sample}.txt",
-        script = "{}/reindex_assembly.py".format(workflow.basedir)
+        query_path = "02_genomes/{sample}.fasta",
+        subject_path = lambda wildcards: "02_genomes/{}.fasta".format(assembly_to_ancestor_dict[wildcards.sample]), # path to the assembly of the ancestor its being >
+        script = "{}/auto_rotate_assembly.py".format(workflow.basedir)
     output:
        "03_reindex_genomes/{sample}.fasta"
     log:
-        "logs/reindex_contigs/{sample}.log"
+        "logs/auto_rotate_assembly/{sample}.log"
     shell:
-       "python {input.script} -b $(cat {input.bases})  -i {input.fasta} -o {output} -t fasta > {log} 2>&1"
+       "python {input.script} --subject {input.subject_path} --query {input.query_path} --output {output} > {log} 2>&1"
 
 # rename all the FASTA headers to "genome"
 # this step is needed for SyRI which will only carry out variant calling for two sequence with the same header

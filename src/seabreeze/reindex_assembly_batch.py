@@ -12,8 +12,11 @@ import os
 import pandas as pd
 import numpy as np
 import argparse
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 from replichore_arms_analyse import get_sequence
-from reindex_assembly import reindex_fasta
+from reindex_assembly import reindex_circular_sequence
 from fasta_stats import read_data
 
 
@@ -39,7 +42,23 @@ def main(folder,data,sequences,output):
         file_name=f"{name}.fasta" # output file name
         file_out=os.path.join(output,file_name)
         oric=get_sequence(sequences_df, assembly_to_ancestor_dict[name],'ori')
-        reindex_fasta(file_in, file_out, oric)
+        #reindex_fasta(file_in, file_out, oric)
+        # Now rotate the sequences
+
+        modified_records = []
+
+        for record in SeqIO.parse(file_in,"fasta"):
+            rotated_record = reindex_circular_sequence(
+                record,
+                oric, file_in
+            )
+            modified_records.append(rotated_record)
+
+        SeqIO.write(
+            modified_records,
+            file_out,
+            "fasta",
+        )
 
 if __name__ == "__main__":
 	args = parser.parse_args()
